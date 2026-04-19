@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#8aa3ff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Zhuxin" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <title>Zhuxin — Premium Web Demo</title>
+  <style>
+    :root{
+      --bg:#08101f;
+      --bg2:#0d1730;
+      --panel:rgba(255,255,255,.06);
+      --panel-2:rgba(255,255,255,.04);
+      --line:rgba(255,255,255,.10);
+      --text:#f6f8ff;
+      --muted:#b8c3dd;
+      --muted2:#8d99b6;
+      --accent:#8aa3ff;
+      --accent2:#59d0ff;
+      --ok:#36d399;
+      --warn:#f4b740;
+      --danger:#fb7185;
+      --shadow:0 18px 60px rgba(0,0,0,.32);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:radial-gradient(circle at top left, rgba(138,163,255,.25), transparent 30%),radial-gradient(circle at top right, rgba(89,208,255,.18), transparent 28%),linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100%}
+    a{text-decoration:none;color:inherit}
+    .app{max-width:1280px;margin:0 auto;padding:22px}
+    .topbar{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 30px rgba(92,140,255,.3);display:grid;place-items:center;font-weight:800;color:#08101f}
+    .brand h1{font-size:28px;margin:0}
+    .sub{color:var(--muted);font-size:14px;margin-top:2px}
+    .pills{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);backdrop-filter:blur(10px);font-size:13px;color:var(--muted)}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-bottom:18px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:32px;box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+    .hero-main{padding:28px}
+    .hero-main h2{font-size:42px;line-height:1.08;margin:0 0 12px}
+    .hero-main p{font-size:16px;line-height:1.7;color:var(--muted);max-width:740px}
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+    .btn{border:none;border-radius:18px;padding:14px 18px;font-weight:700;cursor:pointer;transition:.2s transform,.2s opacity,.2s background}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:#fff;color:#0a1327}
+    .btn.secondary{background:var(--panel-2);color:#fff;border:1px solid var(--line)}
+    .hero-side{padding:20px;display:grid;gap:12px}
+    .stat{background:var(--panel-2);border:1px solid var(--line);border-radius:22px;padding:16px}
+    .stat .k{font-size:28px;font-weight:800}
+    .stat .l{color:var(--muted);font-size:13px;margin-top:4px}
+    .shell{display:grid;grid-template-columns:280px 1fr;gap:18px}
+    .sidebar{padding:16px;position:sticky;top:14px;height:fit-content}
+    .workspace{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .workspace .btn{padding:12px 16px;border-radius:16px}
+    .search{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:14px 14px;color:#fff;outline:none}
+    .section-title{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);margin:16px 4px 8px}
+    .nav{display:grid;gap:8px}
+    .nav button{all:unset;display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-radius:16px;border:1px solid transparent;color:var(--muted);cursor:pointer}
+    .nav button:hover{background:var(--panel-2)}
+    .nav button.active{background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));border-color:var(--line);color:#fff}
+    .main{display:grid;gap:18px}
+    .panel{padding:20px}
+    .panel h3{margin:0 0 8px;font-size:28px}
+    .panel p.lead{margin:0;color:var(--muted);line-height:1.7}
+    .grid{display:grid;gap:14px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .tool{background:var(--panel-2);border:1px solid var(--line);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:10px}
+    .tool .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .icon{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,rgba(138,163,255,.22),rgba(89,208,255,.16));border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:#dbe4ff}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
+    .badge.ok{color:#d8fff0;background:rgba(54,211,153,.12);border-color:rgba(54,211,153,.25)}
+    .badge.warn{color:#ffefc8;background:rgba(244,183,64,.13);border-color:rgba(244,183,64,.25)}
+    .badge.premium{color:#e9dbff;background:rgba(177,107,255,.14);border-color:rgba(177,107,255,.25)}
+    .checklist,.list{display:grid;gap:10px;margin-top:14px}
+    .list-item{background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:14px;color:var(--muted);line-height:1.6}
+    .upload-box{border:1px dashed rgba(255,255,255,.18);border-radius:28px;padding:26px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));text-align:center}
+    .upload-box .big{font-size:18px;font-weight:700;margin:14px 0 8px}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mini{background:var(--panel-2);border:1px solid var(--line);border-radius:18px;padding:14px}
+    .mini .t{font-size:12px;color:var(--muted2)}
+    .mini .v{margin-top:6px;font-size:18px;font-weight:800}
+    .feature-table{display:grid;gap:10px;margin-top:16px}
+    .row{display:grid;grid-template-columns:1.2fr .7fr .7fr;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+    .row > div{padding:14px;background:var(--panel-2)}
+    .row > div:not(:first-child){border-left:1px solid var(--line)}
+    .row.head > div{background:rgba(255,255,255,.08);font-weight:800;color:#fff}
+    .notice{padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
+    .notice.warn{background:rgba(244,183,64,.13);border-color:rgba(244,183,64,.22);color:#ffe8b0}
+    .notice.ok{background:rgba(54,211,153,.12);border-color:rgba(54,211,153,.22);color:#d8fff0}
+    .footer{padding:18px;text-align:center;color:var(--muted2);font-size:13px}
+    .hidden{display:none !important}
+    @media (max-width:1000px){
+      .hero,.shell,.grid.two,.grid.three{grid-template-columns:1fr}
+      .sidebar{position:static}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">Z</div>
+        <div>
+          <h1>Zhuxin</h1>
+          <div class="sub">Bangladesh Legal Workflow Platform — Premium single-file demo</div>
+        </div>
+      </div>
+      <div class="pills">
+        <div class="pill">Web-first MVP</div>
+        <div class="pill">Phone-openable</div>
+        <div class="pill">Public + Chamber</div>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="card hero-main">
+        <h2>Better UI. More features. Still just one file.</h2>
+        <p>
+          This is a richer Zhuxin demo built for your phone. It shows the main product idea more clearly:
+          title-chain workflow, inheritance support, basic notices, lawyer verification, chamber drafting,
+          review tables, and billing logic — all inside a single browser-openable file.
+        </p>
+        <div class="cta-row">
+          <button class="btn primary" onclick="openSection('dashboard')">Open dashboard</button>
+          <button class="btn secondary" onclick="openSection('billing')">See plans</button>
+        </div>
+      </div>
+      <div class="card hero-side">
+        <div class="stat"><div class="k">8</div><div class="l">Core demo modules</div></div>
+        <div class="stat"><div class="k">2</div><div class="l">Workspaces: Public and Chamber</div></div>
+        <div class="stat"><div class="k">PDF / DOCX</div><div class="l">Governed export concept included</div></div>
+      </div>
+    </section>
+
+    <section class="shell">
+      <aside class="card sidebar">
+        <div class="workspace">
+          <button id="ws-public" class="btn primary" onclick="setWorkspace('public')">Public</button>
+          <button id="ws-chamber" class="btn secondary" onclick="setWorkspace('chamber')">Chamber</button>
+        </div>
+        <input id="searchBox" class="search" placeholder="Search modules" oninput="filterNav()" />
+
+        <div class="section-title">Public tools</div>
+        <div class="nav" id="nav-public">
+          <button data-label="dashboard" class="active" onclick="openSection('dashboard')"><span>Dashboard</span><span>→</span></button>
+          <button data-label="title chain land records" onclick="openSection('title-chain')"><span>Title Chain</span><span>→</span></button>
+          <button data-label="inheritance heirs muslim distribution" onclick="openSection('inheritance')"><span>Inheritance</span><span>→</span></button>
+          <button data-label="basic notice legal letter" onclick="openSection('notice')"><span>Basic Notice</span><span>→</span></button>
+          <button data-label="lawyer verification export" onclick="openSection('verification')"><span>Lawyer Verification</span><span>→</span></button>
+          <button data-label="billing plans subscriptions" onclick="openSection('billing')"><span>Billing</span><span>→</span></button>
+        </div>
+
+        <div class="section-title">Chamber tools</div>
+        <div class="nav hidden" id="nav-chamber">
+          <button data-label="dashboard chamber" onclick="openSection('dashboard')"><span>Dashboard</span><span>→</span></button>
+          <button data-label="draft studio chamber pleading" onclick="openSection('draft-studio')"><span>Draft Studio</span><span>→</span></button>
+          <button data-label="review table title chain contracts" onclick="openSection('review-tables')"><span>Review Tables</span><span>→</span></button>
+          <button data-label="verification queue advocate" onclick="openSection('verification')"><span>Verification Queue</span><span>→</span></button>
+          <button data-label="billing plans subscriptions" onclick="openSection('billing')"><span>Billing</span><span>→</span></button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section id="dashboard" class="card panel section">
+          <h3>Dashboard</h3>
+          <p class="lead">A cleaner Zhuxin home with more complete product direction. Switch workspaces from the left to see Public and Chamber views.</p>
+          <div class="grid three" style="margin-top:18px">
+            <div class="tool">
+              <div class="head"><div class="icon">TC</div><div class="badge">Most used</div></div>
+              <strong>Title Chain</strong>
+              <div style="color:var(--muted)">Find record continuity problems from CS to the latest khatian/deed chain.</div>
+            </div>
+            <div class="tool">
+              <div class="head"><div class="icon">IN</div><div class="badge">Public</div></div>
+              <strong>Inheritance</strong>
+              <div style="color:var(--muted)">Structured heir input, shares preview, disclaimer, then verification path.</div>
+            </div>
+            <div class="tool">
+              <div class="head"><div class="icon">RV</div><div class="badge premium">Premium</div></div>
+              <strong>Verification</strong>
+              <div style="color:var(--muted)">Send outputs to an advocate panel and unlock governed export after signoff.</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="title-chain" class="card panel section hidden">
+          <h3>Title Chain Review</h3>
+          <p class="lead">Upload land papers, classify them, detect gaps, and flag weak continuity before the user relies on the result.</p>
+          <div class="grid two" style="margin-top:18px">
+            <div class="upload-box">
+              <div class="icon" style="margin:0 auto">↑</div>
+              <div class="big">Upload CS / SA / RS / BRS / Mutation / Deed</div>
+              <div style="color:var(--muted)">Zhuxin should classify each file, ask for missing documents, and block analysis until the structure is confirmed.</div>
+            </div>
+            <div class="checklist">
+              <div class="notice ok">Old baseline record available</div>
+              <div class="notice">Latest record should be attached</div>
+              <div class="notice warn">Mutation copy often becomes a weak link and should be verified</div>
+              <div class="notice">Editable export should stay locked until lawyer verification</div>
+            </div>
+          </div>
+          <div class="grid two" style="margin-top:14px">
+            <div class="list-item">Typical risks: missing RS→BRS continuity, deed chain mismatch, mutation inconsistency, blurry scans, wrong dag references.</div>
+            <div class="list-item">Typical strengths: old record present, latest record present, deed chain present, schedule/map attached, no major contradictions found.</div>
+          </div>
+        </section>
+
+        <section id="inheritance" class="card panel section hidden">
+          <h3>Inheritance Review</h3>
+          <p class="lead">A guided inheritance module for heir details, share preview, lawyer disclaimer, and chamber verification later.</p>
+          <div class="grid two" style="margin-top:18px">
+            <div class="list">
+              <div class="list-item">Take deceased person details</div>
+              <div class="list-item">Take heir list and supporting facts</div>
+              <div class="list-item">Show distribution preview with clear assumptions</div>
+              <div class="list-item">Let a lawyer verify before final office-ready export</div>
+            </div>
+            <div class="notice warn">Important: if the user-provided facts are incomplete or false, the inheritance result can be wrong. Verified output should state that clearly.</div>
+          </div>
+        </section>
+
+        <section id="notice" class="card panel section hidden">
+          <h3>Basic Notice</h3>
+          <p class="lead">A guided simple-notice generator for the public side. Complex or risky matters should still move into chamber review.</p>
+          <div class="grid two" style="margin-top:18px">
+            <div class="list">
+              <div class="list-item">Sender and receiver details</div>
+              <div class="list-item">Short facts</div>
+              <div class="list-item">Basic notice draft</div>
+              <div class="list-item">Optional lawyer verification path</div>
+            </div>
+            <div class="notice">Unverified notices should export only as disclaimer-bound locked PDF.</div>
+          </div>
+        </section>
+
+        <section id="verification" class="card panel section hidden">
+          <h3>Verification & Governed Export</h3>
+          <p class="lead">This is one of Zhuxin’s trust layers. Generated content should not quietly behave like a final legal document.</p>
+          <div class="grid two" style="margin-top:18px">
+            <div class="tool">
+              <div class="head"><div class="icon">U</div><div class="badge warn">Unverified</div></div>
+              <strong>Locked PDF only</strong>
+              <div style="color:var(--muted)">Mandatory disclaimer. No editable DOCX. Clear warning that a lawyer has not signed off.</div>
+            </div>
+            <div class="tool">
+              <div class="head"><div class="icon">V</div><div class="badge ok">Verified</div></div>
+              <strong>PDF + DOCX</strong>
+              <div style="color:var(--muted)">Show advocate name, enrollment id, chamber info, date, and digital signoff block.</div>
+            </div>
+          </div>
+          <div class="notice" style="margin-top:14px">Bangla final printable output should use Nikosh in the production renderer.</div>
+        </section>
+
+        <section id="billing" class="card panel section hidden">
+          <h3>Billing & Plans</h3>
+          <p class="lead">Public and Chamber plans stay separate. Paid access should unlock quotas, premium tools, and reduced verification fees where applicable.</p>
+          <div class="feature-table">
+            <div class="row head"><div>Feature</div><div>Public Plus</div><div>Chamber Pro</div></div>
+            <div class="row"><div>Title-chain usage</div><div>Higher quota</div><div>Full chamber scale</div></div>
+            <div class="row"><div>Verification discount</div><div>Yes</div><div>Not the main focus</div></div>
+            <div class="row"><div>Review tables</div><div>No</div><div>Yes</div></div>
+            <div class="row"><div>Multi-agent drafting</div><div>No</div><div>Yes</div></div>
+            <div class="row"><div>Deep research</div><div>No</div><div>Yes</div></div>
+          </div>
+          <div class="mini-grid" style="margin-top:14px">
+            <div class="mini"><div class="t">Public Plus</div><div class="v">৳ 799 / month</div></div>
+            <div class="mini"><div class="t">Chamber Pro</div><div class="v">৳ 14999 / month</div></div>
+          </div>
+        </section>
+
+        <section id="draft-studio" class="card panel section hidden">
+          <h3>Chamber Draft Studio</h3>
+          <p class="lead">A matter-aware drafting workspace for chambers. Civil/property, criminal, family, and corporate matters should not all behave the same.</p>
+          <div class="grid two" style="margin-top:18px">
+            <div class="tool">
+              <div class="head"><div class="icon">PL</div><div class="badge">Civil / Property</div></div>
+              <strong>Relief-aware pleading</strong>
+              <div style="color:var(--muted)">Strongest fit for plaint, WS, title-chain-linked drafting, and structured prayers.</div>
+            </div>
+            <div class="tool">
+              <div class="head"><div class="icon">CP</div><div class="badge">Corporate</div></div>
+              <strong>Clause-aware review</strong>
+              <div style="color:var(--muted)">Better for contracts, notices, opinions, and compliance-style advisory work.</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="review-tables" class="card panel section hidden">
+          <h3>Review Tables</h3>
+          <p class="lead">Review tables are a big part of what makes Zhuxin feel structured instead of generic.</p>
+          <div class="grid two" style="margin-top:18px">
+            <div class="tool">
+              <div class="head"><div class="icon">RT</div><div class="badge">Title Chain</div></div>
+              <strong>Issue rows</strong>
+              <div style="color:var(--muted)">Source, issue, severity, confidence, status, and next step.</div>
+            </div>
+            <div class="tool">
+              <div class="head"><div class="icon">VR</div><div class="badge warn">Escalation</div></div>
+              <strong>Verification routing</strong>
+              <div style="color:var(--muted)">Critical and major rows should push the matter into verification before export.</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <div class="footer">Zhuxin premium single-file demo • built to open directly in Chrome on your phone</div>
+  </div>
+
+  <script>
+    let workspace = 'public';
+    function setWorkspace(kind){
+      workspace = kind;
+      document.getElementById('ws-public').className = 'btn ' + (kind === 'public' ? 'primary' : 'secondary');
+      document.getElementById('ws-chamber').className = 'btn ' + (kind === 'chamber' ? 'primary' : 'secondary');
+      document.getElementById('nav-public').classList.toggle('hidden', kind !== 'public');
+      document.getElementById('nav-chamber').classList.toggle('hidden', kind !== 'chamber');
+      openSection('dashboard');
+      filterNav();
+    }
+    function openSection(id){
+      document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+      const target = document.getElementById(id);
+      if(target) target.classList.remove('hidden');
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      const activeNavs = document.querySelectorAll((workspace === 'public' ? '#nav-public' : '#nav-chamber') + ' button');
+      activeNavs.forEach(btn => {
+        const label = btn.textContent.toLowerCase();
+        if ((id === 'title-chain' && label.includes('title chain')) ||
+            (id === 'inheritance' && label.includes('inheritance')) ||
+            (id === 'notice' && label.includes('basic notice')) ||
+            (id === 'verification' && label.includes('verification')) ||
+            (id === 'billing' && label.includes('billing')) ||
+            (id === 'draft-studio' && label.includes('draft studio')) ||
+            (id === 'review-tables' && label.includes('review tables')) ||
+            (id === 'dashboard' && label.includes('dashboard'))) {
+          btn.classList.add('active');
+        }
+      });
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function filterNav(){
+      const q = document.getElementById('searchBox').value.trim().toLowerCase();
+      document.querySelectorAll('.nav button').forEach(btn => {
+        const text = (btn.getAttribute('data-label') || btn.textContent || '').toLowerCase();
+        btn.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    }
+    setWorkspace('public');
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
+</body>
+</html>
