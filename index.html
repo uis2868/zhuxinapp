@@ -1,1008 +1,405 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link rel="manifest" href="./manifest.json"/>
-<meta name="theme-color" content="#8aa3ff"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Zhuxin"/>
-<link rel="apple-touch-icon" href="/icon-192.png"/>
-<title>Zhuxin — Bangladesh Legal Workflow Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<style>
-:root{
-  --bg:#08101f;
-  --bg2:#0d1730;
-  --bg3:#111f3a;
-  --panel:rgba(255,255,255,.06);
-  --panel2:rgba(255,255,255,.10);
-  --border:rgba(255,255,255,.10);
-  --accent:#8aa3ff;
-  --accent2:#5b7bff;
-  --green:#3ecf8e;
-  --yellow:#f5c842;
-  --red:#ff6b6b;
-  --text:#e8edf8;
-  --muted:#7a8db0;
-  --r:14px;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
-
-/* ── NAV ── */
-#topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,16,31,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
-#topbar .logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent);letter-spacing:.5px}
-#topbar .ws-toggle{display:flex;background:var(--panel);border-radius:8px;overflow:hidden}
-#topbar .ws-toggle button{border:none;background:none;color:var(--muted);padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:.2s}
-#topbar .ws-toggle button.active{background:var(--accent);color:#fff}
-
-/* ── BOTTOM NAV ── */
-#bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(8,16,31,.95);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;padding:4px 0;cursor:pointer;transition:.2s}
-.bnav-btn svg{width:20px;height:20px}
-.bnav-btn.active{color:var(--accent)}
-
-/* ── MAIN ── */
-#main{padding:70px 0 80px;min-height:100vh}
-.page{display:none;padding:16px}
-.page.active{display:block}
-
-/* ── COMPONENTS ── */
-.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
-.card h3{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:6px}
-.card p{color:var(--muted);font-size:13px;line-height:1.6}
-
-.section-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:20px 0 8px}
-
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;width:100%}
-.btn-primary{background:var(--accent2);color:#fff}
-.btn-primary:hover{background:var(--accent)}
-.btn-outline{background:none;border:1px solid var(--border);color:var(--text)}
-.btn-green{background:var(--green);color:#fff}
-.btn-sm{padding:8px 14px;font-size:13px;width:auto;border-radius:8px}
-
-.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-blue{background:rgba(138,163,255,.15);color:var(--accent)}
-.badge-green{background:rgba(62,207,142,.15);color:var(--green)}
-.badge-yellow{background:rgba(245,200,66,.15);color:var(--yellow)}
-.badge-red{background:rgba(255,107,107,.15);color:var(--red)}
-
-.input{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:.2s}
-.input:focus{border-color:var(--accent)}
-textarea.input{resize:vertical;min-height:90px}
-select.input option{background:var(--bg2);color:var(--text)}
-label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;margin-top:12px}
-
-.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
-.stat-box .num{font-family:'DM Serif Display',serif;font-size:28px;color:var(--accent)}
-.stat-box .lbl{font-size:11px;color:var(--muted);margin-top:2px}
-
-.progress-bar{height:5px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-top:6px}
-.progress-bar-fill{height:100%;border-radius:3px;background:var(--accent2);transition:width .5s}
-
-/* ── WIZARD ── */
-.wizard-steps{display:flex;gap:6px;margin-bottom:20px}
-.wizard-step{flex:1;height:4px;border-radius:2px;background:var(--panel2)}
-.wizard-step.done{background:var(--green)}
-.wizard-step.active{background:var(--accent)}
-
-/* ── RESULT CARD ── */
-.result-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
-.result-card .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.result-card h4{font-family:'DM Serif Display',serif;font-size:15px}
-
-/* ── LIST ITEM ── */
-.list-item{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-.list-item .icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.list-item .info{flex:1}
-.list-item .info .name{font-size:14px;font-weight:500}
-.list-item .info .sub{font-size:12px;color:var(--muted);margin-top:2px}
-.list-item .arrow{color:var(--muted);font-size:18px}
-
-/* ── PLAN CARD ── */
-.plan-card{background:var(--panel);border:2px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;transition:.2s}
-.plan-card.current{border-color:var(--accent)}
-.plan-card .plan-name{font-family:'DM Serif Display',serif;font-size:18px}
-.plan-card .plan-price{font-size:24px;font-weight:600;color:var(--accent);margin:6px 0}
-.plan-card .plan-price span{font-size:13px;color:var(--muted);font-weight:400}
-.plan-card .plan-features{margin-top:12px;display:flex;flex-direction:column;gap:6px}
-.plan-card .pf{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
-.plan-card .pf.on{color:var(--text)}
-
-/* ── DRAFT STUDIO ── */
-.matter-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.matter-chip{padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:.2s}
-.matter-chip.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
-
-/* ── SPINNER ── */
-.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(138,163,255,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── TOAST ── */
-#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e2d52;color:var(--text);padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:.3s;z-index:999;white-space:nowrap;border:1px solid var(--border)}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ── MODAL ── */
-#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:flex-end}
-#modal-overlay.open{display:flex}
-#modal-box{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto;border:1px solid var(--border)}
-#modal-box h2{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:4px}
-#modal-box p{color:var(--muted);font-size:13px;margin-bottom:16px}
-
-.divider{height:1px;background:var(--border);margin:16px 0}
-
-.hero-tag{display:inline-block;background:rgba(138,163,255,.1);border:1px solid rgba(138,163,255,.2);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:12px;margin-bottom:12px}
-
-.ai-thinking{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:16px;background:var(--panel);border-radius:12px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#06090f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Zhuxin" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <title>Zhuxin — Legal Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#06090f;
+      --surface:#0d1428;
+      --surface-2:#131d36;
+      --border:rgba(255,255,255,.07);
+      --gold:#f5c842;
+      --gold-2:#e8a830;
+      --gold-3:#a87420;
+      --gold-glow:rgba(245,200,66,.15);
+      --teal:#4de8c8;
+      --teal-2:#2ab89a;
+      --teal-glow:rgba(77,232,200,.12);
+      --red:#d94040;
+      --red-glow:rgba(217,64,64,.15);
+      --text:#c8d8f0;
+      --heading:#f0f4ff;
+      --muted:#8899bb;
+      --radius:20px;
+      --radius-sm:14px;
+      --shadow:0 0 24px rgba(245,200,66,.18);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;min-height:100%}
+    body{background-image:radial-gradient(ellipse at 50% 22%, rgba(245,200,66,.06), transparent 60%)}
+    button,input,textarea,select{font:inherit}
+    .app{max-width:520px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg, rgba(6,9,15,.98), rgba(6,9,15,1));position:relative}
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(6,9,15,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:14px 16px 12px}
+    .brand-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .lantern{position:relative;width:42px;height:42px;border-radius:16px;border:1px solid rgba(245,200,66,.25);display:grid;place-items:center;background:radial-gradient(circle at 50% 45%, rgba(245,200,66,.24), rgba(13,20,40,1) 72%);box-shadow:var(--shadow)}
+    .lantern-core{width:22px;height:28px;border-radius:10px;border:2px solid #c76a22;background:linear-gradient(180deg,#f1d66f 0%, #e8a830 100%);display:grid;place-items:center;color:#8f3a12;font-weight:800}
+    .butterfly{position:relative;width:18px;height:14px;display:inline-block}
+    .butterfly:before,.butterfly:after{content:"";position:absolute;top:0;width:8px;height:9px;border:1px solid rgba(77,232,200,.6);background:rgba(77,232,200,.28)}
+    .butterfly:before{left:0;border-radius:70% 30% 55% 45%}
+    .butterfly:after{right:0;border-radius:30% 70% 45% 55%}
+    .brand h1{margin:0;font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--heading)}
+    .brand p{margin:2px 0 0;font-size:11px;color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);font-size:12px}
+    .search{margin-top:12px;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;background:var(--surface);border:1px solid var(--border)}
+    .search input{border:none;outline:none;background:transparent;color:var(--text);width:100%}
+    .search input::placeholder{color:var(--muted)}
+    .page{display:none;padding:18px 16px 108px}
+    .page.active{display:block}
+    .hero{padding:18px;border-radius:26px;background:linear-gradient(180deg, rgba(19,29,54,.94), rgba(13,20,40,.94));border:1px solid var(--border);position:relative;overflow:hidden}
+    .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 10%, rgba(245,200,66,.12), transparent 60%);pointer-events:none}
+    .hero .tag{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(77,232,200,.24);background:rgba(77,232,200,.08);color:var(--teal);font-size:12px;font-weight:700}
+    .hero h2{position:relative;margin:14px 0 8px;font-size:28px;line-height:1.15;color:var(--heading);letter-spacing:-.03em}
+    .hero p{position:relative;margin:0;color:var(--text);font-size:14px;line-height:1.65}
+    .hero-actions{position:relative;display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+    .btn{border:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;transition:.18s transform ease, .18s opacity ease;width:100%}
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:var(--gold);color:#06090f;box-shadow:0 0 24px rgba(245,200,66,.25)}
+    .btn-secondary{background:rgba(255,255,255,.07);color:var(--text);border:1px solid rgba(255,255,255,.12)}
+    .btn-teal{background:rgba(77,232,200,.15);border:1px solid var(--teal);color:var(--teal)}
+    .btn-danger{background:rgba(217,64,64,.15);border:1px solid var(--red);color:#ff9f9f}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .card{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+    .card h3,.section h3{margin:0 0 6px;color:var(--heading);font-size:17px;letter-spacing:-.02em}
+    .card p,.small{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+    .module-card{padding:16px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:left;width:100%;color:inherit;cursor:pointer}
+    .module-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+    .iconbox{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.16);color:var(--gold);font-size:20px}
+    .status{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid}
+    .status.ok{border-color:rgba(77,232,200,.4);background:rgba(77,232,200,.1);color:var(--teal)}
+    .status.warn{border-color:rgba(245,200,66,.35);background:rgba(245,200,66,.1);color:var(--gold)}
+    .status.bad{border-color:rgba(217,64,64,.35);background:rgba(217,64,64,.1);color:#ff9f9f}
+    .section-title{margin:20px 0 10px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .row-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:18px;background:var(--surface-2);border:1px solid var(--border);margin-bottom:10px}
+    .row-left strong{display:block;color:var(--heading);font-size:14px;margin-bottom:4px}
+    .row-left span{color:var(--muted);font-size:12px;line-height:1.5}
+    .doc{position:relative;padding:15px;border-radius:18px;background:var(--surface-2);border:1px solid var(--border);margin-bottom:10px}
+    .doc.verified{border-top:2px solid var(--teal)}
+    .doc.review{border-left:3px solid var(--gold)}
+    .doc.missing{border-left:3px solid var(--red)}
+    .doc h4{margin:0 0 4px;font-size:15px;color:var(--heading)}
+    .doc p{margin:0;color:var(--muted);font-size:12px}
+    .notice-preview{border-radius:22px;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));border:1px solid rgba(245,200,66,.18);padding:16px}
+    .notice-preview .title{display:flex;align-items:center;gap:8px;color:var(--gold);font-size:13px;font-weight:700;margin-bottom:12px}
+    .notice-preview .paper{white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--text)}
+    .split{display:grid;gap:12px}
+    .panel-red{background:rgba(217,64,64,.08);border:1px solid rgba(217,64,64,.18);border-radius:24px;padding:16px}
+    .panel-teal{background:rgba(77,232,200,.08);border:1px solid rgba(77,232,200,.18);border-radius:24px;padding:16px}
+    .plan{border-radius:24px;padding:18px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:12px}
+    .plan.active{border-color:rgba(245,200,66,.45);box-shadow:0 0 24px rgba(245,200,66,.12)}
+    .plan h4{margin:0;color:var(--heading);font-size:18px}
+    .price{margin-top:6px;color:var(--gold);font-size:28px;font-weight:800;letter-spacing:-.02em}
+    .price small{font-size:12px;color:var(--muted);font-weight:500}
+    .progress{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-top:8px}
+    .bar{height:100%;background:var(--teal);border-radius:999px}
+    .field{margin-bottom:12px}
+    .field label{display:block;margin-bottom:6px;font-size:12px;color:var(--muted);font-weight:600}
+    .field input,.field textarea,.field select{width:100%;border:none;outline:none;background:var(--surface-2);color:var(--text);padding:12px 14px;border-radius:16px;border:1px solid var(--border)}
+    .field textarea{min-height:96px;resize:vertical}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,.15)}
+    .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .role{padding:12px 14px;border-radius:16px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-weight:700;text-align:center}
+    .role.active{border-color:var(--gold);background:rgba(245,200,66,.1);color:var(--gold)}
+    .bottomnav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;padding:10px 8px calc(10px + env(safe-area-inset-bottom));background:rgba(13,20,40,.92);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);gap:2px;z-index:40}
+    .nav-btn{background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px;position:relative}
+    .nav-btn .nav-ico{width:34px;height:34px;border-radius:14px;display:grid;place-items:center;border:1px solid transparent;font-size:18px}
+    .nav-btn.active{color:var(--heading)}
+    .nav-btn.active .nav-ico{border-color:rgba(245,200,66,.35);background:rgba(245,200,66,.1);color:var(--gold)}
+    .nav-btn.active:after{content:"";position:absolute;bottom:0;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+    @media (min-width:480px){
+      .split{grid-template-columns:1fr 1fr}
+      .hero-actions .btn{width:auto}
+    }
+  </style>
 </head>
 <body>
-
-<!-- TOP BAR -->
-<div id="topbar">
-  <div class="logo">朱心 Zhuxin</div>
-  <div class="ws-toggle">
-    <button class="active" id="ws-public" onclick="setWS('public')">Public</button>
-    <button id="ws-chamber" onclick="setWS('chamber')">Chamber</button>
-  </div>
-</div>
-
-<!-- PAGES -->
-<div id="main">
-
-  <!-- ═══ DASHBOARD ═══ -->
-  <div class="page active" id="page-home">
-    <div class="hero-tag">Bangladesh Legal Workflow Platform</div>
-    <h1 style="font-family:'DM Serif Display',serif;font-size:26px;line-height:1.3;margin-bottom:8px">Your property matters.<br/>Resolved clearly.</h1>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Title chain · Inheritance · Drafting · Verification</p>
-
-    <div class="stat-row">
-      <div class="stat-box"><div class="num" id="stat-cases">0</div><div class="lbl">Cases this month</div></div>
-      <div class="stat-box"><div class="num" id="stat-docs">0</div><div class="lbl">Documents uploaded</div></div>
-    </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="num" id="stat-drafts">0</div><div class="lbl">Drafts generated</div></div>
-      <div class="stat-box"><div class="num" id="stat-verif">0</div><div class="lbl">Verifications sent</div></div>
-    </div>
-
-    <div class="section-title">Quick actions</div>
-    <div class="list-item" onclick="goIntake()">
-      <div class="icon" style="background:rgba(138,163,255,.12)">📋</div>
-      <div class="info"><div class="name">Start new intake</div><div class="sub">Upload documents · Run title chain</div></div>
-      <div class="arrow">›</div>
-    </div>
-    <div class="list-item" onclick="navTo('drafts')">
-      <div class="icon" style="background:rgba(62,207,142,.12)">✍️</div>
-      <div class="info"><div class="name">Draft Studio</div><div class="sub">Generate pleadings · Notices · Contracts</div></div>
-      <div class="arrow">›</div>
-    </div>
-    <div class="list-item" onclick="navTo('verify')">
-      <div class="icon" style="background:rgba(245,200,66,.12)">🔍</div>
-      <div class="info"><div class="name">Verification Queue</div><div class="sub">Request lawyer review</div></div>
-      <div class="arrow">›</div>
-    </div>
-    <div class="list-item" onclick="navTo('billing')">
-      <div class="icon" style="background:rgba(255,107,107,.12)">💳</div>
-      <div class="info"><div class="name">Billing & Plans</div><div class="sub">Manage your subscription</div></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="section-title" id="chamber-section" style="display:none">Chamber Tools</div>
-    <div class="list-item" id="review-item" style="display:none" onclick="navTo('review')">
-      <div class="icon" style="background:rgba(138,163,255,.12)">📊</div>
-      <div class="info"><div class="name">Review Tables</div><div class="sub">Multi-document structured review</div></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="section-title">Recent activity</div>
-    <div id="recent-list"><p style="color:var(--muted);font-size:13px">No activity yet. Start a new intake to begin.</p></div>
-  </div>
-
-  <!-- ═══ INTAKE WIZARD ═══ -->
-  <div class="page" id="page-intake">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <button onclick="navTo('home')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer">‹</button>
-      <div>
-        <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">New Intake</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:20px" id="wizard-title">Step 1 of 5</h2>
-      </div>
-    </div>
-    <div class="wizard-steps">
-      <div class="wizard-step active" id="ws1"></div>
-      <div class="wizard-step" id="ws2"></div>
-      <div class="wizard-step" id="ws3"></div>
-      <div class="wizard-step" id="ws4"></div>
-      <div class="wizard-step" id="ws5"></div>
-    </div>
-    <div id="wizard-body"></div>
-  </div>
-
-  <!-- ═══ TITLE CHAIN RESULT ═══ -->
-  <div class="page" id="page-result">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <button onclick="navTo('home')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer">‹</button>
-      <div>
-        <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Analysis Complete</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:20px">Title Chain Result</h2>
-      </div>
-    </div>
-    <div id="result-body"></div>
-  </div>
-
-  <!-- ═══ DRAFT STUDIO ═══ -->
-  <div class="page" id="page-drafts">
-    <div style="margin-bottom:20px">
-      <div class="hero-tag">AI-Powered</div>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:22px">Draft Studio</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px">Generate legal documents for Bangladesh courts</p>
-    </div>
-    <div class="section-title">Matter type</div>
-    <div class="matter-chips">
-      <button class="matter-chip active" onclick="selectMatter(this,'Civil / Property')">Civil / Property</button>
-      <button class="matter-chip" onclick="selectMatter(this,'Corporate')">Corporate</button>
-      <button class="matter-chip" onclick="selectMatter(this,'Criminal')">Criminal</button>
-      <button class="matter-chip" onclick="selectMatter(this,'Family')">Family</button>
-      <button class="matter-chip" onclick="selectMatter(this,'Notice')">Notice</button>
-    </div>
-    <div class="section-title">Document type</div>
-    <select class="input" id="draft-type">
-      <option>Writ of Summons</option>
-      <option>Plaint</option>
-      <option>Written Statement</option>
-      <option>Legal Notice</option>
-      <option>Application for Injunction</option>
-      <option>Title Verification Request</option>
-      <option>Contract for Sale of Property</option>
-      <option>Power of Attorney</option>
-    </select>
-    <label>Parties involved</label>
-    <input class="input" id="draft-parties" placeholder="e.g. Rahim vs Karim (Dhaka)"/>
-    <label>Brief facts / instructions</label>
-    <textarea class="input" id="draft-facts" placeholder="Describe the matter briefly..."></textarea>
-    <label>Court / Jurisdiction</label>
-    <input class="input" id="draft-court" placeholder="e.g. District Judge Court, Dhaka"/>
-    <div style="margin-top:16px">
-      <button class="btn btn-primary" onclick="generateDraft()"><span id="draft-btn-text">Generate Draft</span></button>
-    </div>
-    <div id="draft-output" style="margin-top:16px"></div>
-  </div>
-
-  <!-- ═══ VERIFICATION ═══ -->
-  <div class="page" id="page-verify">
-    <div style="margin-bottom:20px">
-      <h2 style="font-family:'DM Serif Display',serif;font-size:22px">Verification Queue</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px">Request and track lawyer verification</p>
-    </div>
-    <button class="btn btn-primary" style="margin-bottom:16px" onclick="openVerifModal()">+ New Verification Request</button>
-    <div class="section-title">Active requests</div>
-    <div id="verif-list"><p style="color:var(--muted);font-size:13px">No requests yet.</p></div>
-  </div>
-
-  <!-- ═══ BILLING ═══ -->
-  <div class="page" id="page-billing">
-    <div style="margin-bottom:20px">
-      <h2 style="font-family:'DM Serif Display',serif;font-size:22px">Billing & Plans</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px">Current plan: <span id="current-plan-label" style="color:var(--accent)">Public Free</span></p>
-    </div>
-    <div class="section-title">Usage this month</div>
-    <div id="usage-bars"></div>
-    <div class="section-title">Choose a plan</div>
-    <div id="plan-cards"></div>
-  </div>
-
-  <!-- ═══ REVIEW TABLES ═══ -->
-  <div class="page" id="page-review">
-    <div style="margin-bottom:20px">
-      <div class="badge badge-blue" style="margin-bottom:8px">Chamber Feature</div>
-      <h2 style="font-family:'DM Serif Display',serif;font-size:22px">Review Tables</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px">Structured multi-document analysis</p>
-    </div>
-    <button class="btn btn-primary" style="margin-bottom:16px" onclick="openReviewModal()">+ New Review Table</button>
-    <div class="section-title">Recent reviews</div>
-    <div id="review-list"><p style="color:var(--muted);font-size:13px">No reviews yet.</p></div>
-  </div>
-
-</div><!-- /main -->
-
-<!-- BOTTOM NAV -->
-<div id="bottomnav">
-  <button class="bnav-btn active" id="nav-home" onclick="navTo('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    Home
-  </button>
-  <button class="bnav-btn" id="nav-intake" onclick="goIntake()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-    Intake
-  </button>
-  <button class="bnav-btn" id="nav-drafts" onclick="navTo('drafts')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    Drafts
-  </button>
-  <button class="bnav-btn" id="nav-verify" onclick="navTo('verify')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-    Verify
-  </button>
-  <button class="bnav-btn" id="nav-billing" onclick="navTo('billing')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-    Billing
-  </button>
-</div>
-
-<!-- MODAL -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div id="modal-box"></div>
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-<script>
-// ══════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════
-const state = {
-  ws: 'public',
-  plan: 'public_free',
-  cases: 0, docs: 0, drafts: 0, verif: 0,
-  intakeStep: 1,
-  intakeData: {},
-  verifRequests: [],
-  reviewTables: [],
-  recentActivity: [],
-  selectedMatter: 'Civil / Property',
-};
-
-const PLANS = {
-  public_free:   { name:'Public Free',   price:0,     currency:'BDT', quotas:{uploads:5,ai_runs:10,title_chain:3,drafts:5}, features:['title_chain','inheritance','basic_notice','verification_request'] },
-  public_plus:   { name:'Public Plus',   price:799,   currency:'BDT', quotas:{uploads:30,ai_runs:60,title_chain:20,drafts:20}, features:['title_chain','inheritance','basic_notice','verification_request'] },
-  chamber_basic: { name:'Chamber Basic', price:2999,  currency:'BDT', quotas:{uploads:100,ai_runs:200,title_chain:60,drafts:60}, features:['title_chain','inheritance','basic_notice','verification_request','draft_studio','review_tables','chamber_export'] },
-  chamber_plus:  { name:'Chamber Plus',  price:6999,  currency:'BDT', quotas:{uploads:300,ai_runs:600,title_chain:200,drafts:200}, features:['title_chain','inheritance','draft_studio','review_tables','multi_agent_drafting'] },
-  chamber_pro:   { name:'Chamber Pro',   price:14999, currency:'BDT', quotas:{uploads:1000,ai_runs:2000,title_chain:999,drafts:500}, features:['all features','deep_research','admin_console'] },
-};
-
-// ══════════════════════════════════════════════
-// PERSISTENCE
-// ══════════════════════════════════════════════
-function save() {
-  try { localStorage.setItem('zhuxin_state', JSON.stringify(state)); } catch(e){}
-}
-function load() {
-  try {
-    const s = localStorage.getItem('zhuxin_state');
-    if (s) Object.assign(state, JSON.parse(s));
-  } catch(e){}
-}
-
-// ══════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════
-function navTo(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  const nb = document.getElementById('nav-' + page);
-  if (nb) nb.classList.add('active');
-  window.scrollTo(0,0);
-  if (page === 'home') renderHome();
-  if (page === 'billing') renderBilling();
-  if (page === 'verify') renderVerifList();
-  if (page === 'review') renderReviewList();
-}
-
-// ══════════════════════════════════════════════
-// WORKSPACE TOGGLE
-// ══════════════════════════════════════════════
-function setWS(ws) {
-  state.ws = ws;
-  document.getElementById('ws-public').classList.toggle('active', ws === 'public');
-  document.getElementById('ws-chamber').classList.toggle('active', ws === 'chamber');
-  document.getElementById('chamber-section').style.display = ws === 'chamber' ? '' : 'none';
-  document.getElementById('review-item').style.display = ws === 'chamber' ? '' : 'none';
-  save();
-}
-
-// ══════════════════════════════════════════════
-// HOME
-// ══════════════════════════════════════════════
-function renderHome() {
-  document.getElementById('stat-cases').textContent = state.cases;
-  document.getElementById('stat-docs').textContent = state.docs;
-  document.getElementById('stat-drafts').textContent = state.drafts;
-  document.getElementById('stat-verif').textContent = state.verif;
-  const el = document.getElementById('recent-list');
-  if (!state.recentActivity.length) {
-    el.innerHTML = '<p style="color:var(--muted);font-size:13px">No activity yet. Start a new intake to begin.</p>';
-    return;
-  }
-  el.innerHTML = state.recentActivity.slice(-5).reverse().map(a => `
-    <div class="list-item">
-      <div class="icon" style="background:rgba(138,163,255,.1)">${a.icon}</div>
-      <div class="info"><div class="name">${a.title}</div><div class="sub">${a.sub}</div></div>
-      <span class="badge badge-${a.badge}">${a.status}</span>
-    </div>`).join('');
-}
-
-function addActivity(icon, title, sub, status, badge) {
-  state.recentActivity.push({icon,title,sub,status,badge,ts:Date.now()});
-  state.cases++;
-  save();
-  renderHome();
-}
-
-// ══════════════════════════════════════════════
-// INTAKE WIZARD
-// ══════════════════════════════════════════════
-const WIZARD_STEPS = [
-  { title:'Step 1 of 5 — Choose Goal', render: renderWiz1 },
-  { title:'Step 2 of 5 — Upload Documents', render: renderWiz2 },
-  { title:'Step 3 of 5 — Classify & Review', render: renderWiz3 },
-  { title:'Step 4 of 5 — Intake Questions', render: renderWiz4 },
-  { title:'Step 5 of 5 — Confirm & Start', render: renderWiz5 },
-];
-
-function goIntake() {
-  state.intakeStep = 1;
-  state.intakeData = {};
-  navTo('intake');
-  renderWizardStep();
-}
-
-function renderWizardStep() {
-  const s = state.intakeStep;
-  document.getElementById('wizard-title').textContent = WIZARD_STEPS[s-1].title;
-  for(let i=1;i<=5;i++){
-    const el = document.getElementById('ws'+i);
-    el.className = 'wizard-step' + (i < s ? ' done' : i === s ? ' active' : '');
-  }
-  WIZARD_STEPS[s-1].render();
-}
-
-function wizNext(){ if(state.intakeStep < 5){ state.intakeStep++; renderWizardStep(); } }
-function wizBack(){ if(state.intakeStep > 1){ state.intakeStep--; renderWizardStep(); } else { navTo('home'); } }
-
-function renderWiz1() {
-  const goals = [
-    {key:'title_chain', icon:'🏠', label:'Title Chain Analysis', sub:'Verify land ownership & chain of title'},
-    {key:'inheritance', icon:'⚖️', label:'Inheritance Matter', sub:'Succession, heirs, probate'},
-    {key:'dispute', icon:'🔴', label:'Property Dispute', sub:'Boundary, encroachment, adverse possession'},
-    {key:'purchase', icon:'📝', label:'Property Purchase', sub:'Due diligence before buying'},
-    {key:'notice', icon:'📢', label:'Legal Notice', sub:'Send or respond to a legal notice'},
-  ];
-  document.getElementById('wizard-body').innerHTML = `
-    <div class="section-title">What is your goal?</div>
-    ${goals.map(g => `
-      <div class="list-item" onclick="selectGoal('${g.key}','${g.label}')" style="cursor:pointer;${state.intakeData.goal===g.key?'border-color:var(--accent);background:var(--panel2)':''}">
-        <div class="icon" style="background:rgba(138,163,255,.1);font-size:18px">${g.icon}</div>
-        <div class="info"><div class="name">${g.label}</div><div class="sub">${g.sub}</div></div>
-        ${state.intakeData.goal===g.key?'<span style="color:var(--green);font-size:18px">✓</span>':'<div class="arrow">›</div>'}
-      </div>`).join('')}
-    <button class="btn btn-outline" style="margin-top:8px" onclick="wizBack()">← Back</button>`;
-}
-
-function selectGoal(key, label) {
-  state.intakeData.goal = key;
-  state.intakeData.goalLabel = label;
-  save();
-  wizNext();
-}
-
-function renderWiz2() {
-  const docs = state.intakeData.docs || [];
-  document.getElementById('wizard-body').innerHTML = `
-    <div class="card">
-      <h3>📎 Upload Documents</h3>
-      <p>Add your land documents, deeds, and title papers</p>
-    </div>
-    <div id="doc-list">
-      ${docs.map((d,i) => `
-        <div class="list-item">
-          <div class="icon" style="background:rgba(62,207,142,.1)">📄</div>
-          <div class="info"><div class="name">${d.name}</div><div class="sub">${d.type}</div></div>
-          <button onclick="removeDoc(${i})" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">×</button>
-        </div>`).join('')}
-      ${docs.length===0?'<p style="color:var(--muted);font-size:13px;margin-bottom:12px">No documents added yet.</p>':''}
-    </div>
-    <button class="btn btn-outline" style="margin-bottom:8px" onclick="showAddDocModal()">+ Add Document</button>
-    <button class="btn btn-primary" onclick="${docs.length>0?'wizNext()':'showToast(\"Add at least one document\")'}" style="margin-bottom:8px">Continue →</button>
-    <button class="btn btn-outline" onclick="wizBack()">← Back</button>`;
-}
-
-function showAddDocModal() {
-  const types = ['CS Porcha (CS Record)','RS Porcha (RS Record)','SA Porcha (SA Record)','Deed of Sale','Deed of Gift','Mutation Khatian','Writ of Possession','Court Decree','Survey Map','Power of Attorney','Registration Receipt','Other'];
-  openModal(`<h2>Add Document</h2><p>Enter document details</p>
-    <label>Document name / title</label>
-    <input class="input" id="m-docname" placeholder="e.g. CS Porcha 1984"/>
-    <label>Document type</label>
-    <select class="input" id="m-doctype">${types.map(t=>`<option>${t}</option>`).join('')}</select>
-    <label>Year / date (optional)</label>
-    <input class="input" id="m-docyear" placeholder="e.g. 1984"/>
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn btn-primary" onclick="addDoc()">Add Document</button>
-      <button class="btn btn-outline btn-sm" style="width:auto;flex:1" onclick="closeModal()">Cancel</button>
-    </div>`);
-}
-
-function addDoc() {
-  const name = document.getElementById('m-docname').value.trim();
-  const type = document.getElementById('m-doctype').value;
-  const year = document.getElementById('m-docyear').value.trim();
-  if (!name){ showToast('Enter document name'); return; }
-  if (!state.intakeData.docs) state.intakeData.docs = [];
-  state.intakeData.docs.push({name: name + (year?' ('+year+')':''), type});
-  state.docs++;
-  save();
-  closeModal();
-  renderWiz2();
-}
-
-function removeDoc(i) {
-  state.intakeData.docs.splice(i,1);
-  save();
-  renderWiz2();
-}
-
-function renderWiz3() {
-  const docs = state.intakeData.docs || [];
-  const classified = docs.map(d => ({...d, status: classifyDoc(d.type)}));
-  document.getElementById('wizard-body').innerHTML = `
-    <div class="card">
-      <h3>📋 Document Classification</h3>
-      <p>Auto-classified based on document type</p>
-    </div>
-    ${classified.map(d => `
-      <div class="result-card">
-        <div class="rh">
-          <h4>📄 ${d.name}</h4>
-          <span class="badge badge-${d.status.badge}">${d.status.label}</span>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="lantern"><div class="lantern-core">Z</div></div>
+          <div>
+            <h1>Zhuxin</h1>
+            <p>Legal Platform</p>
+          </div>
         </div>
-        <p style="font-size:12px;color:var(--muted)">${d.status.note}</p>
-      </div>`).join('')}
-    <div class="divider"></div>
-    <button class="btn btn-primary" onclick="wizNext()" style="margin-bottom:8px">Confirm & Continue →</button>
-    <button class="btn btn-outline" onclick="wizBack()">← Back</button>`;
-}
-
-function classifyDoc(type) {
-  const map = {
-    'CS Porcha (CS Record)':   {label:'Primary',   badge:'green',  note:'Cadastral Survey record — strong title evidence'},
-    'RS Porcha (RS Record)':   {label:'Primary',   badge:'green',  note:'Revisional Survey record — key ownership proof'},
-    'SA Porcha (SA Record)':   {label:'Primary',   badge:'green',  note:'State Acquisition record — post-1950 ownership'},
-    'Deed of Sale':             {label:'Transfer',  badge:'blue',   note:'Transfer document — verify chain of title'},
-    'Deed of Gift':             {label:'Transfer',  badge:'blue',   note:'Gift deed — check for donee acceptance'},
-    'Mutation Khatian':         {label:'Supporting',badge:'yellow', note:'Mutation record — shows recorded ownership change'},
-    'Writ of Possession':       {label:'Legal',     badge:'blue',   note:'Court-issued possession order'},
-    'Court Decree':             {label:'Legal',     badge:'blue',   note:'Judicial decree — highest evidentiary value'},
-    'Survey Map':               {label:'Survey',    badge:'yellow', note:'Physical boundary reference document'},
-    'Power of Attorney':        {label:'Authority', badge:'yellow', note:'Verify scope and notarial status'},
-    'Registration Receipt':     {label:'Registry',  badge:'green',  note:'Proof of sub-registry registration'},
-  };
-  return map[type] || {label:'Other', badge:'yellow', note:'Review manually for relevance'};
-}
-
-function renderWiz4() {
-  const goal = state.intakeData.goalLabel || 'your matter';
-  document.getElementById('wizard-body').innerHTML = `
-    <div class="card">
-      <h3>❓ Intake Questions</h3>
-      <p>For: ${goal}</p>
-    </div>
-    <label>Property location (Mouza / Upazila / District)</label>
-    <input class="input" id="iq-location" placeholder="e.g. Mouza Tejgaon, Gulshan, Dhaka" value="${state.intakeData.location||''}"/>
-    <label>Land area (in decimals or bigha)</label>
-    <input class="input" id="iq-area" placeholder="e.g. 5 decimals or 0.5 bigha" value="${state.intakeData.area||''}"/>
-    <label>Current possession status</label>
-    <select class="input" id="iq-possession">
-      <option ${state.intakeData.possession==='Client in possession'?'selected':''}>Client in possession</option>
-      <option ${state.intakeData.possession==='Disputed possession'?'selected':''}>Disputed possession</option>
-      <option ${state.intakeData.possession==='Opponent in possession'?'selected':''}>Opponent in possession</option>
-      <option ${state.intakeData.possession==='Unoccupied'?'selected':''}>Unoccupied</option>
-    </select>
-    <label>Brief description of the matter</label>
-    <textarea class="input" id="iq-desc" placeholder="Describe any disputes, history, or key facts...">${state.intakeData.desc||''}</textarea>
-    <div style="margin-top:16px">
-      <button class="btn btn-primary" onclick="saveIQ()" style="margin-bottom:8px">Save & Continue →</button>
-      <button class="btn btn-outline" onclick="wizBack()">← Back</button>
-    </div>`;
-}
-
-function saveIQ() {
-  state.intakeData.location = document.getElementById('iq-location').value.trim();
-  state.intakeData.area = document.getElementById('iq-area').value.trim();
-  state.intakeData.possession = document.getElementById('iq-possession').value;
-  state.intakeData.desc = document.getElementById('iq-desc').value.trim();
-  save();
-  wizNext();
-}
-
-function renderWiz5() {
-  const d = state.intakeData;
-  const docs = d.docs || [];
-  document.getElementById('wizard-body').innerHTML = `
-    <div class="card">
-      <h3>✅ Confirm & Start Analysis</h3>
-      <p>Review your intake details before running the title chain</p>
-    </div>
-    <div class="result-card">
-      <div class="rh"><h4>Goal</h4><span class="badge badge-blue">${d.goalLabel||'—'}</span></div>
-      <p style="font-size:13px;color:var(--muted);margin-top:4px">Location: ${d.location||'Not provided'}<br/>Area: ${d.area||'Not provided'}<br/>Possession: ${d.possession||'Not provided'}</p>
-    </div>
-    <div class="result-card">
-      <h4 style="margin-bottom:8px">Documents (${docs.length})</h4>
-      ${docs.map(d=>`<p style="font-size:13px;color:var(--muted);margin-bottom:3px">• ${d.name}</p>`).join('')}
-      ${docs.length===0?'<p style="color:var(--red);font-size:13px">No documents!</p>':''}
-    </div>
-    <div style="margin-top:8px">
-      <button class="btn btn-green" onclick="runTitleChain()" style="margin-bottom:8px">🚀 Run Title Chain Analysis</button>
-      <button class="btn btn-outline" onclick="wizBack()">← Edit</button>
-    </div>`;
-}
-
-// ══════════════════════════════════════════════
-// TITLE CHAIN ANALYSIS
-// ══════════════════════════════════════════════
-function runTitleChain() {
-  navTo('result');
-  const d = state.intakeData;
-  document.getElementById('result-body').innerHTML = `
-    <div class="ai-thinking"><div class="spinner"></div>Analysing title chain… please wait</div>`;
-  setTimeout(() => renderTitleChainResult(d), 2200);
-}
-
-function renderTitleChainResult(d) {
-  const docs = d.docs || [];
-  const hasPrimary = docs.some(doc => ['CS Porcha (CS Record)','RS Porcha (RS Record)','SA Porcha (SA Record)'].includes(doc.type));
-  const hasDeed = docs.some(doc => doc.type === 'Deed of Sale' || doc.type === 'Deed of Gift');
-  const hasMutation = docs.some(doc => doc.type === 'Mutation Khatian');
-
-  let overallStatus, statusBadge, confidence;
-  if (hasPrimary && hasDeed && hasMutation) { overallStatus='Clear Title'; statusBadge='green'; confidence=82; }
-  else if (hasPrimary && hasDeed) { overallStatus='Needs Review'; statusBadge='yellow'; confidence=61; }
-  else if (hasPrimary) { overallStatus='Incomplete Chain'; statusBadge='yellow'; confidence=45; }
-  else { overallStatus='Insufficient Documents'; statusBadge='red'; confidence=20; }
-
-  const risks = [];
-  if (!hasMutation) risks.push({sev:'Medium', text:'Mutation khatian not provided — ownership change may not be recorded at land office'});
-  if (!hasPrimary) risks.push({sev:'High', text:'No survey porcha (CS/RS/SA) found — primary ownership record missing'});
-  if (!hasDeed) risks.push({sev:'Medium', text:'No transfer deed found — chain of transfer cannot be verified'});
-  if (docs.length < 3) risks.push({sev:'Low', text:'Limited documents provided — analysis confidence is reduced'});
-
-  const actions = [];
-  if (!hasMutation) actions.push('Obtain mutation khatian from local land office (tahsil)');
-  if (!hasPrimary) actions.push('Obtain CS/RS/SA porcha from District Record Room');
-  if (!hasDeed) actions.push('Locate original sale deed and registration receipt');
-  actions.push('Request certified copies of all title documents');
-  if (confidence < 70) actions.push('Consider requesting lawyer verification before proceeding');
-
-  addActivity('🏠', d.goalLabel||'Title Chain', d.location||'Unknown location', overallStatus, statusBadge==='green'?'green':statusBadge==='yellow'?'yellow':'red');
-
-  document.getElementById('result-body').innerHTML = `
-    <div class="result-card" style="border-color:var(--${statusBadge==='green'?'green':statusBadge==='yellow'?'yellow':'red'})">
-      <div class="rh">
-        <h4>Overall Status</h4>
-        <span class="badge badge-${statusBadge}">${overallStatus}</span>
+        <div class="pill"><span class="butterfly"></span><span>Lantern theme</span></div>
       </div>
-      <p style="font-size:13px;color:var(--muted);margin:8px 0 4px">Confidence: ${confidence}%</p>
-      <div class="progress-bar"><div class="progress-bar-fill" style="width:${confidence}%;background:var(--${statusBadge==='green'?'green':statusBadge==='yellow'?'yellow':'red'})"></div></div>
-      <p style="font-size:12px;color:var(--muted);margin-top:8px">📍 ${d.location||'Location not specified'} · ${d.area||'Area unknown'} · ${d.possession||'Possession unknown'}</p>
+      <div class="search">
+        <span>⌕</span>
+        <input placeholder="Search matters, heirs, notices, chain records..." />
+      </div>
     </div>
 
-    <div class="section-title">Documents analysed (${docs.length})</div>
-    ${docs.map(doc => {
-      const cls = classifyDoc(doc.type);
-      return `<div class="result-card"><div class="rh"><h4>📄 ${doc.name}</h4><span class="badge badge-${cls.badge}">${cls.label}</span></div><p style="font-size:12px;color:var(--muted)">${cls.note}</p></div>`;
-    }).join('')}
-
-    <div class="section-title">Risk flags (${risks.length})</div>
-    ${risks.length===0?'<p style="color:var(--green);font-size:13px;margin-bottom:12px">✓ No major risks identified</p>':''}
-    ${risks.map(r => `
-      <div class="result-card" style="border-left:3px solid var(--${r.sev==='High'?'red':r.sev==='Medium'?'yellow':'muted'})">
-        <div class="rh"><span class="badge badge-${r.sev==='High'?'red':r.sev==='Medium'?'yellow':'blue'}">${r.sev} risk</span></div>
-        <p style="font-size:13px;color:var(--muted);margin-top:6px">${r.text}</p>
-      </div>`).join('')}
-
-    <div class="section-title">Recommended next actions</div>
-    ${actions.map((a,i) => `<div class="result-card"><p style="font-size:13px"><span style="color:var(--accent);font-weight:600">${i+1}.</span> ${a}</p></div>`).join('')}
-
-    <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
-      <button class="btn btn-primary" onclick="reqVerifFromResult()">Request Lawyer Verification</button>
-      <button class="btn btn-outline" onclick="navTo('drafts')">Generate Draft Document</button>
-      <button class="btn btn-outline" onclick="navTo('home')">← Back to Home</button>
-    </div>`;
-}
-
-function reqVerifFromResult() {
-  state.intakeData.verifSource = 'title_chain';
-  navTo('verify');
-  openVerifModal();
-}
-
-// ══════════════════════════════════════════════
-// DRAFT STUDIO
-// ══════════════════════════════════════════════
-function selectMatter(btn, matter) {
-  document.querySelectorAll('.matter-chip').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  state.selectedMatter = matter;
-}
-
-function generateDraft() {
-  const type = document.getElementById('draft-type').value;
-  const parties = document.getElementById('draft-parties').value.trim();
-  const facts = document.getElementById('draft-facts').value.trim();
-  const court = document.getElementById('draft-court').value.trim();
-  if (!parties){ showToast('Enter parties involved'); return; }
-  const btn = document.getElementById('draft-btn-text');
-  btn.innerHTML = '<span class="spinner"></span>';
-  document.getElementById('draft-output').innerHTML = '';
-  setTimeout(() => {
-    btn.textContent = 'Generate Draft';
-    state.drafts++;
-    addActivity('✍️', type, parties || 'Draft generated', 'Generated', 'green');
-    renderDraftOutput(type, parties, facts, court, state.selectedMatter);
-  }, 1800);
-}
-
-function renderDraftOutput(type, parties, facts, court, matter) {
-  const today = new Date().toLocaleDateString('en-BD',{day:'2-digit',month:'long',year:'numeric'});
-  const courtStr = court || 'The Honourable Court';
-  const draft = buildDraftText(type, parties, facts, courtStr, today, matter);
-  document.getElementById('draft-output').innerHTML = `
-    <div class="divider"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="badge badge-green">Draft Ready</div>
-      <button class="btn btn-sm btn-outline" onclick="copyDraft()">Copy Text</button>
-    </div>
-    <div class="card" id="draft-text-card" style="font-family:Georgia,serif;font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap">${draft}</div>
-    <button class="btn btn-outline" style="margin-top:8px" onclick="openVerifModal()">Request Lawyer Review</button>`;
-}
-
-function buildDraftText(type, parties, facts, court, date, matter) {
-  const p = parties.split(' vs ');
-  const plaintiff = (p[0]||'Plaintiff').trim();
-  const defendant = (p[1]||'Defendant').trim();
-  return `IN ${court.toUpperCase()}
-
-${type.toUpperCase()}
-
-Case No.: _____ / ${new Date().getFullYear()}
-
-In the matter of:
-${plaintiff}
-                              … Plaintiff / Petitioner
-
-— versus —
-
-${defendant}
-                              … Defendant / Respondent
-
-Matter Type: ${matter}
-
-MOST RESPECTFULLY SUBMITTED THAT:
-
-1. The Plaintiff, ${plaintiff}, is a citizen of Bangladesh and is competent to institute this proceeding.
-
-2. The Defendant, ${defendant}, is named in this matter and is liable to the claims herein stated.
-
-${facts ? `3. ${facts}\n\n` : '3. [Brief facts to be inserted here]\n\n'}4. The cause of action arose within the jurisdiction of this Honourable Court and the suit is properly instituted.
-
-5. The Plaintiff states that all legal requirements have been fulfilled prior to filing this matter.
-
-PRAYER:
-
-It is therefore most humbly prayed that this Honourable Court may graciously be pleased to:
-
-(a) Grant the relief as prayed for;
-(b) Award costs of this proceeding to the Plaintiff;
-(c) Pass such further orders as this Court deems fit and proper.
-
-                                    And for this the Plaintiff shall, as in duty bound, ever pray.
-
-Dated: ${date}
-
-_______________________________
-Advocate for the Plaintiff
-
-[DRAFT — For review and verification by a registered advocate before filing]`;
-}
-
-function copyDraft() {
-  const el = document.getElementById('draft-text-card');
-  if (el) {
-    navigator.clipboard.writeText(el.textContent).then(()=>showToast('Draft copied!')).catch(()=>showToast('Select and copy manually'));
-  }
-}
-
-// ══════════════════════════════════════════════
-// VERIFICATION
-// ══════════════════════════════════════════════
-function openVerifModal() {
-  openModal(`<h2>Verification Request</h2>
-    <p>Submit for lawyer review</p>
-    <label>Matter description</label>
-    <textarea class="input" id="v-desc" placeholder="Describe what needs to be verified...">${state.intakeData.location?'Title chain for property at '+state.intakeData.location:''}</textarea>
-    <label>Urgency</label>
-    <select class="input" id="v-urgency">
-      <option>Normal (3–5 days)</option>
-      <option>Urgent (24–48 hours)</option>
-      <option>Express (same day)</option>
-    </select>
-    <label>Document type to verify</label>
-    <select class="input" id="v-dtype">
-      <option>Title Chain Analysis</option>
-      <option>Deed of Sale</option>
-      <option>Legal Notice</option>
-      <option>Court Pleading</option>
-      <option>Other</option>
-    </select>
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn btn-primary" onclick="submitVerif()">Submit Request</button>
-      <button class="btn btn-outline btn-sm" style="width:auto;flex:1" onclick="closeModal()">Cancel</button>
-    </div>`);
-}
-
-function submitVerif() {
-  const desc = document.getElementById('v-desc').value.trim();
-  if (!desc){ showToast('Enter matter description'); return; }
-  const req = {
-    id: 'VR-' + String(Date.now()).slice(-5),
-    desc,
-    urgency: document.getElementById('v-urgency').value,
-    dtype: document.getElementById('v-dtype').value,
-    status: 'Pending',
-    created: new Date().toLocaleDateString('en-BD'),
-  };
-  state.verifRequests.push(req);
-  state.verif++;
-  addActivity('🔍', req.dtype, desc.slice(0,40)+'…', 'Pending', 'yellow');
-  save();
-  closeModal();
-  renderVerifList();
-  showToast('Verification request submitted!');
-}
-
-function renderVerifList() {
-  const el = document.getElementById('verif-list');
-  if (!state.verifRequests.length) {
-    el.innerHTML = '<p style="color:var(--muted);font-size:13px">No requests yet.</p>';
-    return;
-  }
-  el.innerHTML = state.verifRequests.slice().reverse().map(r => `
-    <div class="result-card">
-      <div class="rh">
-        <h4>${r.dtype}</h4>
-        <span class="badge badge-${r.status==='Pending'?'yellow':r.status==='Approved'?'green':'red'}">${r.status}</span>
-      </div>
-      <p style="font-size:12px;color:var(--muted);margin-top:4px">${r.urgency} · ${r.created}</p>
-      <p style="font-size:13px;margin-top:6px">${r.desc.slice(0,80)}${r.desc.length>80?'…':''}</p>
-      <p style="font-size:11px;color:var(--muted);margin-top:6px">Ref: ${r.id}</p>
-      ${r.status==='Pending'?`<div style="margin-top:10px;display:flex;gap:6px">
-        <button class="btn btn-sm btn-green" onclick="updateVerif('${r.id}','Approved')">Mark Approved</button>
-        <button class="btn btn-sm btn-outline" onclick="updateVerif('${r.id}','Rejected')">Reject</button>
-      </div>`:''}
-    </div>`).join('');
-}
-
-function updateVerif(id, status) {
-  const r = state.verifRequests.find(x=>x.id===id);
-  if (r) { r.status = status; save(); renderVerifList(); showToast('Status updated to '+status); }
-}
-
-// ══════════════════════════════════════════════
-// BILLING
-// ══════════════════════════════════════════════
-function renderBilling() {
-  document.getElementById('current-plan-label').textContent = PLANS[state.plan]?.name || 'Public Free';
-  const plan = PLANS[state.plan];
-  const usage = {uploads: state.docs, ai_runs: state.cases, title_chain: state.cases, drafts: state.drafts};
-  const ubEl = document.getElementById('usage-bars');
-  ubEl.innerHTML = Object.entries(plan.quotas).map(([k,limit]) => {
-    const used = usage[k]||0;
-    const pct = limit>0 ? Math.min(100, Math.round(used/limit*100)) : 0;
-    const kLabel = k.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    return `<div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-        <span style="color:var(--muted)">${kLabel}</span>
-        <span>${used} / ${limit}</span>
-      </div>
-      <div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%;background:${pct>80?'var(--red)':pct>50?'var(--yellow)':'var(--accent2)'}"></div></div>
-    </div>`;
-  }).join('');
-
-  const pcEl = document.getElementById('plan-cards');
-  pcEl.innerHTML = Object.entries(PLANS).map(([code, p]) => `
-    <div class="plan-card ${state.plan===code?'current':''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div>
-          <div class="plan-name">${p.name}</div>
-          <div class="plan-price">${p.price===0?'Free':p.price.toLocaleString()+' <span>BDT/mo</span>'}</div>
+    <section class="page active" id="page-home">
+      <div class="hero">
+        <div class="tag"><span class="butterfly"></span> Verified workflow enabled</div>
+        <h2>Night dashboard for legal work.</h2>
+        <p>Lantern gold for action, spirit teal for trust, and a mobile-first Zhuxin shell that groups your core legal modules into one calm workspace.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="openPage('title')">Start title chain</button>
+          <button class="btn btn-secondary" onclick="openPage('verification')">View verification</button>
         </div>
-        ${state.plan===code?'<span class="badge badge-green">Current</span>':''}
       </div>
-      <div class="plan-features">
-        ${p.features.slice(0,4).map(f=>`<div class="pf on">✓ ${f.replace(/_/g,' ')}</div>`).join('')}
+
+      <div class="grid-2">
+        <button class="module-card" onclick="openPage('title')">
+          <div class="module-top">
+            <div class="iconbox">⛓</div>
+            <div class="status warn">Review</div>
+          </div>
+          <strong style="display:block;color:var(--heading);font-size:15px;margin-bottom:4px">Title Chain</strong>
+          <span class="small">Gold-linked continuity check for land records.</span>
+        </button>
+        <button class="module-card" onclick="openPage('inheritance')">
+          <div class="module-top">
+            <div class="iconbox" style="background:rgba(77,232,200,.08);border-color:rgba(77,232,200,.16);color:var(--teal)">⚖</div>
+            <div class="status ok">Ready</div>
+          </div>
+          <strong style="display:block;color:var(--heading);font-size:15px;margin-bottom:4px">Inheritance</strong>
+          <span class="small">Estimate heir shares and structure.</span>
+        </button>
+        <button class="module-card" onclick="openPage('notice')">
+          <div class="module-top">
+            <div class="iconbox">✉</div>
+            <div class="status warn">Draft</div>
+          </div>
+          <strong style="display:block;color:var(--heading);font-size:15px;margin-bottom:4px">Notice Generator</strong>
+          <span class="small">Generate a clean legal notice.</span>
+        </button>
+        <button class="module-card" onclick="openPage('billing')">
+          <div class="module-top">
+            <div class="iconbox">৳</div>
+            <div class="status ok">Plan</div>
+          </div>
+          <strong style="display:block;color:var(--heading);font-size:15px;margin-bottom:4px">Billing</strong>
+          <span class="small">Plans, quotas, and upgrade path.</span>
+        </button>
       </div>
-      ${state.plan!==code?`<button class="btn btn-primary" style="margin-top:12px" onclick="selectPlan('${code}')">Select Plan</button>`:''}
-    </div>`).join('');
-}
 
-function selectPlan(code) {
-  state.plan = code;
-  save();
-  renderBilling();
-  showToast('Plan changed to ' + PLANS[code].name);
-}
+      <div class="section-title">Recent activity</div>
+      <div class="row-card">
+        <div class="row-left"><strong>Gajaria chain review</strong><span>3 documents connected, 1 still pending advocate review.</span></div>
+        <div class="status warn">Pending</div>
+      </div>
+      <div class="row-card">
+        <div class="row-left"><strong>Inheritance estimate</strong><span>Public calculation generated for initial family structure.</span></div>
+        <div class="status ok">Generated</div>
+      </div>
+      <div class="row-card">
+        <div class="row-left"><strong>Notice draft</strong><span>Needs verification before trusted export.</span></div>
+        <div class="status bad">Unverified</div>
+      </div>
+    </section>
 
-// ══════════════════════════════════════════════
-// REVIEW TABLES
-// ══════════════════════════════════════════════
-function openReviewModal() {
-  if (state.ws !== 'chamber') { showToast('Review Tables requires Chamber workspace'); return; }
-  openModal(`<h2>New Review Table</h2>
-    <p>Create a structured multi-document review</p>
-    <label>Table title</label>
-    <input class="input" id="rt-title" placeholder="e.g. Tejgaon Property — Title Review"/>
-    <label>Matter type</label>
-    <select class="input" id="rt-type">
-      <option>Title Chain</option><option>Contract Review</option><option>Inheritance</option><option>Compliance</option>
-    </select>
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn btn-primary" onclick="createReview()">Create Table</button>
-      <button class="btn btn-outline btn-sm" style="width:auto;flex:1" onclick="closeModal()">Cancel</button>
-    </div>`);
-}
+    <section class="page" id="page-title">
+      <div class="section">
+        <h3>Title chain</h3>
+        <p class="small">Gold-linked review flow for land record continuity.</p>
+      </div>
+      <div style="margin-top:14px">
+        <div class="doc verified">
+          <h4>CS Record</h4>
+          <p>Old baseline available. Early ownership layer is present.</p>
+        </div>
+        <div class="doc verified">
+          <h4>RS Record</h4>
+          <p>Later survey layer available and connected to baseline.</p>
+        </div>
+        <div class="doc review">
+          <h4>Sale Deed</h4>
+          <p>Transfer layer attached. Needs advocate review before trust unlock.</p>
+        </div>
+        <div class="doc missing">
+          <h4>Mutation Copy</h4>
+          <p>Not confirmed yet. Missing continuity can weaken confidence.</p>
+        </div>
+      </div>
+      <div class="split" style="margin-top:14px">
+        <div class="card">
+          <h3>Strengths</h3>
+          <p>CS and RS layers are present. Deed layer is attached. Structure is enough to begin guided analysis.</p>
+        </div>
+        <div class="card">
+          <h3>Risk flags</h3>
+          <p>Mutation continuity remains weak. Verified export should stay locked until review is complete.</p>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:grid;gap:10px">
+        <button class="btn btn-primary">Upload documents</button>
+        <button class="btn btn-secondary" onclick="openPage('verification')">Request verification</button>
+      </div>
+    </section>
 
-function createReview() {
-  const title = document.getElementById('rt-title').value.trim();
-  if (!title){ showToast('Enter table title'); return; }
-  const rt = {id:'RT-'+String(Date.now()).slice(-4), title, type: document.getElementById('rt-type').value, status:'In Progress', created: new Date().toLocaleDateString('en-BD')};
-  state.reviewTables.push(rt);
-  save();
-  closeModal();
-  renderReviewList();
-  showToast('Review table created!');
-}
+    <section class="page" id="page-inheritance">
+      <div class="section">
+        <h3>Inheritance</h3>
+        <p class="small">Soft-step heir mapping with legal caution notes.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="border-top:2px solid var(--gold)"><h3>Wife</h3><p>Estimated share</p><div class="price" style="font-size:22px">1/8</div></div>
+        <div class="card" style="border-top:2px solid var(--teal)"><h3>2 Sons</h3><p>Residue path</p><div class="price" style="font-size:22px;color:var(--teal)">Residue</div></div>
+        <div class="card" style="border-top:2px solid var(--teal)"><h3>2 Daughters</h3><p>Residue path</p><div class="price" style="font-size:22px;color:var(--teal)">Residue</div></div>
+        <div class="card" style="border-top:2px solid var(--gold)"><h3>Mother</h3><p>Estimated share</p><div class="price" style="font-size:22px">1/6</div></div>
+      </div>
+      <div class="card" style="margin-top:14px;border-left:3px solid var(--gold)">
+        <h3>Important note</h3>
+        <p>This is a guided estimate only. Final inheritance outcomes can change based on excluded heirs, prior deaths, and residue rules.</p>
+      </div>
+    </section>
 
-function renderReviewList() {
-  const el = document.getElementById('review-list');
-  if (!state.reviewTables.length) { el.innerHTML='<p style="color:var(--muted);font-size:13px">No reviews yet.</p>'; return; }
-  el.innerHTML = state.reviewTables.slice().reverse().map(r=>`
-    <div class="result-card">
-      <div class="rh"><h4>${r.title}</h4><span class="badge badge-yellow">${r.status}</span></div>
-      <p style="font-size:12px;color:var(--muted);margin-top:4px">${r.type} · ${r.created} · ${r.id}</p>
-    </div>`).join('');
-}
+    <section class="page" id="page-notice">
+      <div class="section">
+        <h3>Notice generator</h3>
+        <p class="small">Draft a legal notice with a clean preview.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="field">
+          <label>Language</label>
+          <select>
+            <option>English</option>
+            <option>বাংলা</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Subject</label>
+          <input value="Demand for compliance" />
+        </div>
+        <div class="field">
+          <label>Recipient</label>
+          <input value="Recipient name" />
+        </div>
+        <div class="field">
+          <label>Facts</label>
+          <textarea>Under instructions from my client, I state that the relevant facts and demand are as follows.</textarea>
+        </div>
+        <button class="btn btn-primary">Generate draft</button>
+      </div>
+      <div class="notice-preview" style="margin-top:14px">
+        <div class="title">✉ Draft preview</div>
+        <div class="paper">LEGAL NOTICE
 
-// ══════════════════════════════════════════════
-// MODAL & TOAST
-// ══════════════════════════════════════════════
-function openModal(html) {
-  document.getElementById('modal-box').innerHTML = html;
-  document.getElementById('modal-overlay').classList.add('open');
-}
-function closeModal(e) {
-  if (!e || e.target===document.getElementById('modal-overlay'))
-    document.getElementById('modal-overlay').classList.remove('open');
-}
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 2500);
-}
+Under instructions from my client, I state as follows:
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
-load();
-setWS(state.ws);
-renderHome();
-renderBilling();
-</script>
+The recipient is hereby called upon to comply within the stated period.
+
+System-generated draft. Advocate verification recommended before final use.</div>
+      </div>
+    </section>
+
+    <section class="page" id="page-verification">
+      <div class="section">
+        <h3>Verification</h3>
+        <p class="small">Visual split between unverified and trusted outputs.</p>
+      </div>
+      <div class="split" style="margin-top:14px">
+        <div class="panel-red">
+          <h3 style="margin-top:0">Unverified</h3>
+          <p class="small" style="color:#f5b3b3">System generated. Locked or restricted export.</p>
+          <div class="row-card" style="margin-top:12px;background:rgba(0,0,0,.12)">
+            <div class="row-left"><strong>Notice draft 17</strong><span>Disclaimer required before sharing.</span></div>
+            <div class="status bad">Locked</div>
+          </div>
+          <div class="row-card" style="background:rgba(0,0,0,.12)">
+            <div class="row-left"><strong>Chain report 03</strong><span>DOCX export disabled.</span></div>
+            <div class="status bad">Locked</div>
+          </div>
+        </div>
+        <div class="panel-teal">
+          <h3 style="margin-top:0">Verified by advocate</h3>
+          <p class="small" style="color:var(--teal)">Unlocked distribution path with trust indicator.</p>
+          <div class="row-card" style="margin-top:12px;background:rgba(0,0,0,.12)">
+            <div class="row-left"><strong>Opinion note 09</strong><span>Trusted badge shown on export.</span></div>
+            <div class="status ok">Trusted</div>
+          </div>
+          <div class="row-card" style="background:rgba(0,0,0,.12)">
+            <div class="row-left"><strong>Verified matter export</strong><span>PDF + DOCX available.</span></div>
+            <div class="status ok">Unlocked</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-billing">
+      <div class="section">
+        <h3>Billing</h3>
+        <p class="small">Lantern-gold plans with teal quota bars.</p>
+      </div>
+      <div class="plan active" style="margin-top:14px">
+        <h4>Public Plus</h4>
+        <div class="price">৳799 <small>/ month</small></div>
+        <p class="small">Current plan</p>
+        <div class="progress"><div class="bar" style="width:64%"></div></div>
+      </div>
+      <div class="plan">
+        <h4>Public Free</h4>
+        <div class="price">৳0 <small>/ month</small></div>
+        <p class="small">Basic public workflow access.</p>
+        <button class="btn btn-secondary" style="margin-top:12px">Select</button>
+      </div>
+      <div class="plan">
+        <h4>Chamber Basic</h4>
+        <div class="price">৳2999 <small>/ month</small></div>
+        <p class="small">Review tables, draft studio, chamber export.</p>
+        <button class="btn btn-primary" style="margin-top:12px">Upgrade</button>
+      </div>
+    </section>
+
+    <section class="page" id="page-profile">
+      <div class="section">
+        <h3>Profile & workspace</h3>
+        <p class="small">Missing details were filled using your earlier defaults, uploaded logo direction, and theme prompt.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="role-grid">
+          <button class="role active">Public User</button>
+          <button class="role">Advocate</button>
+          <button class="role">Chamber Admin</button>
+          <button class="role">Admin</button>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>App name</label>
+          <input value="Zhuxin" />
+        </div>
+        <div class="field">
+          <label>Release direction</label>
+          <select>
+            <option>Web-first mobile shell</option>
+            <option>Android wrapper next</option>
+            <option>Full native app later</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <nav class="bottomnav">
+      <button class="nav-btn active" data-target="home" onclick="openPage('home')"><span class="nav-ico">⌂</span><span>Home</span></button>
+      <button class="nav-btn" data-target="title" onclick="openPage('title')"><span class="nav-ico">⛓</span><span>Chain</span></button>
+      <button class="nav-btn" data-target="notice" onclick="openPage('notice')"><span class="nav-ico">✉</span><span>Notice</span></button>
+      <button class="nav-btn" data-target="billing" onclick="openPage('billing')"><span class="nav-ico">৳</span><span>Billing</span></button>
+      <button class="nav-btn" data-target="profile" onclick="openPage('profile')"><span class="nav-ico">☰</span><span>Profile</span></button>
+    </nav>
+  </div>
+
+  <script>
+    function openPage(page){
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.getElementById('page-'+page).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(btn=>btn.classList.toggle('active', btn.dataset.target===page));
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  </script>
 </body>
 </html>
