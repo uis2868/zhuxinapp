@@ -1,12 +1,12 @@
 {
   "name": "Zhuxin Legal Platform",
   "short_name": "Zhuxin",
-  "description": "Bangladesh Legal Workflow Platform",
+  "description": "Lantern-themed mobile legal workspace for Bangladesh-focused workflows",
   "start_url": "/zhuxinapp/",
   "scope": "/zhuxinapp/",
   "display": "standalone",
-  "background_color": "#08101f",
-  "theme_color": "#8aa3ff",
+  "background_color": "#06090f",
+  "theme_color": "#06090f",
   "orientation": "portrait",
   "icons": [
     {
