@@ -2,7 +2,6 @@ import {
   isSupabaseConfigured,
   getSupabaseClient,
   getSession,
-  getSessionUser,
   signInWithEmail as supabaseSignIn,
   signUpWithEmail as supabaseSignUp,
   signOutSupabase,
@@ -13,6 +12,9 @@ export const MATTER_KEY = 'zhuxin_matter_state';
 export const FILES_KEY = 'zhuxin_matter_files';
 export const LAB_KEY = 'zhuxin_backend_lab';
 export const LOCAL_AUTH_KEY = 'zhuxin_local_auth';
+export const THREADS_KEY = 'zhuxin_threads_state';
+export const DOCS_KEY = 'zhuxin_generated_documents';
+export const SETTINGS_KEY = 'zhuxin_app_settings';
 
 function dispatchKey(key, value) {
   const encoded = JSON.stringify(value);
@@ -24,8 +26,12 @@ function dispatchKey(key, value) {
   }
 }
 
+function safeJson(key, fallback) {
+  return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+}
+
 export function getLocalMatterState() {
-  return JSON.parse(localStorage.getItem(MATTER_KEY) || '{"currentId":null,"matters":[]}');
+  return safeJson(MATTER_KEY, { currentId: null, matters: [] });
 }
 
 export function setLocalMatterState(state) {
@@ -33,15 +39,39 @@ export function setLocalMatterState(state) {
 }
 
 export function getLocalFilesState() {
-  return JSON.parse(localStorage.getItem(FILES_KEY) || '{"byMatter":{}}');
+  return safeJson(FILES_KEY, { byMatter: {} });
 }
 
 export function setLocalFilesState(state) {
   dispatchKey(FILES_KEY, state);
 }
 
+export function getLocalThreadsState() {
+  return safeJson(THREADS_KEY, { threads: [], messagesByThread: {} });
+}
+
+export function setLocalThreadsState(state) {
+  dispatchKey(THREADS_KEY, state);
+}
+
+export function getLocalDocsState() {
+  return safeJson(DOCS_KEY, { documents: [] });
+}
+
+export function setLocalDocsState(state) {
+  dispatchKey(DOCS_KEY, state);
+}
+
+export function getLocalSettingsState() {
+  return safeJson(SETTINGS_KEY, { theme: 'light-harvey', locale: 'en', preferences: {} });
+}
+
+export function setLocalSettingsState(state) {
+  dispatchKey(SETTINGS_KEY, state);
+}
+
 export function getLabState() {
-  return JSON.parse(localStorage.getItem(LAB_KEY) || '{"plan":"free","used":0,"payment":"idle","docs":[]}');
+  return safeJson(LAB_KEY, { plan: 'free', used: 0, payment: 'idle', docs: [] });
 }
 
 export function getLocalAuth() {
@@ -146,6 +176,40 @@ function mapFileRow(row) {
   };
 }
 
+function mapThreadRow(row) {
+  return {
+    id: row.id,
+    matterId: row.matter_id || row.matterId || null,
+    title: row.title || 'Untitled thread',
+    moduleName: row.module_name || row.moduleName || 'assistant',
+    createdAt: row.created_at || row.createdAt || new Date().toISOString(),
+    updatedAt: row.updated_at || row.updatedAt || new Date().toISOString()
+  };
+}
+
+function mapMessageRow(row) {
+  return {
+    id: row.id,
+    threadId: row.thread_id || row.threadId,
+    role: row.role,
+    content: row.content,
+    metadata: row.metadata || {},
+    createdAt: row.created_at || row.createdAt || new Date().toISOString()
+  };
+}
+
+function mapDocumentRow(row) {
+  return {
+    id: row.id,
+    matterId: row.matter_id || row.matterId || null,
+    moduleName: row.module_name || row.moduleName || 'assistant',
+    title: row.title || 'Untitled document',
+    content: row.content || '',
+    exportType: row.export_type || row.exportType || 'text',
+    createdAt: row.created_at || row.createdAt || new Date().toISOString()
+  };
+}
+
 function deriveFileType(name) {
   const ext = (name.split('.').pop() || '').toLowerCase();
   return ext || 'file';
@@ -164,6 +228,14 @@ function syncMatterFilesMirror(matterId, files) {
   const state = getLocalFilesState();
   state.byMatter[matterId] = files;
   setLocalFilesState(state);
+}
+
+function syncThreadsMirror(threads, messagesByThread) {
+  setLocalThreadsState({ threads, messagesByThread: messagesByThread || getLocalThreadsState().messagesByThread || {} });
+}
+
+function syncDocumentsMirror(documents) {
+  setLocalDocsState({ documents });
 }
 
 export async function listMatters() {
@@ -357,4 +429,233 @@ export async function clearMatterFiles(matterId) {
   const { error } = await client.from('matter_files').delete().eq('matter_id', matterId);
   if (error) throw error;
   syncMatterFilesMirror(matterId, []);
+}
+
+export async function listThreads({ matterId = null } = {}) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalThreadsState();
+    return matterId ? state.threads.filter(t => t.matterId === matterId) : state.threads;
+  }
+  const client = await getSupabaseClient();
+  let query = client.from('threads').select('*').order('updated_at', { ascending: false });
+  if (matterId) query = query.eq('matter_id', matterId);
+  const { data, error } = await query;
+  if (error) throw error;
+  const threads = (data || []).map(mapThreadRow);
+  syncThreadsMirror(threads);
+  return threads;
+}
+
+export async function getThreadMessages(threadId) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalThreadsState();
+    return state.messagesByThread[threadId] || [];
+  }
+  const client = await getSupabaseClient();
+  const { data, error } = await client
+    .from('messages')
+    .select('*')
+    .eq('thread_id', threadId)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  const messages = (data || []).map(mapMessageRow);
+  const state = getLocalThreadsState();
+  state.messagesByThread[threadId] = messages;
+  setLocalThreadsState(state);
+  return messages;
+}
+
+export async function createThread({ matterId = null, title = 'New thread', moduleName = 'assistant' } = {}) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalThreadsState();
+    const thread = {
+      id: 'thread_' + Date.now(),
+      matterId,
+      title,
+      moduleName,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    state.threads.unshift(thread);
+    state.messagesByThread[thread.id] = [];
+    setLocalThreadsState(state);
+    return thread;
+  }
+  const client = await getSupabaseClient();
+  const profile = await ensureUserProfile();
+  const payload = {
+    matter_id: matterId,
+    owner_id: profile.id,
+    title,
+    module_name: moduleName
+  };
+  const { data, error } = await client.from('threads').insert(payload).select().single();
+  if (error) throw error;
+  const thread = mapThreadRow(data);
+  const listed = await listThreads({ matterId });
+  syncThreadsMirror(listed);
+  return thread;
+}
+
+export async function appendThreadMessage(threadId, { role, content, metadata = {} }) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalThreadsState();
+    const msg = { id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7), threadId, role, content, metadata, createdAt: new Date().toISOString() };
+    if (!state.messagesByThread[threadId]) state.messagesByThread[threadId] = [];
+    state.messagesByThread[threadId].push(msg);
+    state.threads = state.threads.map(t => t.id === threadId ? { ...t, updatedAt: msg.createdAt, title: t.title === 'New thread' && role === 'user' ? content.slice(0, 48) : t.title } : t);
+    setLocalThreadsState(state);
+    return msg;
+  }
+  const client = await getSupabaseClient();
+  const payload = { thread_id: threadId, role, content, metadata };
+  const { data, error } = await client.from('messages').insert(payload).select().single();
+  if (error) throw error;
+  const msg = mapMessageRow(data);
+  const { error: updateError } = await client.from('threads').update({ updated_at: new Date().toISOString(), title: role === 'user' ? content.slice(0, 48) : undefined }).eq('id', threadId);
+  if (updateError) {
+    // ignore thread title/update error for now
+  }
+  await getThreadMessages(threadId);
+  return msg;
+}
+
+export async function listGeneratedDocuments({ matterId = null } = {}) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalDocsState();
+    return matterId ? state.documents.filter(d => d.matterId === matterId) : state.documents;
+  }
+  const client = await getSupabaseClient();
+  let query = client.from('generated_documents').select('*').order('created_at', { ascending: false });
+  if (matterId) query = query.eq('matter_id', matterId);
+  const { data, error } = await query;
+  if (error) throw error;
+  const docs = (data || []).map(mapDocumentRow);
+  syncDocumentsMirror(docs);
+  return docs;
+}
+
+export async function createGeneratedDocument({ matterId = null, moduleName = 'assistant', title = 'Untitled document', content = '', exportType = 'text' }) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalDocsState();
+    const doc = { id: 'doc_' + Date.now(), matterId, moduleName, title, content, exportType, createdAt: new Date().toISOString() };
+    state.documents.unshift(doc);
+    setLocalDocsState(state);
+    return doc;
+  }
+  const client = await getSupabaseClient();
+  const profile = await ensureUserProfile();
+  const payload = { matter_id: matterId, owner_id: profile.id, module_name: moduleName, title, content, export_type: exportType };
+  const { data, error } = await client.from('generated_documents').insert(payload).select().single();
+  if (error) throw error;
+  const doc = mapDocumentRow(data);
+  await listGeneratedDocuments({ matterId });
+  return doc;
+}
+
+export async function createNoticeDraft(input) {
+  const matterId = input.matterId || null;
+  const title = input.subject ? 'Notice — ' + input.subject : 'Notice draft';
+  const content = [
+    input.letterhead || 'LEGAL NOTICE',
+    '',
+    'Recipient: ' + (input.recipientName || ''),
+    input.recipientAddress || '',
+    '',
+    'Subject: ' + (input.subject || ''),
+    '',
+    input.facts || '',
+    '',
+    'Demand:',
+    input.demandText || '',
+    '',
+    'Response period: ' + (input.responseDays || '7') + ' days.',
+    '',
+    input.senderName || 'Zhuxin Draft'
+  ].join('\n');
+
+  const document = await createGeneratedDocument({
+    matterId,
+    moduleName: 'notice-generator',
+    title,
+    content,
+    exportType: 'notice'
+  });
+
+  const mode = await getDataMode();
+  if (mode === 'supabase') {
+    const client = await getSupabaseClient();
+    const profile = await ensureUserProfile();
+    const payload = {
+      matter_id: matterId,
+      owner_id: profile.id,
+      recipient_name: input.recipientName || null,
+      recipient_address: input.recipientAddress || null,
+      subject: input.subject || null,
+      facts: input.facts || null,
+      demand_text: input.demandText || null,
+      generated_document_id: document.id
+    };
+    const { error } = await client.from('notice_requests').insert(payload);
+    if (error) throw error;
+  }
+
+  return document;
+}
+
+export async function getAppSettings() {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    return getLocalSettingsState();
+  }
+  const client = await getSupabaseClient();
+  const profile = await ensureUserProfile();
+  const { data, error } = await client.from('settings').select('*').eq('owner_id', profile.id).maybeSingle();
+  if (error) throw error;
+  const result = data ? {
+    id: data.id,
+    theme: data.theme || 'light-harvey',
+    locale: data.locale || 'en',
+    preferences: data.preferences || {}
+  } : { theme: 'light-harvey', locale: 'en', preferences: {} };
+  setLocalSettingsState(result);
+  return result;
+}
+
+export async function saveAppSettings(input) {
+  const current = await getAppSettings();
+  const next = {
+    ...current,
+    theme: input.theme || current.theme || 'light-harvey',
+    locale: input.locale || current.locale || 'en',
+    preferences: { ...(current.preferences || {}), ...(input.preferences || {}) }
+  };
+
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    setLocalSettingsState(next);
+    return next;
+  }
+
+  const client = await getSupabaseClient();
+  const profile = await ensureUserProfile();
+  if (current.id) {
+    const { data, error } = await client.from('settings').update({ theme: next.theme, locale: next.locale, preferences: next.preferences, updated_at: new Date().toISOString() }).eq('id', current.id).select().single();
+    if (error) throw error;
+    const saved = { id: data.id, theme: data.theme, locale: data.locale, preferences: data.preferences || {} };
+    setLocalSettingsState(saved);
+    return saved;
+  }
+  const payload = { owner_id: profile.id, theme: next.theme, locale: next.locale, preferences: next.preferences };
+  const { data, error } = await client.from('settings').insert(payload).select().single();
+  if (error) throw error;
+  const saved = { id: data.id, theme: data.theme, locale: data.locale, preferences: data.preferences || {} };
+  setLocalSettingsState(saved);
+  return saved;
 }
