@@ -3,130 +3,474 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Zhuxin Notice Generator</title>
+  <title>Zhuxin Workspace</title>
   <meta name="theme-color" content="#06090f" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
-    :root{--bg:#06090f;--surface:#0d1428;--surface2:#131d36;--border:rgba(255,255,255,.08);--gold:#f5c842;--teal:#4de8c8;--text:#c8d8f0;--heading:#f0f4ff;--muted:#8899bb;--r:20px}
+    :root{
+      --bg:#06090f;--surface:#0d1428;--surface2:#131d36;--surface3:#182345;--border:rgba(255,255,255,.08);
+      --gold:#f5c842;--gold2:#e8a830;--goldGlow:rgba(245,200,66,.14);
+      --teal:#4de8c8;--tealGlow:rgba(77,232,200,.12);--red:#d94040;
+      --heading:#f0f4ff;--text:#c8d8f0;--muted:#8899bb;--paper:#f7f5ef;--paperText:#1d2230;
+      --r:22px;--rs:14px;
+    }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
-    body{background-image:radial-gradient(ellipse at 50% 24%, rgba(245,200,66,.06), transparent 60%)}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;min-height:100%}
+    body{background-image:radial-gradient(ellipse at 50% 22%, rgba(245,200,66,.05), transparent 60%)}
     button,input,textarea,select{font:inherit}
     .bangla{font-family:"Noto Sans Bengali",Inter,sans-serif}
-    .app{max-width:640px;margin:0 auto;min-height:100vh;padding-bottom:32px}
-    .top{position:sticky;top:0;z-index:5;background:rgba(6,9,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 16px}
-    .brand{display:flex;align-items:center;gap:12px}
+    .app{min-height:100vh}
+    .mobilebar{display:flex;gap:10px;overflow:auto;padding:12px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:30;background:rgba(6,9,15,.9);backdrop-filter:blur(16px)}
+    .mobilechip{white-space:nowrap;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);padding:10px 12px;border-radius:999px;font-size:12px}
+    .mobilechip.active{color:var(--gold);border-color:rgba(245,200,66,.28);background:rgba(245,200,66,.1)}
+    .shell{display:grid;grid-template-columns:1fr;min-height:100vh}
+    .sidebar{display:none;background:rgba(9,15,28,.92);border-right:1px solid var(--border);padding:18px 14px;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:12px;padding:4px 8px 18px}
     .lantern{width:42px;height:42px;border-radius:16px;border:1px solid rgba(245,200,66,.28);display:grid;place-items:center;background:radial-gradient(circle at 50% 45%, rgba(245,200,66,.24), rgba(13,20,40,1) 72%);box-shadow:0 0 24px rgba(245,200,66,.18)}
     .lanternCore{width:22px;height:28px;border-radius:10px;border:2px solid #c76a22;background:linear-gradient(180deg,#f1d66f 0%,#e8a830 100%);display:grid;place-items:center;color:#8f3a12;font-weight:800}
-    h1{margin:0;color:var(--heading);font-size:18px;font-weight:800}
-    .sub{margin:2px 0 0;color:var(--muted);font-size:12px}
-    .wrap{padding:16px}
-    .hero,.card,.output{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--r);padding:16px}
-    .hero{background:linear-gradient(180deg, rgba(19,29,54,.94), rgba(13,20,40,.94));position:relative;overflow:hidden}
-    .hero:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 10%, rgba(245,200,66,.12), transparent 60%)}
-    .tag{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(77,232,200,.24);background:rgba(77,232,200,.08);color:var(--teal);font-size:12px;font-weight:700}
-    h2{position:relative;margin:14px 0 8px;font-size:28px;line-height:1.15;color:var(--heading)}
-    p{position:relative;margin:0;color:var(--text);font-size:14px;line-height:1.65}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .brand h1{margin:0;color:var(--heading);font-size:18px;font-weight:800;letter-spacing:-.02em}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .navgroup{margin-top:8px}
+    .navlabel{padding:10px 10px 8px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .navitem{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:none;background:transparent;color:var(--text);padding:12px 12px;border-radius:16px;cursor:pointer;text-align:left}
+    .navitem:hover{background:rgba(255,255,255,.04)}
+    .navitem.active{background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.2);color:var(--heading)}
+    .navleft{display:flex;align-items:center;gap:10px}
+    .navdot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+    .navitem.active .navdot{background:var(--gold)}
+    .navbadge{font-size:11px;color:var(--muted)}
+    .main{padding:0}
+    .topbar{position:sticky;top:52px;z-index:20;background:rgba(6,9,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 16px}
+    .toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .title h2{margin:0;color:var(--heading);font-size:26px;letter-spacing:-.03em}
+    .title p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .topstats{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--border);font-size:12px;color:var(--text)}
+    .pill.gold{color:var(--gold);border-color:rgba(245,200,66,.25);background:rgba(245,200,66,.08)}
+    .pill.teal{color:var(--teal);border-color:rgba(77,232,200,.25);background:rgba(77,232,200,.08)}
+    .workspace{padding:16px;display:grid;grid-template-columns:1fr;gap:16px}
+    .matterbar{display:grid;grid-template-columns:1fr;gap:12px}
+    .matterhero{background:linear-gradient(180deg, rgba(19,29,54,.94), rgba(13,20,40,.94));border:1px solid var(--border);border-radius:26px;padding:18px;position:relative;overflow:hidden}
+    .matterhero:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 12%, rgba(245,200,66,.10), transparent 60%)}
+    .mattertag{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(77,232,200,.24);background:rgba(77,232,200,.08);color:var(--teal);font-size:12px;font-weight:700}
+    .matterhero h3{position:relative;margin:14px 0 8px;color:var(--heading);font-size:28px;line-height:1.12;letter-spacing:-.03em}
+    .matterhero p{position:relative;margin:0;color:var(--text);font-size:14px;line-height:1.65}
+    .mattermeta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .meta{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:18px;padding:14px}
+    .meta strong{display:block;color:var(--gold);font-size:22px;letter-spacing:-.03em}
+    .meta span{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    .panel{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+    .panel h3{margin:0;color:var(--heading);font-size:18px;letter-spacing:-.02em}
+    .panel p.hint{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+    .section{margin-top:14px}
+    .sectionlabel{margin-bottom:8px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
     .field{margin-top:12px}
     label{display:block;margin-bottom:6px;font-size:12px;color:var(--muted);font-weight:600}
     input,textarea,select{width:100%;border:none;outline:none;background:var(--surface2);color:var(--text);padding:12px 14px;border-radius:16px;border:1px solid var(--border)}
-    textarea{min-height:110px;resize:vertical}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-    .btn{border:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer}
-    .btnPrimary{background:var(--gold);color:#06090f}
+    textarea{min-height:108px;resize:vertical}
+    input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,.12)}
+    .formgrid2,.formgrid3{display:grid;gap:10px}
+    .formgrid2{grid-template-columns:1fr}
+    .formgrid3{grid-template-columns:1fr}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{border:none;border-radius:14px;padding:12px 14px;font-weight:700;cursor:pointer}
+    .btnPrimary{background:var(--gold);color:#06090f;box-shadow:0 0 20px rgba(245,200,66,.18)}
     .btnSecondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--text)}
-    .output{margin-top:16px;white-space:pre-wrap;line-height:1.8;min-height:260px;background:var(--surface2)}
-    .note{margin-top:12px;color:var(--muted);font-size:12px}
-    .mini{margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-    .stat strong{display:block;color:var(--gold);font-size:24px}
-    .stat span{font-size:12px;color:var(--muted)}
-    .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#131d36;border:1px solid rgba(255,255,255,.12);padding:10px 16px;border-radius:12px;display:none;z-index:20}
-    @media(max-width:520px){.grid2,.actions,.mini{grid-template-columns:1fr}}
+    .btnTeal{background:rgba(77,232,200,.15);border:1px solid var(--teal);color:var(--teal)}
+    .btnGhost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .assistant{display:grid;gap:10px}
+    .assistantActions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .actionchip{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);padding:10px 12px;border-radius:14px;font-size:12px;text-align:left;cursor:pointer}
+    .actionchip:hover{border-color:rgba(245,200,66,.22);background:rgba(245,200,66,.06)}
+    .assistbox{background:var(--surface2);border:1px solid var(--border);border-radius:18px;padding:14px;color:var(--muted);font-size:13px;line-height:1.65}
+    .docshell{display:grid;gap:12px}
+    .docbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .docactions{display:flex;gap:10px;flex-wrap:wrap}
+    .paper{background:linear-gradient(180deg,#f7f5ef,#efebe0);color:var(--paperText);border-radius:22px;border:1px solid rgba(255,255,255,.08);padding:24px;min-height:640px;white-space:pre-wrap;line-height:1.85;font-size:14px;box-shadow:0 16px 40px rgba(0,0,0,.24)}
+    .paper.bangla{font-family:"Noto Sans Bengali",Inter,sans-serif;line-height:1.95}
+    .paperHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .paperTitle{font-size:13px;color:#4a5163;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    .version{font-size:12px;color:#6b7286}
+    .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#131d36;border:1px solid rgba(255,255,255,.12);padding:10px 16px;border-radius:12px;display:none;z-index:70}
+    @media(min-width:720px){
+      .formgrid2{grid-template-columns:1fr 1fr}
+      .formgrid3{grid-template-columns:1fr 1fr 1fr}
+      .matterbar{grid-template-columns:1.4fr .9fr}
+    }
+    @media(min-width:960px){
+      .mobilebar{display:none}
+      .shell{grid-template-columns:260px 1fr}
+      .sidebar{display:block}
+      .topbar{top:0}
+      .workspace{padding:18px 20px 24px}
+      .grid{grid-template-columns:minmax(340px,440px) minmax(420px,1fr)}
+      .formgrid3{grid-template-columns:1fr 1fr 1fr}
+      .assistantActions{grid-template-columns:1fr 1fr}
+    }
   </style>
 </head>
 <body>
-<div class="app">
-  <div class="top">
-    <div class="brand">
-      <div class="lantern"><div class="lanternCore">Z</div></div>
-      <div>
-        <h1>Zhuxin</h1>
-        <div class="sub">Working Notice Generator</div>
-      </div>
+  <div class="app">
+    <div class="mobilebar">
+      <button class="mobilechip">Dashboard</button>
+      <button class="mobilechip">Matters</button>
+      <button class="mobilechip active">Notice Generator</button>
+      <button class="mobilechip">Title Chain</button>
+      <button class="mobilechip">Inheritance</button>
+      <button class="mobilechip">Verification</button>
+      <button class="mobilechip">Billing</button>
+    </div>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="lantern"><div class="lanternCore">Z</div></div>
+          <div>
+            <h1>Zhuxin</h1>
+            <p>Enterprise legal workspace</p>
+          </div>
+        </div>
+
+        <div class="navgroup">
+          <div class="navlabel">Workspace</div>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Dashboard</span></span><span class="navbadge">Soon</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Matters</span></span><span class="navbadge">Soon</span></button>
+          <button class="navitem active"><span class="navleft"><span class="navdot"></span><span>Notice Generator</span></span><span class="navbadge">Live</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Title Chain</span></span><span class="navbadge">Next</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Inheritance</span></span><span class="navbadge">Next</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Verification</span></span><span class="navbadge">Later</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Billing</span></span><span class="navbadge">Later</span></button>
+        </div>
+
+        <div class="navgroup">
+          <div class="navlabel">Recent matters</div>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Rahim v Karim</span></span><span class="navbadge">Draft</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Possession notice</span></span><span class="navbadge">Draft</span></button>
+          <button class="navitem"><span class="navleft"><span class="navdot"></span><span>Payment recovery</span></span><span class="navbadge">Draft</span></button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div class="toprow">
+            <div class="title">
+              <h2>Notice Generator</h2>
+              <p>Matter-based drafting workspace with assistant-style refinement and document preview.</p>
+            </div>
+            <div class="topstats">
+              <div class="pill gold">Working module</div>
+              <div class="pill teal">Template engine live</div>
+              <div class="pill">Version 0.2</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <div class="matterbar">
+            <section class="matterhero">
+              <div class="mattertag">First real production-style workspace</div>
+              <h3>Draft notices inside a serious legal AI shell.</h3>
+              <p>Instead of a plain form page, Zhuxin now uses a matter-oriented workspace with intake context, refinement controls, and a structured draft preview that feels closer to enterprise legal AI products.</p>
+            </section>
+            <section class="mattermeta">
+              <div class="meta"><strong>2</strong><span>Languages</span></div>
+              <div class="meta"><strong>3</strong><span>Tone modes</span></div>
+              <div class="meta"><strong>1</strong><span>Live module</span></div>
+            </section>
+          </div>
+
+          <div class="grid">
+            <section class="panel">
+              <h3>Matter intake</h3>
+              <p class="hint">Capture the legal context first. The document preview updates from this matter data.</p>
+
+              <div class="section">
+                <div class="sectionlabel">Matter profile</div>
+                <div class="formgrid2">
+                  <div class="field"><label>Matter name</label><input id="matterName" placeholder="e.g. Rahim v Karim — Payment recovery" oninput="generateNotice()"></div>
+                  <div class="field"><label>Notice language</label><select id="lang" onchange="generateNotice()"><option value="en">English</option><option value="bn">বাংলা</option></select></div>
+                </div>
+                <div class="formgrid3">
+                  <div class="field"><label>Tone</label><select id="tone" onchange="generateNotice()"><option value="formal">Formal</option><option value="firm">Firm</option><option value="strict">Strict</option></select></div>
+                  <div class="field"><label>Reason type</label><select id="reason" onchange="generateNotice()"><option value="payment">Demand for payment</option><option value="possession">Interference with possession</option><option value="vacate">Demand to vacate / stop interference</option><option value="deed">Demand regarding deed/document</option><option value="general">General legal grievance</option></select></div>
+                  <div class="field"><label>Deadline</label><select id="days" onchange="generateNotice()"><option value="3">3 days</option><option value="7" selected>7 days</option><option value="15">15 days</option><option value="30">30 days</option></select></div>
+                </div>
+              </div>
+
+              <div class="section">
+                <div class="sectionlabel">Parties</div>
+                <div class="formgrid2">
+                  <div class="field"><label>Client / sender name</label><input id="sender" placeholder="e.g. Md. Rahim Uddin" oninput="generateNotice()"></div>
+                  <div class="field"><label>Recipient name</label><input id="recipient" placeholder="e.g. Karim Mia" oninput="generateNotice()"></div>
+                </div>
+                <div class="formgrid2">
+                  <div class="field"><label>Advocate name</label><input id="advocate" placeholder="e.g. Advocate A. Karim" oninput="generateNotice()"></div>
+                  <div class="field"><label>Chamber / firm</label><input id="chamber" placeholder="e.g. Zhuxin Legal Desk" oninput="generateNotice()"></div>
+                </div>
+                <div class="field"><label>Recipient address</label><textarea id="address" placeholder="Village / Holding / Road / District" oninput="generateNotice()"></textarea></div>
+              </div>
+
+              <div class="section">
+                <div class="sectionlabel">Legal context</div>
+                <div class="formgrid2">
+                  <div class="field"><label>Subject line</label><input id="subject" placeholder="e.g. Demand for repayment of money" oninput="generateNotice()"></div>
+                  <div class="field"><label>Amount / property / reference</label><input id="reference" placeholder="e.g. Tk. 50,000 / Plot no. 12" oninput="generateNotice()"></div>
+                </div>
+                <div class="field"><label>Facts / grievance</label><textarea id="facts" placeholder="Write the core facts clearly..." oninput="generateNotice()"></textarea></div>
+                <div class="field"><label>Demand / remedy sought</label><textarea id="demand" placeholder="Example: repay the outstanding amount in full / stop interference / hand over possession" oninput="generateNotice()"></textarea></div>
+              </div>
+
+              <div class="toolbar">
+                <button class="btn btnPrimary" onclick="generateNotice(true)">Generate draft</button>
+                <button class="btn btnSecondary" onclick="fillSample()">Load sample matter</button>
+                <button class="btn btnSecondary" onclick="saveMatter()">Save matter locally</button>
+              </div>
+
+              <div class="section assistant">
+                <div class="sectionlabel">Assistant refinements</div>
+                <div class="assistantActions">
+                  <button class="actionchip" onclick="applyRefinement('firmer')">Make it firmer</button>
+                  <button class="actionchip" onclick="applyRefinement('softer')">Soften tone</button>
+                  <button class="actionchip" onclick="applyRefinement('urgent')">Add legal urgency</button>
+                  <button class="actionchip" onclick="applyRefinement('shorter')">Shorten draft</button>
+                  <button class="actionchip" onclick="applyRefinement('bangla')">Convert to Bangla</button>
+                  <button class="actionchip" onclick="applyRefinement('english')">Convert to English</button>
+                </div>
+                <div class="field"><label>Assistant instruction</label><textarea id="assistantNote" placeholder="Example: make the demand paragraph stricter and shorter."></textarea></div>
+                <div class="toolbar">
+                  <button class="btn btnTeal" onclick="applyAssistantInstruction()">Apply instruction</button>
+                </div>
+                <div id="assistantFeedback" class="assistbox">Assistant ready. Use the refinement actions or write a custom instruction.</div>
+              </div>
+            </section>
+
+            <section class="panel docshell">
+              <div class="docbar">
+                <div>
+                  <h3>Draft preview</h3>
+                  <p class="hint">A structured document-style preview instead of a plain text box.</p>
+                </div>
+                <div class="docactions">
+                  <button class="btn btnSecondary" onclick="copyNotice()">Copy</button>
+                  <button class="btn btnSecondary" onclick="downloadNotice()">Download .txt</button>
+                </div>
+              </div>
+
+              <div id="paper" class="paper">
+                Notice draft will appear here.
+              </div>
+              <div class="assistbox">Review reminder: check names, addresses, dates, legal references, and service language before use.</div>
+            </section>
+          </div>
+        </div>
+      </main>
     </div>
   </div>
 
-  <div class="wrap">
-    <div class="hero">
-      <div class="tag">First real module enabled</div>
-      <h2>Notice Generator now works.</h2>
-      <p>Fill the form from your phone and generate a usable legal notice in English or Bangla. This module is template-based and practical.</p>
-    </div>
+  <div id="toast" class="toast"></div>
 
-    <div class="mini">
-      <div class="stat"><strong>1</strong><span>Working module</span></div>
-      <div class="stat"><strong>2</strong><span>Languages</span></div>
-      <div class="stat"><strong>3</strong><span>Tone styles</span></div>
-    </div>
+  <script>
+    let lastNotice = '';
+    let refinementState = { urgency:false, shorter:false, softer:false };
 
-    <div class="card" style="margin-top:16px">
-      <div class="grid2">
-        <div class="field"><label>Language</label><select id="lang" onchange="generateNotice()"><option value="en">English</option><option value="bn">বাংলা</option></select></div>
-        <div class="field"><label>Tone</label><select id="tone" onchange="generateNotice()"><option value="formal">Formal</option><option value="firm">Firm</option><option value="strict">Strict</option></select></div>
-      </div>
-      <div class="field"><label>Sender / Client name</label><input id="sender" placeholder="e.g. Md. Rahim Uddin" oninput="generateNotice()"></div>
-      <div class="field"><label>Recipient name</label><input id="recipient" placeholder="e.g. Karim Mia" oninput="generateNotice()"></div>
-      <div class="field"><label>Recipient address</label><textarea id="address" placeholder="Village / Holding / Road / District" oninput="generateNotice()"></textarea></div>
-      <div class="field"><label>Subject</label><input id="subject" placeholder="e.g. Demand for payment" oninput="generateNotice()"></div>
-      <div class="grid2">
-        <div class="field"><label>Notice reason</label><select id="reason" onchange="generateNotice()"><option value="payment">Demand for payment</option><option value="possession">Interference with possession</option><option value="vacate">Demand to vacate / stop interference</option><option value="deed">Demand regarding deed/document</option><option value="general">General legal grievance</option></select></div>
-        <div class="field"><label>Deadline</label><select id="days" onchange="generateNotice()"><option value="3">3 days</option><option value="7" selected>7 days</option><option value="15">15 days</option><option value="30">30 days</option></select></div>
-      </div>
-      <div class="field"><label>Facts / grievance</label><textarea id="facts" placeholder="Write the core facts clearly..." oninput="generateNotice()"></textarea></div>
-      <div class="field"><label>Demand / remedy sought</label><textarea id="demand" placeholder="Example: repay the outstanding amount in full / stop interference / hand over possession" oninput="generateNotice()"></textarea></div>
-      <div class="actions">
-        <button class="btn btnPrimary" onclick="generateNotice(true)">Generate notice</button>
-        <button class="btn btnSecondary" onclick="fillSample()">Fill sample</button>
-        <button class="btn btnSecondary" onclick="copyNotice()">Copy notice</button>
-        <button class="btn btnSecondary" onclick="downloadNotice()">Download .txt</button>
-      </div>
-      <div class="note">Check names, dates, addresses, and legal references before service or filing.</div>
-    </div>
-
-    <div id="output" class="output">Fill the form and tap “Generate notice”.</div>
-  </div>
-</div>
-<div id="toast" class="toast"></div>
-<script>
-  let lastNotice='';
-  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>t.style.display='none',2200)}
-  function todayLong(lang){const d=new Date();return d.toLocaleDateString(lang==='bn'?'bn-BD':'en-GB',{day:'2-digit',month:'long',year:'numeric'})}
-  function deadlineText(days,lang){return lang==='bn'?`${days} দিনের মধ্যে`:`within ${days} days`}
-  function toneLine(tone,lang){const map={en:{formal:'You are hereby requested to comply peacefully.',firm:'You are hereby called upon to comply without further delay.',strict:'Take notice that failure to comply may compel my client to take legal steps without any further reference.'},bn:{formal:'আপনাকে শান্তিপূর্ণভাবে বিষয়টি নিষ্পত্তির জন্য অনুরোধ করা যাচ্ছে।',firm:'অতএব, আপনাকে আর বিলম্ব না করে বিষয়টি নিষ্পত্তির জন্য বলা যাচ্ছে।',strict:'এই মর্মে নোটিশ করা যাইতেছে যে, নির্দেশ পালন না করলে আমার মক্কেল আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।'}};return map[lang][tone]}
-  function reasonLine(reason,lang){const map={en:{payment:'failure to pay the lawful dues',possession:'illegal interference with possession',vacate:'unlawful occupation / refusal to vacate',deed:'failure regarding deed or document obligations',general:'acts causing legal grievance to my client'},bn:{payment:'বৈধ পাওনা পরিশোধে ব্যর্থতা',possession:'দখলে বেআইনি হস্তক্ষেপ',vacate:'অবৈধ দখল / খালি করতে অস্বীকৃতি',deed:'দলিল বা কাগজপত্র সংক্রান্ত দায়িত্ব পালন না করা',general:'আমার মক্কেলের প্রতি আইনগত ক্ষোভ সৃষ্টিকারী কার্যকলাপ'}};return map[lang][reason]}
-  function val(id){return (document.getElementById(id).value||'').trim()}
-  function generateNotice(withToast=false){
-    const lang=val('lang')||'en', tone=val('tone')||'formal', sender=val('sender'), recipient=val('recipient'), address=val('address'), subject=val('subject'), reason=val('reason')||'general', days=val('days')||'7', facts=val('facts'), demand=val('demand');
-    const out=document.getElementById('output');
-    if(!sender&&!recipient&&!address&&!subject&&!facts&&!demand){out.classList.remove('bangla');out.textContent='Fill the form and tap “Generate notice”.';lastNotice='';return;}
-    if(lang==='en'){
-      out.classList.remove('bangla');
-      lastNotice=`LEGAL NOTICE\n\nDate: ${todayLong('en')}\n\nTo,\n${recipient||'Recipient Name'}\n${address||'Recipient Address'}\n\nSubject: ${subject||'Legal notice regarding '+reasonLine(reason,'en')}\n\nSir/Madam,\n\nUnder instructions from and on behalf of my client ${sender||'[Client Name]'}, I hereby serve upon you this legal notice for ${reasonLine(reason,'en')}.\n\n${facts||'[Insert the material facts of the dispute or grievance here.]'}\n\n${toneLine(tone,'en')} My client demands that you ${demand||'[state the exact act required from the recipient]'} ${deadlineText(days,'en')} from receipt of this notice.\n\nFailing such compliance, my client shall be constrained to take appropriate legal action at your risk, cost, and consequence, without any further notice.\n\nThis notice is issued without prejudice to all other legal rights and remedies available to my client.\n\nSincerely,\n${sender||'[Client Name / Sender]'}`;
-    } else {
-      out.classList.add('bangla');
-      lastNotice=`আইনগত নোটিশ\n\nতারিখ: ${todayLong('bn')}\n\nবরাবর,\n${recipient||'প্রাপক নাম'}\n${address||'প্রাপকের ঠিকানা'}\n\nবিষয়: ${subject||reasonLine(reason,'bn')+' প্রসঙ্গে আইনগত নোটিশ'}\n\nজনাব/জনাবা,\n\nআমার মক্কেল ${sender||'[মক্কেলের নাম]'}-এর নির্দেশক্রমে আপনাকে এই মর্মে আইনগত নোটিশ প্রদান করা যাইতেছে যে, ${reasonLine(reason,'bn')} সংক্রান্ত বিষয়ে নিম্নোক্ত ঘটনা ঘটিয়াছে।\n\n${facts||'[এখানে ঘটনার মূল বিবরণ লিখুন।]'}\n\n${toneLine(tone,'bn')} অতএব, এই নোটিশ প্রাপ্তির ${deadlineText(days,'bn')} আপনি ${demand||'[যে কাজটি করতে হবে তা লিখুন]'}।\n\nঅন্যথায়, আমার মক্কেল আপনার বিরুদ্ধে প্রয়োজনীয় আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন এবং তজ্জনিত দায়-দায়িত্ব, খরচ ও পরিণতি আপনার উপর বর্তাইবে।\n\nএই নোটিশ আমার মক্কেলের অন্যান্য আইনগত অধিকার ও প্রতিকার অক্ষুণ্ণ রাখিয়া প্রদান করা হইল।\n\nইতি,\n${sender||'[মক্কেলের নাম / প্রেরক]'}`;
+    function showToast(msg){
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(()=> t.style.display = 'none', 2200);
     }
-    out.textContent=lastNotice;
-    if(withToast) showToast(lang==='bn'?'নোটিশ তৈরি হয়েছে':'Notice generated');
-  }
-  function fillSample(){document.getElementById('sender').value='Md. Rahim Uddin';document.getElementById('recipient').value='Karim Mia';document.getElementById('address').value='Village: Kaliganj, District: Gazipur';document.getElementById('subject').value='Demand for repayment of money';document.getElementById('reason').value='payment';document.getElementById('days').value='15';document.getElementById('facts').value='You borrowed Tk. 50,000 from my client on 10 March 2026 and despite repeated demands, you have failed to repay the amount.';document.getElementById('demand').value='repay the outstanding amount in full';generateNotice(true)}
-  function copyNotice(){if(!lastNotice){showToast('Generate notice first');return;}navigator.clipboard.writeText(lastNotice).then(()=>showToast('Notice copied')).catch(()=>showToast('Copy failed'))}
-  function downloadNotice(){if(!lastNotice){showToast('Generate notice first');return;}const blob=new Blob([lastNotice],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='zhuxin-notice.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500);showToast('Download started')}
-</script>
+
+    function val(id){ return (document.getElementById(id).value || '').trim(); }
+    function paper(){ return document.getElementById('paper'); }
+    function feedback(msg){ document.getElementById('assistantFeedback').textContent = msg; }
+    function todayLong(lang){
+      const d = new Date();
+      return d.toLocaleDateString(lang === 'bn' ? 'bn-BD' : 'en-GB', { day:'2-digit', month:'long', year:'numeric' });
+    }
+    function deadlineText(days,lang){ return lang==='bn' ? `${days} দিনের মধ্যে` : `within ${days} days`; }
+    function reasonLine(reason,lang){
+      const map = {
+        en:{ payment:'failure to pay the lawful dues', possession:'illegal interference with possession', vacate:'unlawful occupation / refusal to vacate', deed:'failure regarding deed or document obligations', general:'acts causing legal grievance to my client' },
+        bn:{ payment:'বৈধ পাওনা পরিশোধে ব্যর্থতা', possession:'দখলে বেআইনি হস্তক্ষেপ', vacate:'অবৈধ দখল / খালি করতে অস্বীকৃতি', deed:'দলিল বা কাগজপত্র সংক্রান্ত দায়িত্ব পালন না করা', general:'আমার মক্কেলের প্রতি আইনগত ক্ষোভ সৃষ্টিকারী কার্যকলাপ' }
+      };
+      return map[lang][reason];
+    }
+    function toneLine(tone,lang){
+      const map = {
+        en:{
+          formal:'You are hereby requested to comply peacefully.',
+          firm:'You are hereby called upon to comply without further delay.',
+          strict:'Take notice that failure to comply may compel my client to take legal steps without any further reference.'
+        },
+        bn:{
+          formal:'আপনাকে শান্তিপূর্ণভাবে বিষয়টি নিষ্পত্তির জন্য অনুরোধ করা যাচ্ছে।',
+          firm:'অতএব, আপনাকে আর বিলম্ব না করে বিষয়টি নিষ্পত্তির জন্য বলা যাচ্ছে।',
+          strict:'এই মর্মে নোটিশ করা যাইতেছে যে, নির্দেশ পালন না করলে আমার মক্কেল আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।'
+        }
+      };
+      let line = map[lang][tone];
+      if(refinementState.softer){
+        line = lang==='bn' ? 'আপনাকে সৌহার্দ্যপূর্ণভাবে বিষয়টি দ্রুত নিষ্পত্তির আহ্বান জানানো যাচ্ছে।' : 'You are requested to resolve the matter amicably and without delay.';
+      }
+      if(refinementState.urgency){
+        line += lang==='bn' ? ' বিষয়টির জরুরি প্রকৃতির কারণে অবিলম্বে পদক্ষেপ প্রত্যাশিত।' : ' Given the urgency of the matter, immediate action is expected.';
+      }
+      return line;
+    }
+
+    function generateNotice(withToast=false){
+      const lang = val('lang') || 'en';
+      const tone = val('tone') || 'formal';
+      const matter = val('matterName');
+      const sender = val('sender');
+      const recipient = val('recipient');
+      const advocate = val('advocate');
+      const chamber = val('chamber');
+      const address = val('address');
+      const subject = val('subject');
+      const reason = val('reason') || 'general';
+      const days = val('days') || '7';
+      const facts = val('facts');
+      const demand = val('demand');
+      const reference = val('reference');
+
+      const empty = !matter && !sender && !recipient && !address && !subject && !facts && !demand;
+      if(empty){
+        paper().classList.remove('bangla');
+        paper().textContent = 'Notice draft will appear here.';
+        lastNotice = '';
+        return;
+      }
+
+      let bodyFacts = facts || (lang==='bn' ? '[এখানে ঘটনার মূল বিবরণ লিখুন।]' : '[Insert the material facts of the dispute or grievance here.]');
+      let bodyDemand = demand || (lang==='bn' ? '[যে কাজটি করতে হবে তা লিখুন]' : '[state the exact act required from the recipient]');
+
+      if(refinementState.shorter){
+        bodyFacts = bodyFacts.length > 180 ? bodyFacts.slice(0,177) + '...' : bodyFacts;
+        bodyDemand = bodyDemand.length > 120 ? bodyDemand.slice(0,117) + '...' : bodyDemand;
+      }
+
+      if(lang === 'en'){
+        paper().classList.remove('bangla');
+        lastNotice = `LEGAL NOTICE\n\nMatter: ${matter || '[Matter name]'}\nDate: ${todayLong('en')}\n\nTo,\n${recipient || 'Recipient Name'}\n${address || 'Recipient Address'}\n\nSubject: ${subject || 'Legal notice regarding ' + reasonLine(reason,'en')}\n${reference ? `Reference: ${reference}\n` : ''}\nSir/Madam,\n\nUnder instructions from and on behalf of my client ${sender || '[Client Name]'}, I hereby serve upon you this legal notice for ${reasonLine(reason,'en')}.\n\n${bodyFacts}\n\n${toneLine(tone,'en')} My client demands that you ${bodyDemand} ${deadlineText(days,'en')} from receipt of this notice.\n\nFailing such compliance, my client shall be constrained to take appropriate legal action at your risk, cost, and consequence, without any further notice.\n\nThis notice is issued without prejudice to all other legal rights and remedies available to my client.\n\nIssued by:\n${advocate || '[Advocate Name]'}\n${chamber || '[Chamber / Firm Name]'}\nFor and on behalf of ${sender || '[Client Name]'}`;
+      } else {
+        paper().classList.add('bangla');
+        lastNotice = `আইনগত নোটিশ\n\nমামলার নাম: ${matter || '[মামলার নাম]'}\nতারিখ: ${todayLong('bn')}\n\nবরাবর,\n${recipient || 'প্রাপক নাম'}\n${address || 'প্রাপকের ঠিকানা'}\n\nবিষয়: ${subject || reasonLine(reason,'bn') + ' প্রসঙ্গে আইনগত নোটিশ'}\n${reference ? `রেফারেন্স: ${reference}\n` : ''}\nজনাব/জনাবা,\n\nআমার মক্কেল ${sender || '[মক্কেলের নাম]'}-এর নির্দেশক্রমে আপনাকে এই মর্মে আইনগত নোটিশ প্রদান করা যাইতেছে যে, ${reasonLine(reason,'bn')} সংক্রান্ত বিষয়ে নিম্নোক্ত ঘটনা ঘটিয়াছে।\n\n${bodyFacts}\n\n${toneLine(tone,'bn')} অতএব, এই নোটিশ প্রাপ্তির ${deadlineText(days,'bn')} আপনি ${bodyDemand}।\n\nঅন্যথায়, আমার মক্কেল আপনার বিরুদ্ধে প্রয়োজনীয় আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন এবং তজ্জনিত দায়-দায়িত্ব, খরচ ও পরিণতি আপনার উপর বর্তাইবে।\n\nএই নোটিশ আমার মক্কেলের অন্যান্য আইনগত অধিকার ও প্রতিকার অক্ষুণ্ণ রাখিয়া প্রদান করা হইল।\n\nপ্রদানকারী:\n${advocate || '[এডভোকেটের নাম]'}\n${chamber || '[চেম্বার / ফার্মের নাম]'}\nমক্কেল: ${sender || '[মক্কেলের নাম]'}`;
+      }
+
+      paper().textContent = lastNotice;
+      if(withToast) showToast(lang==='bn' ? 'নোটিশ তৈরি হয়েছে' : 'Notice generated');
+    }
+
+    function applyRefinement(type){
+      if(type === 'firmer'){
+        document.getElementById('tone').value = 'strict';
+        refinementState.softer = false;
+        refinementState.urgency = false;
+        feedback('Tone switched to strict for a firmer legal posture.');
+      }
+      if(type === 'softer'){
+        refinementState.softer = true;
+        document.getElementById('tone').value = 'formal';
+        feedback('Language softened for a more restrained, professional tone.');
+      }
+      if(type === 'urgent'){
+        refinementState.urgency = true;
+        feedback('Urgency language added to the warning paragraph.');
+      }
+      if(type === 'shorter'){
+        refinementState.shorter = true;
+        feedback('Facts and demand sections will be compressed.');
+      }
+      if(type === 'bangla'){
+        document.getElementById('lang').value = 'bn';
+        feedback('Draft switched to Bangla.');
+      }
+      if(type === 'english'){
+        document.getElementById('lang').value = 'en';
+        feedback('Draft switched to English.');
+      }
+      generateNotice(true);
+    }
+
+    function applyAssistantInstruction(){
+      const text = val('assistantNote').toLowerCase();
+      if(!text){ feedback('Write an instruction first.'); return; }
+      if(text.includes('firm')){ document.getElementById('tone').value = 'strict'; refinementState.softer = false; }
+      if(text.includes('soft')){ refinementState.softer = true; document.getElementById('tone').value = 'formal'; }
+      if(text.includes('urgent')){ refinementState.urgency = true; }
+      if(text.includes('short')){ refinementState.shorter = true; }
+      if(text.includes('bangla')){ document.getElementById('lang').value = 'bn'; }
+      if(text.includes('english')){ document.getElementById('lang').value = 'en'; }
+      feedback('Instruction applied where possible. Review the updated draft.');
+      generateNotice(true);
+    }
+
+    function fillSample(){
+      document.getElementById('matterName').value = 'Rahim v Karim — Payment recovery';
+      document.getElementById('lang').value = 'en';
+      document.getElementById('tone').value = 'firm';
+      document.getElementById('sender').value = 'Md. Rahim Uddin';
+      document.getElementById('recipient').value = 'Karim Mia';
+      document.getElementById('advocate').value = 'Advocate A. Karim';
+      document.getElementById('chamber').value = 'Zhuxin Legal Desk';
+      document.getElementById('address').value = 'Village: Kaliganj, District: Gazipur';
+      document.getElementById('subject').value = 'Demand for repayment of money';
+      document.getElementById('reason').value = 'payment';
+      document.getElementById('days').value = '15';
+      document.getElementById('reference').value = 'Tk. 50,000 loan dated 10 March 2026';
+      document.getElementById('facts').value = 'You borrowed Tk. 50,000 from my client on 10 March 2026 and despite repeated demands, you have failed to repay the amount.';
+      document.getElementById('demand').value = 'repay the outstanding amount in full';
+      refinementState = { urgency:false, shorter:false, softer:false };
+      feedback('Sample matter loaded.');
+      generateNotice(true);
+    }
+
+    function saveMatter(){
+      const payload = {
+        matterName: val('matterName'), lang: val('lang'), tone: val('tone'), sender: val('sender'), recipient: val('recipient'), advocate: val('advocate'), chamber: val('chamber'), address: val('address'), subject: val('subject'), reason: val('reason'), days: val('days'), facts: val('facts'), demand: val('demand'), reference: val('reference')
+      };
+      localStorage.setItem('zhuxin_notice_matter', JSON.stringify(payload));
+      showToast('Matter saved on this device');
+    }
+
+    function loadMatter(){
+      const raw = localStorage.getItem('zhuxin_notice_matter');
+      if(!raw) return;
+      try{
+        const data = JSON.parse(raw);
+        Object.keys(data).forEach(k => {
+          const el = document.getElementById(k);
+          if(el) el.value = data[k];
+        });
+      }catch(e){}
+    }
+
+    function copyNotice(){
+      if(!lastNotice){ showToast('Generate draft first'); return; }
+      navigator.clipboard.writeText(lastNotice).then(()=>showToast('Draft copied')).catch(()=>showToast('Copy failed'));
+    }
+
+    function downloadNotice(){
+      if(!lastNotice){ showToast('Generate draft first'); return; }
+      const blob = new Blob([lastNotice], { type:'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'zhuxin-notice.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href),500);
+      showToast('Download started');
+    }
+
+    loadMatter();
+    generateNotice();
+  </script>
 </body>
 </html>
