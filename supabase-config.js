@@ -1,6 +1,7 @@
 window.ZHUXIN_SUPABASE_CONFIG = window.ZHUXIN_SUPABASE_CONFIG || {
   supabaseUrl: '',
   supabaseAnonKey: '',
+  apiBaseUrl: '',
   storageBuckets: {
     matterFiles: 'matter-files',
     generatedDocs: 'generated-docs',
