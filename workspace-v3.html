@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Zhuxin Workspace V3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./workspace-v3.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">Z</div>
+        <div>
+          <div class="brand-name">Zhuxin</div>
+          <div class="brand-sub" data-i18n="brand_sub">Legal workspace v3</div>
+        </div>
+      </div>
+      <div class="matter-head">
+        <div class="matter-kicker" data-i18n="matter_kicker">Active matter</div>
+        <div id="matterTitleBar" class="matter-titlebar">Notice Draft</div>
+      </div>
+      <div class="top-actions">
+        <div class="search-box">
+          <span>⌕</span>
+          <input id="globalSearch" data-i18n-placeholder="search_ph" placeholder="Search matters, drafts, actions">
+        </div>
+        <button id="langToggle" class="ghost-btn" onclick="toggleLang()">বাংলা</button>
+      </div>
+    </header>
+
+    <div class="mobile-strip">
+      <button class="strip-pill active" data-i18n="nav_notice">Notice</button>
+      <button class="strip-pill" data-i18n="nav_library">Library</button>
+      <button class="strip-pill" data-i18n="nav_workflows">Workflows</button>
+      <button class="strip-pill" data-i18n="nav_matters">Matters</button>
+    </div>
+
+    <div class="layout">
+      <aside class="left-rail">
+        <div class="rail-section">
+          <div class="rail-label" data-i18n="nav_workspace">Workspace</div>
+          <button class="rail-item"><span data-i18n="nav_dashboard">Dashboard</span><small data-i18n="soon">Soon</small></button>
+          <button class="rail-item active"><span data-i18n="nav_notice_full">Notice Generator</span><small data-i18n="live">Live</small></button>
+          <button class="rail-item"><span data-i18n="nav_library">Library</span><small data-i18n="next">Next</small></button>
+          <button class="rail-item"><span data-i18n="nav_workflows">Workflows</span><small data-i18n="next">Next</small></button>
+          <button class="rail-item"><span data-i18n="nav_title">Title Chain</span><small data-i18n="next">Next</small></button>
+          <button class="rail-item"><span data-i18n="nav_inheritance">Inheritance</span><small data-i18n="next">Next</small></button>
+        </div>
+        <div class="rail-section">
+          <div class="rail-label" data-i18n="recent_matters">Recent matters</div>
+          <button class="matter-item active">Rahim v Karim</button>
+          <button class="matter-item" data-i18n="sample_payment">Payment recovery</button>
+          <button class="matter-item" data-i18n="sample_possession">Possession notice</button>
+        </div>
+      </aside>
+
+      <main class="center-stage">
+        <div class="command-bar">
+          <div class="tabs">
+            <button class="tab active" data-view="draft" onclick="openView('draft')" data-i18n="tab_draft">Draft</button>
+            <button class="tab" data-view="inputs" onclick="openView('inputs')" data-i18n="tab_inputs">Inputs</button>
+            <button class="tab" data-view="versions" onclick="openView('versions')" data-i18n="tab_versions">Versions</button>
+          </div>
+          <div class="command-actions">
+            <button class="ghost-btn" onclick="loadSample()" data-i18n="load_sample">Load sample</button>
+            <button class="ghost-btn" onclick="copyDraft()" data-i18n="copy">Copy</button>
+            <button class="ghost-btn" onclick="downloadDraft()" data-i18n="download_txt">Download .txt</button>
+            <button class="primary-btn" onclick="generateDraft(true)" data-i18n="generate">Generate</button>
+          </div>
+        </div>
+
+        <section id="view-draft" class="view active">
+          <div class="doc-meta">
+            <span class="status-badge live" data-i18n="status_live">Live document</span>
+            <span class="status-badge" id="langBadge">English</span>
+            <span class="status-badge" id="toneBadge">Formal</span>
+          </div>
+          <article id="paper" class="paper">Notice draft will appear here.</article>
+          <div id="reviewReminder" class="review-note" data-i18n="review_reminder">Review reminder: check names, addresses, dates, legal references, and service language before use.</div>
+        </section>
+
+        <section id="view-inputs" class="view">
+          <div class="input-grid two">
+            <label class="field"><span data-i18n="field_matter">Matter name</span><input id="matterName" data-i18n-placeholder="ph_matter" placeholder="e.g. Rahim v Karim — Payment recovery" oninput="generateDraft()"></label>
+            <label class="field"><span data-i18n="field_lang">Language</span><select id="lang" onchange="onLangSelect()"><option value="en">English</option><option value="bn">বাংলা</option></select></label>
+          </div>
+          <div class="input-grid three">
+            <label class="field"><span data-i18n="field_tone">Tone</span><select id="tone" onchange="generateDraft()"><option value="formal" data-i18n="tone_formal">Formal</option><option value="firm" data-i18n="tone_firm">Firm</option><option value="strict" data-i18n="tone_strict">Strict</option></select></label>
+            <label class="field"><span data-i18n="field_reason">Reason</span><select id="reason" onchange="generateDraft()"><option value="payment" data-i18n="reason_payment">Demand for payment</option><option value="possession" data-i18n="reason_possession">Interference with possession</option><option value="vacate" data-i18n="reason_vacate">Demand to vacate</option><option value="deed" data-i18n="reason_deed">Deed/document issue</option><option value="general" data-i18n="reason_general">General grievance</option></select></label>
+            <label class="field"><span data-i18n="field_deadline">Deadline</span><select id="days" onchange="generateDraft()"><option value="3">3</option><option value="7">7</option><option value="15">15</option><option value="30">30</option></select></label>
+          </div>
+          <div class="input-grid two">
+            <label class="field"><span data-i18n="field_sender">Client / sender</span><input id="sender" data-i18n-placeholder="ph_sender" placeholder="e.g. Md. Rahim Uddin" oninput="generateDraft()"></label>
+            <label class="field"><span data-i18n="field_recipient">Recipient</span><input id="recipient" data-i18n-placeholder="ph_recipient" placeholder="e.g. Karim Mia" oninput="generateDraft()"></label>
+          </div>
+          <div class="input-grid two">
+            <label class="field"><span data-i18n="field_advocate">Advocate</span><input id="advocate" data-i18n-placeholder="ph_advocate" placeholder="e.g. Advocate A. Karim" oninput="generateDraft()"></label>
+            <label class="field"><span data-i18n="field_chamber">Chamber / firm</span><input id="chamber" data-i18n-placeholder="ph_chamber" placeholder="e.g. Zhuxin Legal Desk" oninput="generateDraft()"></label>
+          </div>
+          <label class="field"><span data-i18n="field_address">Recipient address</span><textarea id="address" data-i18n-placeholder="ph_address" placeholder="Village / Holding / Road / District" oninput="generateDraft()"></textarea></label>
+          <div class="input-grid two">
+            <label class="field"><span data-i18n="field_subject">Subject</span><input id="subject" data-i18n-placeholder="ph_subject" placeholder="e.g. Demand for repayment of money" oninput="generateDraft()"></label>
+            <label class="field"><span data-i18n="field_reference">Amount / reference</span><input id="reference" data-i18n-placeholder="ph_reference" placeholder="e.g. Tk. 50,000 / Plot no. 12" oninput="generateDraft()"></label>
+          </div>
+          <label class="field"><span data-i18n="field_facts">Facts</span><textarea id="facts" data-i18n-placeholder="ph_facts" placeholder="Write the core facts clearly..." oninput="generateDraft()"></textarea></label>
+          <label class="field"><span data-i18n="field_demand">Demand</span><textarea id="demand" data-i18n-placeholder="ph_demand" placeholder="Example: repay the outstanding amount in full" oninput="generateDraft()"></textarea></label>
+          <div class="input-actions">
+            <button class="ghost-btn" onclick="saveMatter()" data-i18n="save_matter">Save matter</button>
+            <button class="ghost-btn" onclick="saveVersion()" data-i18n="save_version">Save version</button>
+          </div>
+        </section>
+
+        <section id="view-versions" class="view">
+          <div id="versionsList" class="versions-list"></div>
+        </section>
+      </main>
+
+      <aside class="right-rail">
+        <div class="assistant-card">
+          <div class="assistant-head">
+            <div>
+              <div class="assistant-title" data-i18n="assistant_title">Assistant</div>
+              <div class="assistant-sub" data-i18n="assistant_sub">Use quick actions to reshape the notice.</div>
+            </div>
+          </div>
+          <div class="quick-grid">
+            <button onclick="applyQuick('firmer')" data-i18n="quick_firmer">Make it firmer</button>
+            <button onclick="applyQuick('softer')" data-i18n="quick_softer">Soften tone</button>
+            <button onclick="applyQuick('urgent')" data-i18n="quick_urgent">Add legal urgency</button>
+            <button onclick="applyQuick('shorter')" data-i18n="quick_shorter">Shorten draft</button>
+            <button onclick="applyQuick('bangla')" data-i18n="quick_bangla">Convert to Bangla</button>
+            <button onclick="applyQuick('english')" data-i18n="quick_english">Convert to English</button>
+          </div>
+          <label class="field compact">
+            <span data-i18n="assistant_instruction">Assistant instruction</span>
+            <textarea id="assistantInstruction" data-i18n-placeholder="assistant_ph" placeholder="Example: make the demand paragraph stricter and shorter."></textarea>
+          </label>
+          <button class="green-btn" onclick="applyInstruction()" data-i18n="apply_instruction">Apply instruction</button>
+        </div>
+
+        <div id="chatPanel" class="chat-panel">
+          <div class="chat-msg ai" id="assistantReady" data-i18n="assistant_ready">Assistant ready. Use the quick actions above or write a custom instruction.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script src="./workspace-v3.js"></script>
+</body>
+</html>
