@@ -10,86 +10,47 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#000;--panel:#0b0b0b;--panel2:#111;--panel3:#151515;--line:#2f2f2d;--text:#f3f3f1;--muted:#b5b5b0;--soft:#f3f2ee;--softText:#151515;--danger:#9d9d98}
+    :root{--bg:#000;--panel:#0b0b0b;--panel2:#111;--panel3:#151515;--line:#2f2f2d;--text:#f3f3f1;--muted:#b5b5b0;--soft:#f3f2ee;--softText:#151515}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
     body.bn,body.bn *{font-family:'Noto Sans Bengali',Inter,sans-serif}
     button,input,textarea,select{font:inherit}
     .app{min-height:100vh}
     .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:rgba(0,0,0,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-    .brand{display:flex;align-items:center;gap:10px;min-width:0}
-    .mark{width:34px;height:34px;border-radius:10px;background:var(--soft);color:#111;display:grid;place-items:center;font-weight:800;flex:0 0 auto}
-    .brand-name{font-family:'Cormorant Garamond',serif;font-size:28px;line-height:1;font-weight:600;letter-spacing:-.03em}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}.mark{width:34px;height:34px;border-radius:10px;background:var(--soft);color:#111;display:grid;place-items:center;font-weight:800;flex:0 0 auto}
+    .brand-name{font-family:'Cormorant Garamond',serif;font-size:28px;line-height:1;font-weight:600;letter-spacing:-.03em}.brand-sub{font-size:11px;color:var(--muted)}
     body.bn .brand-name{font-family:'Noto Sans Bengali',Inter,sans-serif;font-size:24px;font-weight:700}
-    .brand-sub{font-size:11px;color:var(--muted)}
     .top-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;min-width:0}
-    .search{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;max-width:340px;width:100%}
-    .search input{width:100%;background:transparent;border:none;outline:none;color:var(--text)}
-    .search input::placeholder{color:var(--muted)}
-    .ghost-btn,.primary-btn,.soft-btn{border:none;border-radius:14px;padding:10px 12px;font-weight:600;cursor:pointer}
-    .ghost-btn{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--text)}
-    .primary-btn{background:var(--soft);color:var(--softText)}
-    .soft-btn{background:#131313;border:1px solid var(--line);color:var(--muted)}
-    .model-select{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);outline:none;max-width:124px}
+    .search{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0;max-width:340px;width:100%}.search input{width:100%;background:transparent;border:none;outline:none;color:var(--text)}.search input::placeholder{color:var(--muted)}
+    .ghost-btn,.primary-btn,.soft-btn{border:none;border-radius:14px;padding:10px 12px;font-weight:600;cursor:pointer}.ghost-btn{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--text)}.primary-btn{background:var(--soft);color:var(--softText)}.soft-btn{background:#131313;border:1px solid var(--line);color:var(--muted)}
+    .model-select{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);outline:none;max-width:130px}
     .mobile-strip{display:flex;gap:8px;overflow:auto;padding:10px 14px;border-bottom:1px solid var(--line)}
-    .strip-btn{white-space:nowrap;border:1px solid var(--line);background:#0d0d0d;color:var(--muted);padding:10px 12px;border-radius:999px;cursor:pointer}
-    .strip-btn.active{background:var(--soft);color:#111;border-color:var(--soft)}
+    .strip-btn{white-space:nowrap;border:1px solid var(--line);background:#0d0d0d;color:var(--muted);padding:10px 12px;border-radius:999px;cursor:pointer}.strip-btn.active{background:var(--soft);color:#111;border-color:var(--soft)}
     .layout{display:grid;grid-template-columns:1fr;gap:14px;padding:14px}
-    .left-rail{display:none;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;height:fit-content;position:sticky;top:74px}
-    .rail-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:6px 4px}
-    .rail-item,.matter-item{width:100%;border:none;background:transparent;color:var(--text);display:flex;justify-content:space-between;gap:8px;align-items:center;text-align:left;padding:11px 12px;border-radius:12px;cursor:pointer}
-    .rail-item.active,.matter-item.active{background:var(--panel3);border:1px solid var(--line)}
-    .rail-item small{color:var(--muted)}
-    .surface,.side-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}
-    .main-column{display:grid;gap:14px}
-    .side-column{display:grid;gap:14px}
-    .surface{display:none}
-    .surface.active{display:block}
-    .surface-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
-    .surface-title{font-family:'Cormorant Garamond',serif;font-size:48px;line-height:.92;font-weight:600;letter-spacing:-.06em;margin:0}
+    .left-rail{display:none;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;height:fit-content;position:sticky;top:74px}.rail-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:6px 4px}
+    .rail-item,.matter-item{width:100%;border:none;background:transparent;color:var(--text);display:flex;justify-content:space-between;gap:8px;align-items:center;text-align:left;padding:11px 12px;border-radius:12px;cursor:pointer}.rail-item.active,.matter-item.active{background:var(--panel3);border:1px solid var(--line)}.rail-item small{color:var(--muted)}
+    .surface,.side-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}.main-column{display:grid;gap:14px}.side-column{display:grid;gap:14px}.surface{display:none}.surface.active{display:block}
+    .surface-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}.surface-title{font-family:'Cormorant Garamond',serif;font-size:48px;line-height:.92;font-weight:600;letter-spacing:-.06em;margin:0}.surface-sub{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.6;max-width:760px}
     body.bn .surface-title{font-family:'Noto Sans Bengali',Inter,sans-serif;font-size:30px;line-height:1.08;font-weight:700}
-    .surface-sub{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.6;max-width:700px}
-    .status-row{display:flex;gap:8px;flex-wrap:wrap}
-    .badge{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#111;color:var(--muted);font-size:12px}
-    .badge.live{background:#151515;color:#f3f3f1}
-    .badge.soft{background:var(--soft);color:#111;border-color:var(--soft)}
-    .chat-thread{display:grid;gap:10px;max-height:52vh;overflow:auto;padding-right:2px}
-    .msg{padding:12px;border-radius:14px;font-size:14px;line-height:1.65;white-space:pre-wrap}
-    .msg.ai{background:#101010;border:1px solid var(--line)}
-    .msg.user{background:#171717;border:1px solid var(--line)}
-    .composer{display:grid;gap:10px;margin-top:14px}
-    .composer textarea,.field input,.field textarea,.field select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:none}
-    .composer textarea,.field textarea{min-height:96px;resize:vertical}
-    .row{display:flex;gap:8px;flex-wrap:wrap}
-    .prompt-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
-    .prompt-card,.history-card,.version-card{background:#101010;border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:8px}
-    .prompt-card strong,.history-card strong,.version-card strong{font-size:14px}
-    .prompt-card p,.history-card p,.version-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
-    .prompt-tags{display:flex;gap:6px;flex-wrap:wrap}
-    .tag{padding:6px 8px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--muted)}
-    .split-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-    .tabs{display:flex;gap:8px;overflow:auto}
-    .tab{border:1px solid var(--line);background:#0f0f0f;color:var(--muted);padding:10px 12px;border-radius:12px;cursor:pointer}
-    .tab.active{background:var(--soft);color:#111;border-color:var(--soft);font-weight:700}
-    .notice-view{display:none;margin-top:14px}
-    .notice-view.active{display:block}
-    .doc-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-    .paper{background:var(--soft);color:#171717;border-radius:18px;padding:20px;min-height:520px;white-space:pre-wrap;line-height:1.82;font-size:14px;border:1px solid rgba(0,0,0,.08)}
-    .paper.bn{font-family:'Noto Sans Bengali',Inter,sans-serif;line-height:1.95}
-    .review{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.55}
-    .grid2,.grid3{display:grid;gap:10px}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}
-    .field{display:grid;gap:6px}.field span,.field label{font-size:12px;color:var(--muted);font-weight:600}
-    .small{font-size:12px;color:var(--muted);line-height:1.55}
-    .section-title{font-size:15px;font-weight:700;margin:0 0 10px}
-    .assistant-title{font-family:'Cormorant Garamond',serif;font-size:34px;line-height:1;font-weight:600;letter-spacing:-.04em}
-    body.bn .assistant-title{font-family:'Noto Sans Bengali',Inter,sans-serif;font-size:24px;font-weight:700}
-    .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-    .quick button{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#101010;color:var(--text);text-align:left;font-size:12px;cursor:pointer}
-    .list{display:grid;gap:10px}
-    .empty{color:var(--muted);font-size:13px;line-height:1.6;padding:6px 2px}
-    .divider{height:1px;background:var(--line);margin:12px 0}
-    @media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr 1fr}.prompt-grid{grid-template-columns:1fr 1fr}}
-    @media(min-width:1100px){.mobile-strip{display:none}.layout{grid-template-columns:250px minmax(0,1fr) 340px;align-items:start}.left-rail{display:block}.surface-title{font-size:62px}.chat-thread{max-height:58vh}}
+    .status-row{display:flex;gap:8px;flex-wrap:wrap}.badge{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#111;color:var(--muted);font-size:12px}.badge.live{background:#151515;color:#f3f3f1}.badge.soft{background:var(--soft);color:#111;border-color:var(--soft)}
+    .assistant-shell{display:grid;gap:14px}
+    .control-grid{display:grid;grid-template-columns:1fr;gap:10px}.control-card{background:#101010;border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px}.control-title{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .seg,.chips,.mini-list,.row{display:flex;gap:8px;flex-wrap:wrap}.seg button,.chips button,.mini-list button{border:1px solid var(--line);background:#131313;color:var(--muted);padding:9px 10px;border-radius:12px;cursor:pointer}.seg button.active,.chips button.active,.mini-list button.active{background:var(--soft);color:#111;border-color:var(--soft)}
+    .chat-thread{display:grid;gap:12px;max-height:58vh;overflow:auto;padding-right:2px}.msg{padding:14px;border-radius:16px;font-size:14px;line-height:1.7}.msg.ai{background:#101010;border:1px solid var(--line)}.msg.user{background:#171717;border:1px solid var(--line)}
+    .msg-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.msg-role{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.msg-tools{display:flex;gap:6px;flex-wrap:wrap}.msg-tools span{font-size:11px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+    .cite-block,.output-block{margin-top:10px;background:#0d0d0d;border:1px solid var(--line);border-radius:14px;padding:12px}.cite-title,.output-title{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    .cite-item{padding:8px 10px;border-radius:10px;background:#131313;border:1px solid var(--line);font-size:12px;line-height:1.55;margin-top:8px}.output-card{padding:10px;border-radius:12px;background:#131313;border:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:8px}.output-card strong{font-size:13px}.output-card small{display:block;color:var(--muted);font-size:11px;line-height:1.45}
+    .composer{display:grid;gap:10px}.composer textarea,.field input,.field textarea,.field select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:none}.composer textarea,.field textarea{min-height:110px;resize:vertical}
+    .prompt-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.prompt-card,.history-card,.version-card,.kb-card{background:#101010;border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:8px}.prompt-card strong,.history-card strong,.version-card strong,.kb-card strong{font-size:14px}.prompt-card p,.history-card p,.version-card p,.kb-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+    .prompt-tags{display:flex;gap:6px;flex-wrap:wrap}.tag{padding:6px 8px;border:1px solid var(--line);border-radius:999px;font-size:11px;color:var(--muted)}.split-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .tabs{display:flex;gap:8px;overflow:auto}.tab{border:1px solid var(--line);background:#0f0f0f;color:var(--muted);padding:10px 12px;border-radius:12px;cursor:pointer}.tab.active{background:var(--soft);color:#111;border-color:var(--soft);font-weight:700}
+    .notice-view{display:none;margin-top:14px}.notice-view.active{display:block}.doc-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.paper{background:var(--soft);color:#171717;border-radius:18px;padding:20px;min-height:520px;white-space:pre-wrap;line-height:1.82;font-size:14px;border:1px solid rgba(0,0,0,.08)}.paper.bn{font-family:'Noto Sans Bengali',Inter,sans-serif;line-height:1.95}.review{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.55}
+    .grid2,.grid3{display:grid;gap:10px}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.field{display:grid;gap:6px}.field span,.field label{font-size:12px;color:var(--muted);font-weight:600}
+    .small{font-size:12px;color:var(--muted);line-height:1.55}.section-title{font-size:15px;font-weight:700;margin:0 0 10px}.assistant-title{font-family:'Cormorant Garamond',serif;font-size:34px;line-height:1;font-weight:600;letter-spacing:-.04em}
+    body.bn .assistant-title{font-family:'Noto Sans Bengali',Inter,sans-serif;font-size:24px;font-weight:700}.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.quick button{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#101010;color:var(--text);text-align:left;font-size:12px;cursor:pointer}
+    .list{display:grid;gap:10px}.empty{color:var(--muted);font-size:13px;line-height:1.6;padding:6px 2px}.divider{height:1px;background:var(--line);margin:12px 0}
+    @media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr 1fr}.prompt-grid{grid-template-columns:1fr 1fr}.control-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:1100px){.mobile-strip{display:none}.layout{grid-template-columns:250px minmax(0,1fr) 340px;align-items:start}.left-rail{display:block}.surface-title{font-size:62px}}
   </style>
 </head>
 <body>
@@ -103,15 +64,8 @@
         </div>
       </div>
       <div class="top-actions">
-        <div class="search">
-          <span>⌕</span>
-          <input id="globalSearch" data-i18n-placeholder="search_ph" placeholder="Search library, history, threads" oninput="onSearch()">
-        </div>
-        <select id="modelSelector" class="model-select">
-          <option>Balanced</option>
-          <option>Reasoning</option>
-          <option>Fast Draft</option>
-        </select>
+        <div class="search"><span>⌕</span><input id="globalSearch" data-i18n-placeholder="search_ph" placeholder="Search library, history, threads" oninput="onSearch()"></div>
+        <select id="modelSelector" class="model-select"><option>Balanced</option><option>Reasoning</option><option>Fast Draft</option></select>
         <button class="ghost-btn" id="langToggle" onclick="toggleLang()">বাংলা</button>
       </div>
     </header>
@@ -126,13 +80,14 @@
     <div class="layout">
       <aside class="left-rail">
         <div class="rail-label" data-i18n="workspace">Workspace</div>
-        <button class="rail-item active" data-surface="assistant" onclick="openSurface('assistant')"><span data-i18n="nav_assistant">Assistant</span><small data-i18n="live">Live</small></button>
+        <button class="rail-item active" data-surface="assistant" onclick="openSurface('assistant')"><span data-i18n="nav_assistant">Assistant</span><small data-i18n="phase2">Phase 2</small></button>
         <button class="rail-item" data-surface="notice" onclick="openSurface('notice')"><span data-i18n="nav_notice_full">Notice Generator</span><small data-i18n="live">Live</small></button>
         <button class="rail-item" data-surface="library" onclick="openSurface('library')"><span data-i18n="nav_library">Library</span><small data-i18n="phase1">Phase 1</small></button>
         <button class="rail-item" data-surface="history" onclick="openSurface('history')"><span data-i18n="nav_history">History</span><small data-i18n="phase1">Phase 1</small></button>
         <button class="rail-item"><span data-i18n="nav_vault">Vault</span><small data-i18n="next">Next</small></button>
         <button class="rail-item"><span data-i18n="nav_workflows">Workflows</span><small data-i18n="next">Next</small></button>
         <button class="rail-item"><span data-i18n="nav_agents">Agents</span><small data-i18n="later">Later</small></button>
+        <button class="rail-item"><span data-i18n="nav_playbooks">Playbooks</span><small data-i18n="later">Later</small></button>
         <div class="divider"></div>
         <div class="rail-label" data-i18n="recent_matters">Recent matters</div>
         <button class="matter-item active">Rahim v Karim</button>
@@ -144,30 +99,61 @@
         <section id="surface-assistant" class="surface active">
           <div class="surface-head">
             <div>
-              <div class="status-row">
-                <span class="badge soft" data-i18n="phase1">Phase 1</span>
-                <span class="badge" data-i18n="assistant_badge">Threaded assistant</span>
-                <span class="badge" id="modelBadge">Balanced</span>
-              </div>
+              <div class="status-row"><span class="badge soft" data-i18n="phase2">Phase 2</span><span class="badge" data-i18n="assistant_badge">Threaded assistant with deeper work products</span><span class="badge" id="modelBadge">Balanced</span></div>
               <h1 class="surface-title" data-i18n="assistant_title_big">Assistant</h1>
-              <div class="surface-sub" data-i18n="assistant_sub_big">Start threads, use saved prompt cards, draft outputs, and build a working history layer as the first Harvey-scope foundation.</div>
+              <div class="surface-sub" data-i18n="assistant_sub_big">Use deeper task modes, style controls, source selection, citation-style evidence blocks, and output cards for more capable legal work inside Zhuxin.</div>
             </div>
-            <div class="row">
-              <button class="soft-btn" onclick="saveCurrentThread()" data-i18n="save_thread">Save thread</button>
-              <button class="primary-btn" onclick="newThread()" data-i18n="new_thread">New thread</button>
-            </div>
+            <div class="row"><button class="soft-btn" onclick="saveCurrentThread()" data-i18n="save_thread">Save thread</button><button class="primary-btn" onclick="newThread()" data-i18n="new_thread">New thread</button></div>
           </div>
-          <div class="chat-thread" id="chatThread"></div>
-          <div class="composer">
-            <div class="row">
-              <button class="soft-btn" onclick="usePrompt('issue_spotting')" data-i18n="issue_spotting">Issue spotting</button>
-              <button class="soft-btn" onclick="usePrompt('draft_notice')" data-i18n="draft_notice_prompt">Draft notice</button>
-              <button class="soft-btn" onclick="usePrompt('research_note')" data-i18n="research_note">Research note</button>
+
+          <div class="assistant-shell">
+            <div class="control-grid">
+              <div class="control-card">
+                <div class="control-title" data-i18n="task_mode">Task mode</div>
+                <div class="seg" id="taskModeSeg">
+                  <button class="active" data-mode="chat" onclick="setTaskMode('chat')" data-i18n="mode_chat">Chat</button>
+                  <button data-mode="analysis" onclick="setTaskMode('analysis')" data-i18n="mode_analysis">Deep analysis</button>
+                  <button data-mode="draft" onclick="setTaskMode('draft')" data-i18n="mode_draft">Drafting</button>
+                  <button data-mode="edit" onclick="setTaskMode('edit')" data-i18n="mode_edit">Editing</button>
+                </div>
+              </div>
+              <div class="control-card">
+                <div class="control-title" data-i18n="writing_style">Writing style</div>
+                <div class="seg" id="styleSeg">
+                  <button class="active" data-style="neutral" onclick="setWritingStyle('neutral')" data-i18n="style_neutral">Neutral</button>
+                  <button data-style="firm" onclick="setWritingStyle('firm')" data-i18n="style_firm">Firm</button>
+                  <button data-style="executive" onclick="setWritingStyle('executive')" data-i18n="style_executive">Executive</button>
+                  <button data-style="formal" onclick="setWritingStyle('formal')" data-i18n="style_formal">Formal</button>
+                </div>
+              </div>
+              <div class="control-card">
+                <div class="control-title" data-i18n="sources_title">Sources</div>
+                <div class="chips" id="sourceChips">
+                  <button class="active" data-source="uploads" onclick="toggleSource('uploads')" data-i18n="source_uploads">Uploads</button>
+                  <button class="active" data-source="vault" onclick="toggleSource('vault')" data-i18n="source_vault">Vault</button>
+                  <button class="active" data-source="knowledge" onclick="toggleSource('knowledge')" data-i18n="source_knowledge">Knowledge</button>
+                  <button data-source="web" onclick="toggleSource('web')" data-i18n="source_web">Web</button>
+                  <button data-source="library" onclick="toggleSource('library')" data-i18n="source_library">Library</button>
+                </div>
+              </div>
             </div>
-            <textarea id="assistantInput" data-i18n-placeholder="assistant_ph" placeholder="Describe the legal task, facts, jurisdiction, and desired output."></textarea>
-            <div class="row">
-              <button class="soft-btn" onclick="insertSourceTag()" data-i18n="source_tag">Source tag</button>
-              <button class="primary-btn" onclick="sendAssistant()" data-i18n="send">Send</button>
+
+            <div class="chat-thread" id="chatThread"></div>
+
+            <div class="composer">
+              <div class="row">
+                <button class="soft-btn" onclick="usePrompt('issue_spotting')" data-i18n="issue_spotting">Issue spotting</button>
+                <button class="soft-btn" onclick="usePrompt('draft_notice')" data-i18n="draft_notice_prompt">Draft notice</button>
+                <button class="soft-btn" onclick="usePrompt('research_note')" data-i18n="research_note">Research note</button>
+                <button class="soft-btn" onclick="insertSourceTag()" data-i18n="source_tag">Source tag</button>
+              </div>
+              <textarea id="assistantInput" data-i18n-placeholder="assistant_ph" placeholder="Describe the legal task, facts, jurisdiction, and desired output."></textarea>
+              <div class="row">
+                <button class="soft-btn" onclick="buildOutput('memo')" data-i18n="build_memo">Build memo</button>
+                <button class="soft-btn" onclick="buildOutput('slides')" data-i18n="build_slides">Build slides</button>
+                <button class="soft-btn" onclick="buildOutput('table')" data-i18n="build_table">Build table</button>
+                <button class="primary-btn" onclick="sendAssistant()" data-i18n="send">Send</button>
+              </div>
             </div>
           </div>
         </section>
@@ -175,11 +161,7 @@
         <section id="surface-notice" class="surface">
           <div class="surface-head">
             <div>
-              <div class="status-row">
-                <span class="badge live" data-i18n="live_doc">Live document</span>
-                <span class="badge" id="langBadge">English</span>
-                <span class="badge" id="toneBadge">Formal</span>
-              </div>
+              <div class="status-row"><span class="badge live" data-i18n="live_doc">Live document</span><span class="badge" id="langBadge">English</span><span class="badge" id="toneBadge">Formal</span></div>
               <h1 class="surface-title" data-i18n="page_title">Notice Generator</h1>
               <div class="surface-sub" data-i18n="page_sub">Generate a usable legal notice draft in a cleaner black-and-white Zhuxin workspace.</div>
             </div>
@@ -189,120 +171,54 @@
             <button class="tab" data-notice-view="inputs" onclick="openNoticeView('inputs')" data-i18n="tab_inputs">Inputs</button>
             <button class="tab" data-notice-view="versions" onclick="openNoticeView('versions')" data-i18n="tab_versions">Versions</button>
           </div>
-
-          <section id="notice-draft" class="notice-view active">
-            <div class="paper" id="paper">Notice draft will appear here.</div>
-            <div class="review" data-i18n="review">Review reminder: check names, addresses, dates, legal references, and service language before use.</div>
-            <div class="row" style="margin-top:12px">
-              <button class="soft-btn" onclick="copyDraft()" data-i18n="copy">Copy</button>
-              <button class="soft-btn" onclick="downloadDraft()" data-i18n="download">Download .txt</button>
-              <button class="primary-btn" onclick="generateDraft(true)" data-i18n="generate">Generate</button>
-            </div>
-          </section>
-
+          <section id="notice-draft" class="notice-view active"><div class="paper" id="paper">Notice draft will appear here.</div><div class="review" data-i18n="review">Review reminder: check names, addresses, dates, legal references, and service language before use.</div><div class="row" style="margin-top:12px"><button class="soft-btn" onclick="copyDraft()" data-i18n="copy">Copy</button><button class="soft-btn" onclick="downloadDraft()" data-i18n="download">Download .txt</button><button class="primary-btn" onclick="generateDraft(true)" data-i18n="generate">Generate</button></div></section>
           <section id="notice-inputs" class="notice-view">
-            <div class="grid2">
-              <label class="field"><span data-i18n="field_matter">Matter name</span><input id="matterName" data-i18n-placeholder="ph_matter" placeholder="e.g. Rahim v Karim — Payment recovery" oninput="generateDraft()"></label>
-              <label class="field"><span data-i18n="field_lang">Language</span><select id="lang" onchange="ui()"><option value="en">English</option><option value="bn">বাংলা</option></select></label>
-            </div>
-            <div class="grid3" style="margin-top:10px">
-              <label class="field"><span data-i18n="field_tone">Tone</span><select id="tone" onchange="generateDraft()"><option value="formal" data-i18n="tone_formal">Formal</option><option value="firm" data-i18n="tone_firm">Firm</option><option value="strict" data-i18n="tone_strict">Strict</option></select></label>
-              <label class="field"><span data-i18n="field_reason">Reason</span><select id="reason" onchange="generateDraft()"><option value="payment" data-i18n="reason_payment">Demand for payment</option><option value="possession" data-i18n="reason_possession">Interference with possession</option><option value="vacate" data-i18n="reason_vacate">Demand to vacate</option><option value="deed" data-i18n="reason_deed">Deed/document issue</option><option value="general" data-i18n="reason_general">General grievance</option></select></label>
-              <label class="field"><span data-i18n="field_deadline">Deadline</span><select id="days" onchange="generateDraft()"><option value="3">3</option><option value="7">7</option><option value="15">15</option><option value="30">30</option></select></label>
-            </div>
-            <div class="grid2" style="margin-top:10px">
-              <label class="field"><span data-i18n="field_sender">Client / sender</span><input id="sender" data-i18n-placeholder="ph_sender" placeholder="e.g. Md. Rahim Uddin" oninput="generateDraft()"></label>
-              <label class="field"><span data-i18n="field_recipient">Recipient</span><input id="recipient" data-i18n-placeholder="ph_recipient" placeholder="e.g. Karim Mia" oninput="generateDraft()"></label>
-            </div>
-            <div class="grid2" style="margin-top:10px">
-              <label class="field"><span data-i18n="field_advocate">Advocate</span><input id="advocate" data-i18n-placeholder="ph_advocate" placeholder="e.g. Advocate A. Karim" oninput="generateDraft()"></label>
-              <label class="field"><span data-i18n="field_chamber">Chamber / firm</span><input id="chamber" data-i18n-placeholder="ph_chamber" placeholder="e.g. Zhuxin Legal Desk" oninput="generateDraft()"></label>
-            </div>
+            <div class="grid2"><label class="field"><span data-i18n="field_matter">Matter name</span><input id="matterName" data-i18n-placeholder="ph_matter" placeholder="e.g. Rahim v Karim — Payment recovery" oninput="generateDraft()"></label><label class="field"><span data-i18n="field_lang">Language</span><select id="lang" onchange="ui()"><option value="en">English</option><option value="bn">বাংলা</option></select></label></div>
+            <div class="grid3" style="margin-top:10px"><label class="field"><span data-i18n="field_tone">Tone</span><select id="tone" onchange="generateDraft()"><option value="formal" data-i18n="tone_formal">Formal</option><option value="firm" data-i18n="tone_firm">Firm</option><option value="strict" data-i18n="tone_strict">Strict</option></select></label><label class="field"><span data-i18n="field_reason">Reason</span><select id="reason" onchange="generateDraft()"><option value="payment" data-i18n="reason_payment">Demand for payment</option><option value="possession" data-i18n="reason_possession">Interference with possession</option><option value="vacate" data-i18n="reason_vacate">Demand to vacate</option><option value="deed" data-i18n="reason_deed">Deed/document issue</option><option value="general" data-i18n="reason_general">General grievance</option></select></label><label class="field"><span data-i18n="field_deadline">Deadline</span><select id="days" onchange="generateDraft()"><option value="3">3</option><option value="7">7</option><option value="15">15</option><option value="30">30</option></select></label></div>
+            <div class="grid2" style="margin-top:10px"><label class="field"><span data-i18n="field_sender">Client / sender</span><input id="sender" data-i18n-placeholder="ph_sender" placeholder="e.g. Md. Rahim Uddin" oninput="generateDraft()"></label><label class="field"><span data-i18n="field_recipient">Recipient</span><input id="recipient" data-i18n-placeholder="ph_recipient" placeholder="e.g. Karim Mia" oninput="generateDraft()"></label></div>
+            <div class="grid2" style="margin-top:10px"><label class="field"><span data-i18n="field_advocate">Advocate</span><input id="advocate" data-i18n-placeholder="ph_advocate" placeholder="e.g. Advocate A. Karim" oninput="generateDraft()"></label><label class="field"><span data-i18n="field_chamber">Chamber / firm</span><input id="chamber" data-i18n-placeholder="ph_chamber" placeholder="e.g. Zhuxin Legal Desk" oninput="generateDraft()"></label></div>
             <label class="field" style="margin-top:10px"><span data-i18n="field_address">Recipient address</span><textarea id="address" data-i18n-placeholder="ph_address" placeholder="Village / Holding / Road / District" oninput="generateDraft()"></textarea></label>
-            <div class="grid2" style="margin-top:10px">
-              <label class="field"><span data-i18n="field_subject">Subject</span><input id="subject" data-i18n-placeholder="ph_subject" placeholder="e.g. Demand for repayment of money" oninput="generateDraft()"></label>
-              <label class="field"><span data-i18n="field_reference">Amount / reference</span><input id="reference" data-i18n-placeholder="ph_reference" placeholder="e.g. Tk. 50,000 / Plot no. 12" oninput="generateDraft()"></label>
-            </div>
+            <div class="grid2" style="margin-top:10px"><label class="field"><span data-i18n="field_subject">Subject</span><input id="subject" data-i18n-placeholder="ph_subject" placeholder="e.g. Demand for repayment of money" oninput="generateDraft()"></label><label class="field"><span data-i18n="field_reference">Amount / reference</span><input id="reference" data-i18n-placeholder="ph_reference" placeholder="e.g. Tk. 50,000 / Plot no. 12" oninput="generateDraft()"></label></div>
             <label class="field" style="margin-top:10px"><span data-i18n="field_facts">Facts</span><textarea id="facts" data-i18n-placeholder="ph_facts" placeholder="Write the core facts clearly..." oninput="generateDraft()"></textarea></label>
             <label class="field" style="margin-top:10px"><span data-i18n="field_demand">Demand</span><textarea id="demand" data-i18n-placeholder="ph_demand" placeholder="Example: repay the outstanding amount in full" oninput="generateDraft()"></textarea></label>
-            <div class="row" style="margin-top:12px">
-              <button class="soft-btn" onclick="loadSample()" data-i18n="load_sample">Load sample</button>
-              <button class="soft-btn" onclick="saveMatter()" data-i18n="save_matter">Save matter</button>
-              <button class="soft-btn" onclick="saveVersion()" data-i18n="save_version">Save version</button>
-            </div>
+            <div class="row" style="margin-top:12px"><button class="soft-btn" onclick="loadSample()" data-i18n="load_sample">Load sample</button><button class="soft-btn" onclick="saveMatter()" data-i18n="save_matter">Save matter</button><button class="soft-btn" onclick="saveVersion()" data-i18n="save_version">Save version</button></div>
           </section>
-
-          <section id="notice-versions" class="notice-view">
-            <div id="versionsList" class="list"></div>
-          </section>
+          <section id="notice-versions" class="notice-view"><div id="versionsList" class="list"></div></section>
         </section>
 
         <section id="surface-library" class="surface">
-          <div class="surface-head">
-            <div>
-              <div class="status-row">
-                <span class="badge soft" data-i18n="phase1">Phase 1</span>
-                <span class="badge" data-i18n="library_badge">Private + team-style prompt shelf</span>
-              </div>
-              <h1 class="surface-title" data-i18n="library_title">Library</h1>
-              <div class="surface-sub" data-i18n="library_sub">Saved prompts, reusable examples, and quick-start cards that can be moved directly into Assistant threads.</div>
-            </div>
-          </div>
+          <div class="surface-head"><div><div class="status-row"><span class="badge soft" data-i18n="phase1">Phase 1</span><span class="badge" data-i18n="library_badge">Private + team-style prompt shelf</span></div><h1 class="surface-title" data-i18n="library_title">Library</h1><div class="surface-sub" data-i18n="library_sub">Saved prompts, reusable examples, and quick-start cards that can be moved directly into Assistant threads.</div></div></div>
           <div id="libraryGrid" class="prompt-grid"></div>
         </section>
 
         <section id="surface-history" class="surface">
-          <div class="surface-head">
-            <div>
-              <div class="status-row">
-                <span class="badge soft" data-i18n="phase1">Phase 1</span>
-                <span class="badge" data-i18n="history_badge">Threads + drafts</span>
-              </div>
-              <h1 class="surface-title" data-i18n="history_title">History</h1>
-              <div class="surface-sub" data-i18n="history_sub">Reopen saved assistant threads and notice drafts from this device.</div>
-            </div>
-          </div>
+          <div class="surface-head"><div><div class="status-row"><span class="badge soft" data-i18n="phase1">Phase 1</span><span class="badge" data-i18n="history_badge">Threads + drafts</span></div><h1 class="surface-title" data-i18n="history_title">History</h1><div class="surface-sub" data-i18n="history_sub">Reopen saved assistant threads and notice drafts from this device.</div></div></div>
           <div id="historyList" class="list"></div>
         </section>
       </main>
 
       <aside class="side-column">
         <section class="side-card">
-          <div class="assistant-title" data-i18n="assistant_title_small">Assistant tools</div>
+          <div class="assistant-title" data-i18n="assistant_tools">Assistant tools</div>
           <div class="small" data-i18n="assistant_sub_small" style="margin-top:6px">Use quick actions to reshape the notice or seed a thread faster.</div>
           <div class="quick">
-            <button onclick="applyQuick('firmer')" data-i18n="quick_firmer">Make it firmer</button>
-            <button onclick="applyQuick('softer')" data-i18n="quick_softer">Soften tone</button>
-            <button onclick="applyQuick('urgent')" data-i18n="quick_urgent">Add legal urgency</button>
-            <button onclick="applyQuick('shorter')" data-i18n="quick_shorter">Shorten draft</button>
-            <button onclick="applyQuick('bangla')" data-i18n="quick_bangla">Convert to Bangla</button>
-            <button onclick="applyQuick('english')" data-i18n="quick_english">Convert to English</button>
+            <button onclick="applyQuick('firmer')" data-i18n="quick_firmer">Make it firmer</button><button onclick="applyQuick('softer')" data-i18n="quick_softer">Soften tone</button><button onclick="applyQuick('urgent')" data-i18n="quick_urgent">Add legal urgency</button><button onclick="applyQuick('shorter')" data-i18n="quick_shorter">Shorten draft</button><button onclick="applyQuick('bangla')" data-i18n="quick_bangla">Convert to Bangla</button><button onclick="applyQuick('english')" data-i18n="quick_english">Convert to English</button>
           </div>
           <label class="field" style="margin-top:12px"><span data-i18n="assistant_instruction">Assistant instruction</span><textarea id="assistantInstruction" data-i18n-placeholder="assistant_instruction_ph" placeholder="Example: make the demand paragraph stricter and shorter."></textarea></label>
           <div class="row" style="margin-top:12px"><button class="primary-btn" onclick="applyInstruction()" data-i18n="apply_instruction">Apply instruction</button></div>
         </section>
 
-        <section class="side-card">
-          <div class="section-title" data-i18n="favorite_prompts">Favorite prompts</div>
-          <div id="favoritesList" class="list"></div>
-        </section>
-
-        <section class="side-card">
-          <div class="section-title" data-i18n="recent_activity">Recent activity</div>
-          <div id="recentActivity" class="list"></div>
-        </section>
-
-        <section id="chatPanel" class="side-card chat">
-          <div class="msg ai" id="assistantReady" data-i18n="assistant_ready">Assistant ready. Use the quick actions above or write a custom instruction.</div>
-        </section>
+        <section class="side-card"><div class="section-title" data-i18n="favorite_prompts">Favorite prompts</div><div id="favoritesList" class="list"></div></section>
+        <section class="side-card"><div class="section-title" data-i18n="recent_activity">Recent activity</div><div id="recentActivity" class="list"></div></section>
+        <section class="side-card"><div class="section-title" data-i18n="knowledge_shelf">Knowledge shelf</div><div id="knowledgeShelf" class="list"></div></section>
       </aside>
     </div>
   </div>
 
   <script>
     const I18N={
-      en:{brand_sub:'Professional Class AI',search_ph:'Search library, history, threads',workspace:'Workspace',nav_assistant:'Assistant',nav_notice:'Notice',nav_notice_full:'Notice Generator',nav_library:'Library',nav_history:'History',nav_vault:'Vault',nav_workflows:'Workflows',nav_agents:'Agents',recent_matters:'Recent matters',sample_payment:'Payment recovery',sample_possession:'Possession notice',live:'Live',next:'Next',later:'Later',phase1:'Phase 1',assistant_badge:'Threaded assistant',assistant_title_big:'Assistant',assistant_sub_big:'Start threads, use saved prompt cards, draft outputs, and build a working history layer as the first Harvey-scope foundation.',save_thread:'Save thread',new_thread:'New thread',issue_spotting:'Issue spotting',draft_notice_prompt:'Draft notice',research_note:'Research note',assistant_ph:'Describe the legal task, facts, jurisdiction, and desired output.',source_tag:'Source tag',send:'Send',live_doc:'Live document',page_title:'Notice Generator',page_sub:'Generate a usable legal notice draft in a cleaner black-and-white Zhuxin workspace.',tab_draft:'Draft',tab_inputs:'Inputs',tab_versions:'Versions',review:'Review reminder: check names, addresses, dates, legal references, and service language before use.',copy:'Copy',download:'Download .txt',generate:'Generate',field_matter:'Matter name',field_lang:'Language',field_tone:'Tone',field_reason:'Reason',field_deadline:'Deadline',field_sender:'Client / sender',field_recipient:'Recipient',field_advocate:'Advocate',field_chamber:'Chamber / firm',field_address:'Recipient address',field_subject:'Subject',field_reference:'Amount / reference',field_facts:'Facts',field_demand:'Demand',ph_matter:'e.g. Rahim v Karim — Payment recovery',ph_sender:'e.g. Md. Rahim Uddin',ph_recipient:'e.g. Karim Mia',ph_advocate:'e.g. Advocate A. Karim',ph_chamber:'e.g. Zhuxin Legal Desk',ph_address:'Village / Holding / Road / District',ph_subject:'e.g. Demand for repayment of money',ph_reference:'e.g. Tk. 50,000 / Plot no. 12',ph_facts:'Write the core facts clearly...',ph_demand:'Example: repay the outstanding amount in full',tone_formal:'Formal',tone_firm:'Firm',tone_strict:'Strict',reason_payment:'Demand for payment',reason_possession:'Interference with possession',reason_vacate:'Demand to vacate',reason_deed:'Deed/document issue',reason_general:'General grievance',load_sample:'Load sample',save_matter:'Save matter',save_version:'Save version',library_badge:'Private + team-style prompt shelf',library_title:'Library',library_sub:'Saved prompts, reusable examples, and quick-start cards that can be moved directly into Assistant threads.',history_badge:'Threads + drafts',history_title:'History',history_sub:'Reopen saved assistant threads and notice drafts from this device.',assistant_title_small:'Assistant tools',assistant_sub_small:'Use quick actions to reshape the notice or seed a thread faster.',quick_firmer:'Make it firmer',quick_softer:'Soften tone',quick_urgent:'Add legal urgency',quick_shorter:'Shorten draft',quick_bangla:'Convert to Bangla',quick_english:'Convert to English',assistant_instruction:'Assistant instruction',assistant_instruction_ph:'Example: make the demand paragraph stricter and shorter.',apply_instruction:'Apply instruction',favorite_prompts:'Favorite prompts',recent_activity:'Recent activity',assistant_ready:'Assistant ready. Use the quick actions above or write a custom instruction.',empty:'Notice draft will appear here.',generated:'Notice generated',matter_saved:'Matter saved on this device',version_saved:'Version saved',thread_saved:'Thread saved',need_draft:'Generate draft first',need_instruction:'Write an instruction first.',history_empty:'No saved items yet.',restore:'Restore',copied:'Draft copied',copy_fail:'Copy failed',downloaded:'Download started',sample_loaded:'Sample matter loaded.',instruction_applied:'Instruction applied where possible. Review the updated draft.',firmer_fb:'Tone switched to strict for a firmer legal posture.',softer_fb:'Language softened for a more restrained, professional tone.',urgent_fb:'Urgency language added to the warning paragraph.',shorter_fb:'Facts and demand sections will be compressed.',bangla_fb:'Draft switched to Bangla.',english_fb:'Draft switched to English.',thread_title:'Untitled thread',thread_type:'Assistant thread',notice_type:'Notice draft',favorite:'Favorite',unfavorite:'Unfavorite',use_in_assistant:'Use in Assistant',open_thread:'Open thread',open_draft:'Open draft',issue_card_title:'Issue Spotting',issue_card_desc:'Break a fact pattern into claims, defenses, risks, and missing facts.',notice_card_title:'Notice Drafting',notice_card_desc:'Turn a fact pattern into a first legal notice draft with tone control.',research_card_title:'Research Note',research_card_desc:'Create a structured note with issues, authority targets, and next research steps.',playbook_card_title:'Playbook Outline',playbook_card_desc:'Outline fallback positions, unacceptable points, and review questions.',seed_issue:'Spot issues in the following matter and tell me what facts are still missing.',seed_notice:'Draft a formal legal notice from the following facts.',seed_research:'Prepare a concise research note with issues, likely authority targets, and next steps.',seed_playbook:'Build a simple contract playbook outline from the following commercial position.',activity_empty:'No recent activity yet.'},
-      bn:{brand_sub:'Professional Class AI',search_ph:'লাইব্রেরি, হিস্ট্রি, থ্রেড খুঁজুন',workspace:'ওয়ার্কস্পেস',nav_assistant:'সহকারী',nav_notice:'নোটিশ',nav_notice_full:'নোটিশ জেনারেটর',nav_library:'লাইব্রেরি',nav_history:'ইতিহাস',nav_vault:'ভল্ট',nav_workflows:'ওয়ার্কফ্লো',nav_agents:'এজেন্ট',recent_matters:'সাম্প্রতিক ম্যাটার',sample_payment:'টাকা আদায়',sample_possession:'দখল সংক্রান্ত নোটিশ',live:'সক্রিয়',next:'পরের ধাপ',later:'পরে',phase1:'ফেজ ১',assistant_badge:'থ্রেডেড সহকারী',assistant_title_big:'সহকারী',assistant_sub_big:'থ্রেড শুরু করুন, সেভ করা প্রম্পট কার্ড ব্যবহার করুন, ড্রাফট তৈরি করুন, এবং Harvey-স্কোপের প্রথম ভিত্তি হিসেবে কার্যকর হিস্ট্রি স্তর গড়ে তুলুন।',save_thread:'থ্রেড সংরক্ষণ',new_thread:'নতুন থ্রেড',issue_spotting:'ইস্যু স্পটিং',draft_notice_prompt:'নোটিশ ড্রাফট',research_note:'রিসার্চ নোট',assistant_ph:'আইনগত কাজ, ঘটনা, এখতিয়ার এবং কাঙ্ক্ষিত আউটপুট লিখুন।',source_tag:'সোর্স ট্যাগ',send:'পাঠান',live_doc:'সক্রিয় ডকুমেন্ট',page_title:'নোটিশ জেনারেটর',page_sub:'পরিষ্কার কালো-সাদা Zhuxin ওয়ার্কস্পেসে একটি ব্যবহারযোগ্য আইনগত নোটিশ ড্রাফট তৈরি করুন।',tab_draft:'ড্রাফট',tab_inputs:'ইনপুট',tab_versions:'ভার্সন',review:'পর্যালোচনা স্মরণ: ব্যবহার করার আগে নাম, ঠিকানা, তারিখ, আইনি রেফারেন্স ও ভাষা পরীক্ষা করুন।',copy:'কপি',download:'.txt ডাউনলোড',generate:'তৈরি করুন',field_matter:'ম্যাটারের নাম',field_lang:'ভাষা',field_tone:'টোন',field_reason:'কারণ',field_deadline:'সময়সীমা',field_sender:'মক্কেল / প্রেরক',field_recipient:'প্রাপক',field_advocate:'এডভোকেট',field_chamber:'চেম্বার / ফার্ম',field_address:'প্রাপকের ঠিকানা',field_subject:'বিষয়',field_reference:'পরিমাণ / রেফারেন্স',field_facts:'ঘটনার বিবরণ',field_demand:'দাবি',ph_matter:'যেমন: রহিম বনাম করিম — টাকা আদায়',ph_sender:'যেমন: মোঃ রহিম উদ্দিন',ph_recipient:'যেমন: করিম মিয়া',ph_advocate:'যেমন: এডভোকেট এ. করিম',ph_chamber:'যেমন: Zhuxin লিগ্যাল ডেস্ক',ph_address:'গ্রাম / হোল্ডিং / রোড / জেলা',ph_subject:'যেমন: টাকা ফেরতের দাবি',ph_reference:'যেমন: ৫০,০০০ টাকা / প্লট নং ১২',ph_facts:'ঘটনার মূল বিবরণ পরিষ্কারভাবে লিখুন...',ph_demand:'যেমন: বকেয়া সম্পূর্ণ টাকা পরিশোধ করুন',tone_formal:'আনুষ্ঠানিক',tone_firm:'কঠোর',tone_strict:'কড়া',reason_payment:'টাকা পরিশোধের দাবি',reason_possession:'দখলে হস্তক্ষেপ',reason_vacate:'খালি করার দাবি',reason_deed:'দলিল/কাগজপত্র সমস্যা',reason_general:'সাধারণ অভিযোগ',load_sample:'স্যাম্পল আনুন',save_matter:'ম্যাটার সংরক্ষণ করুন',save_version:'ভার্সন সংরক্ষণ',library_badge:'প্রাইভেট + টিম-ধরনের প্রম্পট শেলফ',library_title:'লাইব্রেরি',library_sub:'সেভ করা প্রম্পট, পুনর্ব্যবহারযোগ্য উদাহরণ, এবং কুইক-স্টার্ট কার্ড যা সরাসরি Assistant থ্রেডে নেওয়া যায়।',history_badge:'থ্রেড + ড্রাফট',history_title:'ইতিহাস',history_sub:'এই ডিভাইসের সেভ করা Assistant থ্রেড ও নোটিশ ড্রাফট পুনরায় খুলুন।',assistant_title_small:'সহকারী টুলস',assistant_sub_small:'নোটিশ বদলাতে বা দ্রুত থ্রেড শুরু করতে কুইক অ্যাকশন ব্যবহার করুন।',quick_firmer:'আরও কড়া করুন',quick_softer:'টোন নরম করুন',quick_urgent:'জরুরিতা যোগ করুন',quick_shorter:'সংক্ষিপ্ত করুন',quick_bangla:'বাংলায় নিন',quick_english:'ইংরেজিতে নিন',assistant_instruction:'সহকারীর নির্দেশ',assistant_instruction_ph:'যেমন: দাবি প্যারাগ্রাফটিকে আরও কড়া ও ছোট করুন।',apply_instruction:'নির্দেশ প্রয়োগ',favorite_prompts:'প্রিয় প্রম্পট',recent_activity:'সাম্প্রতিক কার্যকলাপ',assistant_ready:'সহকারী প্রস্তুত। উপরের কুইক অ্যাকশন ব্যবহার করুন অথবা নির্দেশ লিখুন।',empty:'নোটিশের খসড়া এখানে দেখা যাবে।',generated:'নোটিশ তৈরি হয়েছে',matter_saved:'ম্যাটার এই ডিভাইসে সংরক্ষিত হয়েছে',version_saved:'ভার্সন সংরক্ষিত হয়েছে',thread_saved:'থ্রেড সংরক্ষিত হয়েছে',need_draft:'আগে ড্রাফট তৈরি করুন',need_instruction:'আগে একটি নির্দেশ লিখুন।',history_empty:'এখনও কোনো সেভ করা আইটেম নেই।',restore:'ফিরিয়ে আনুন',copied:'খসড়া কপি হয়েছে',copy_fail:'কপি করা যায়নি',downloaded:'ডাউনলোড শুরু হয়েছে',sample_loaded:'স্যাম্পল ম্যাটার লোড হয়েছে।',instruction_applied:'যেখানে সম্ভব নির্দেশ প্রয়োগ হয়েছে। আপডেটেড ড্রাফট দেখুন।',firmer_fb:'কঠোর আইনি ভঙ্গির জন্য টোন কড়া করা হয়েছে।',softer_fb:'আরও সংযত ও পেশাদার টোনে ভাষা নরম করা হয়েছে।',urgent_fb:'সতর্কীকরণ অংশে জরুরিতা যোগ করা হয়েছে।',shorter_fb:'ঘটনা ও দাবি অংশ সংক্ষিপ্ত করা হবে।',bangla_fb:'ড্রাফট বাংলায় নেওয়া হয়েছে।',english_fb:'ড্রাফট ইংরেজিতে নেওয়া হয়েছে।',thread_title:'নামহীন থ্রেড',thread_type:'সহকারী থ্রেড',notice_type:'নোটিশ ড্রাফট',favorite:'প্রিয়',unfavorite:'প্রিয় তালিকা থেকে বাদ',use_in_assistant:'সহকারীতে নিন',open_thread:'থ্রেড খুলুন',open_draft:'ড্রাফট খুলুন',issue_card_title:'ইস্যু স্পটিং',issue_card_desc:'একটি ঘটনা থেকে দাবি, ডিফেন্স, ঝুঁকি ও অনুপস্থিত তথ্য আলাদা করুন।',notice_card_title:'নোটিশ ড্রাফটিং',notice_card_desc:'ঘটনার বর্ণনা থেকে টোন-নিয়ন্ত্রিত প্রথম নোটিশ ড্রাফট তৈরি করুন।',research_card_title:'রিসার্চ নোট',research_card_desc:'ইস্যু, কর্তৃত্বের লক্ষ্য এবং পরের ধাপসহ কাঠামোবদ্ধ নোট তৈরি করুন।',playbook_card_title:'প্লেবুক আউটলাইন',playbook_card_desc:'ফলব্যাক পজিশন, অগ্রহণযোগ্য পয়েন্ট ও রিভিউ প্রশ্ন লিখুন।',seed_issue:'নিচের ম্যাটার থেকে ইস্যু বের করুন এবং কোন তথ্য এখনও দরকার তা বলুন।',seed_notice:'নিচের ঘটনাগুলো থেকে একটি আনুষ্ঠানিক আইনগত নোটিশ ড্রাফট করুন।',seed_research:'ইস্যু, সম্ভাব্য কর্তৃত্বের লক্ষ্য ও পরের ধাপসহ সংক্ষিপ্ত রিসার্চ নোট তৈরি করুন।',seed_playbook:'নিচের বাণিজ্যিক অবস্থান থেকে একটি সহজ চুক্তি প্লেবুক আউটলাইন তৈরি করুন।',activity_empty:'এখনও কোনো সাম্প্রতিক কার্যকলাপ নেই।'}
+      en:{brand_sub:'Professional Class AI',search_ph:'Search library, history, threads',workspace:'Workspace',nav_assistant:'Assistant',nav_notice:'Notice',nav_notice_full:'Notice Generator',nav_library:'Library',nav_history:'History',nav_vault:'Vault',nav_workflows:'Workflows',nav_agents:'Agents',nav_playbooks:'Playbooks',recent_matters:'Recent matters',sample_payment:'Payment recovery',sample_possession:'Possession notice',live:'Live',next:'Next',later:'Later',phase1:'Phase 1',phase2:'Phase 2',assistant_badge:'Threaded assistant with deeper work products',assistant_title_big:'Assistant',assistant_sub_big:'Use deeper task modes, style controls, source selection, citation-style evidence blocks, and output cards for more capable legal work inside Zhuxin.',save_thread:'Save thread',new_thread:'New thread',issue_spotting:'Issue spotting',draft_notice_prompt:'Draft notice',research_note:'Research note',assistant_ph:'Describe the legal task, facts, jurisdiction, and desired output.',source_tag:'Source tag',send:'Send',task_mode:'Task mode',mode_chat:'Chat',mode_analysis:'Deep analysis',mode_draft:'Drafting',mode_edit:'Editing',writing_style:'Writing style',style_neutral:'Neutral',style_firm:'Firm',style_executive:'Executive',style_formal:'Formal',sources_title:'Sources',source_uploads:'Uploads',source_vault:'Vault',source_knowledge:'Knowledge',source_web:'Web',source_library:'Library',build_memo:'Build memo',build_slides:'Build slides',build_table:'Build table',live_doc:'Live document',page_title:'Notice Generator',page_sub:'Generate a usable legal notice draft in a cleaner black-and-white Zhuxin workspace.',tab_draft:'Draft',tab_inputs:'Inputs',tab_versions:'Versions',review:'Review reminder: check names, addresses, dates, legal references, and service language before use.',copy:'Copy',download:'Download .txt',generate:'Generate',field_matter:'Matter name',field_lang:'Language',field_tone:'Tone',field_reason:'Reason',field_deadline:'Deadline',field_sender:'Client / sender',field_recipient:'Recipient',field_advocate:'Advocate',field_chamber:'Chamber / firm',field_address:'Recipient address',field_subject:'Subject',field_reference:'Amount / reference',field_facts:'Facts',field_demand:'Demand',ph_matter:'e.g. Rahim v Karim — Payment recovery',ph_sender:'e.g. Md. Rahim Uddin',ph_recipient:'e.g. Karim Mia',ph_advocate:'e.g. Advocate A. Karim',ph_chamber:'e.g. Zhuxin Legal Desk',ph_address:'Village / Holding / Road / District',ph_subject:'e.g. Demand for repayment of money',ph_reference:'e.g. Tk. 50,000 / Plot no. 12',ph_facts:'Write the core facts clearly...',ph_demand:'Example: repay the outstanding amount in full',tone_formal:'Formal',tone_firm:'Firm',tone_strict:'Strict',reason_payment:'Demand for payment',reason_possession:'Interference with possession',reason_vacate:'Demand to vacate',reason_deed:'Deed/document issue',reason_general:'General grievance',load_sample:'Load sample',save_matter:'Save matter',save_version:'Save version',library_badge:'Private + team-style prompt shelf',library_title:'Library',library_sub:'Saved prompts, reusable examples, and quick-start cards that can be moved directly into Assistant threads.',history_badge:'Threads + drafts',history_title:'History',history_sub:'Reopen saved assistant threads and notice drafts from this device.',assistant_tools:'Assistant tools',assistant_sub_small:'Use quick actions to reshape the notice or seed a thread faster.',quick_firmer:'Make it firmer',quick_softer:'Soften tone',quick_urgent:'Add legal urgency',quick_shorter:'Shorten draft',quick_bangla:'Convert to Bangla',quick_english:'Convert to English',assistant_instruction:'Assistant instruction',assistant_instruction_ph:'Example: make the demand paragraph stricter and shorter.',apply_instruction:'Apply instruction',favorite_prompts:'Favorite prompts',recent_activity:'Recent activity',knowledge_shelf:'Knowledge shelf',assistant_ready:'Assistant ready. Use the controls above or write a custom instruction.',empty:'Notice draft will appear here.',generated:'Notice generated',matter_saved:'Matter saved on this device',version_saved:'Version saved',thread_saved:'Thread saved',need_draft:'Generate draft first',need_instruction:'Write an instruction first.',history_empty:'No saved items yet.',restore:'Restore',copied:'Draft copied',copy_fail:'Copy failed',downloaded:'Download started',sample_loaded:'Sample matter loaded.',instruction_applied:'Instruction applied where possible. Review the updated draft.',firmer_fb:'Tone switched to strict for a firmer legal posture.',softer_fb:'Language softened for a more restrained, professional tone.',urgent_fb:'Urgency language added to the warning paragraph.',shorter_fb:'Facts and demand sections will be compressed.',bangla_fb:'Draft switched to Bangla.',english_fb:'Draft switched to English.',thread_title:'Untitled thread',thread_type:'Assistant thread',notice_type:'Notice draft',favorite:'Favorite',unfavorite:'Unfavorite',use_in_assistant:'Use in Assistant',open_thread:'Open thread',open_draft:'Open draft',issue_card_title:'Issue Spotting',issue_card_desc:'Break a fact pattern into claims, defenses, risks, and missing facts.',notice_card_title:'Notice Drafting',notice_card_desc:'Turn a fact pattern into a first legal notice draft with tone control.',research_card_title:'Research Note',research_card_desc:'Create a structured note with issues, authority targets, and next research steps.',playbook_card_title:'Playbook Outline',playbook_card_desc:'Outline fallback positions, unacceptable points, and review questions.',seed_issue:'Spot issues in the following matter and tell me what facts are still missing.',seed_notice:'Draft a formal legal notice from the following facts.',seed_research:'Prepare a concise research note with issues, likely authority targets, and next steps.',seed_playbook:'Build a simple contract playbook outline from the following commercial position.',activity_empty:'No recent activity yet.',cite_title:'Evidence trail',output_title:'Outputs',memo_output:'Memo outline',slides_output:'Slide outline',table_output:'Working table',source_summary:'Active sources',kb_internal:'Internal policy bank',kb_regulatory:'Regulatory notes',kb_templates:'Template shelf',kb_desc_internal:'Reusable internal positions and drafting standards.',kb_desc_regulatory:'Public-law and compliance-oriented notes for grounding.',kb_desc_templates:'Starter structures for notices, memos, and reviews.'},
+      bn:{brand_sub:'Professional Class AI',search_ph:'লাইব্রেরি, হিস্ট্রি, থ্রেড খুঁজুন',workspace:'ওয়ার্কস্পেস',nav_assistant:'সহকারী',nav_notice:'নোটিশ',nav_notice_full:'নোটিশ জেনারেটর',nav_library:'লাইব্রেরি',nav_history:'ইতিহাস',nav_vault:'ভল্ট',nav_workflows:'ওয়ার্কফ্লো',nav_agents:'এজেন্ট',nav_playbooks:'প্লেবুক',recent_matters:'সাম্প্রতিক ম্যাটার',sample_payment:'টাকা আদায়',sample_possession:'দখল সংক্রান্ত নোটিশ',live:'সক্রিয়',next:'পরের ধাপ',later:'পরে',phase1:'ফেজ ১',phase2:'ফেজ ২',assistant_badge:'আরও শক্তিশালী ওয়ার্ক-প্রোডাক্টসহ থ্রেডেড সহকারী',assistant_title_big:'সহকারী',assistant_sub_big:'Zhuxin-এর ভিতরে আরও সক্ষম আইনগত কাজের জন্য গভীর টাস্ক মোড, স্টাইল কন্ট্রোল, সোর্স নির্বাচন, উদ্ধৃতি-ধরনের এভিডেন্স ব্লক এবং আউটপুট কার্ড ব্যবহার করুন।',save_thread:'থ্রেড সংরক্ষণ',new_thread:'নতুন থ্রেড',issue_spotting:'ইস্যু স্পটিং',draft_notice_prompt:'নোটিশ ড্রাফট',research_note:'রিসার্চ নোট',assistant_ph:'আইনগত কাজ, ঘটনা, এখতিয়ার এবং কাঙ্ক্ষিত আউটপুট লিখুন।',source_tag:'সোর্স ট্যাগ',send:'পাঠান',task_mode:'টাস্ক মোড',mode_chat:'চ্যাট',mode_analysis:'গভীর বিশ্লেষণ',mode_draft:'ড্রাফটিং',mode_edit:'এডিটিং',writing_style:'রাইটিং স্টাইল',style_neutral:'নিরপেক্ষ',style_firm:'কঠোর',style_executive:'এক্সিকিউটিভ',style_formal:'আনুষ্ঠানিক',sources_title:'সোর্স',source_uploads:'আপলোড',source_vault:'ভল্ট',source_knowledge:'নলেজ',source_web:'ওয়েব',source_library:'লাইব্রেরি',build_memo:'মেমো তৈরি',build_slides:'স্লাইড তৈরি',build_table:'টেবিল তৈরি',live_doc:'সক্রিয় ডকুমেন্ট',page_title:'নোটিশ জেনারেটর',page_sub:'পরিষ্কার কালো-সাদা Zhuxin ওয়ার্কস্পেসে একটি ব্যবহারযোগ্য আইনগত নোটিশ ড্রাফট তৈরি করুন।',tab_draft:'ড্রাফট',tab_inputs:'ইনপুট',tab_versions:'ভার্সন',review:'পর্যালোচনা স্মরণ: ব্যবহার করার আগে নাম, ঠিকানা, তারিখ, আইনি রেফারেন্স ও ভাষা পরীক্ষা করুন।',copy:'কপি',download:'.txt ডাউনলোড',generate:'তৈরি করুন',field_matter:'ম্যাটারের নাম',field_lang:'ভাষা',field_tone:'টোন',field_reason:'কারণ',field_deadline:'সময়সীমা',field_sender:'মক্কেল / প্রেরক',field_recipient:'প্রাপক',field_advocate:'এডভোকেট',field_chamber:'চেম্বার / ফার্ম',field_address:'প্রাপকের ঠিকানা',field_subject:'বিষয়',field_reference:'পরিমাণ / রেফারেন্স',field_facts:'ঘটনার বিবরণ',field_demand:'দাবি',ph_matter:'যেমন: রহিম বনাম করিম — টাকা আদায়',ph_sender:'যেমন: মোঃ রহিম উদ্দিন',ph_recipient:'যেমন: করিম মিয়া',ph_advocate:'যেমন: এডভোকেট এ. করিম',ph_chamber:'যেমন: Zhuxin লিগ্যাল ডেস্ক',ph_address:'গ্রাম / হোল্ডিং / রোড / জেলা',ph_subject:'যেমন: টাকা ফেরতের দাবি',ph_reference:'যেমন: ৫০,০০০ টাকা / প্লট নং ১২',ph_facts:'ঘটনার মূল বিবরণ পরিষ্কারভাবে লিখুন...',ph_demand:'যেমন: বকেয়া সম্পূর্ণ টাকা পরিশোধ করুন',tone_formal:'আনুষ্ঠানিক',tone_firm:'কঠোর',tone_strict:'কড়া',reason_payment:'টাকা পরিশোধের দাবি',reason_possession:'দখলে হস্তক্ষেপ',reason_vacate:'খালি করার দাবি',reason_deed:'দলিল/কাগজপত্র সমস্যা',reason_general:'সাধারণ অভিযোগ',load_sample:'স্যাম্পল আনুন',save_matter:'ম্যাটার সংরক্ষণ করুন',save_version:'ভার্সন সংরক্ষণ',library_badge:'প্রাইভেট + টিম-ধরনের প্রম্পট শেলফ',library_title:'লাইব্রেরি',library_sub:'সেভ করা প্রম্পট, পুনর্ব্যবহারযোগ্য উদাহরণ, এবং কুইক-স্টার্ট কার্ড যা সরাসরি Assistant থ্রেডে নেওয়া যায়।',history_badge:'থ্রেড + ড্রাফট',history_title:'ইতিহাস',history_sub:'এই ডিভাইসের সেভ করা Assistant থ্রেড ও নোটিশ ড্রাফট পুনরায় খুলুন।',assistant_tools:'সহকারী টুলস',assistant_sub_small:'নোটিশ বদলাতে বা দ্রুত থ্রেড শুরু করতে কুইক অ্যাকশন ব্যবহার করুন।',quick_firmer:'আরও কড়া করুন',quick_softer:'টোন নরম করুন',quick_urgent:'জরুরিতা যোগ করুন',quick_shorter:'সংক্ষিপ্ত করুন',quick_bangla:'বাংলায় নিন',quick_english:'ইংরেজিতে নিন',assistant_instruction:'সহকারীর নির্দেশ',assistant_instruction_ph:'যেমন: দাবি প্যারাগ্রাফটিকে আরও কড়া ও ছোট করুন।',apply_instruction:'নির্দেশ প্রয়োগ',favorite_prompts:'প্রিয় প্রম্পট',recent_activity:'সাম্প্রতিক কার্যকলাপ',knowledge_shelf:'নলেজ শেলফ',assistant_ready:'সহকারী প্রস্তুত। উপরের কন্ট্রোল ব্যবহার করুন অথবা নির্দেশ লিখুন।',empty:'নোটিশের খসড়া এখানে দেখা যাবে।',generated:'নোটিশ তৈরি হয়েছে',matter_saved:'ম্যাটার এই ডিভাইসে সংরক্ষিত হয়েছে',version_saved:'ভার্সন সংরক্ষিত হয়েছে',thread_saved:'থ্রেড সংরক্ষিত হয়েছে',need_draft:'আগে ড্রাফট তৈরি করুন',need_instruction:'আগে একটি নির্দেশ লিখুন।',history_empty:'এখনও কোনো সেভ করা আইটেম নেই।',restore:'ফিরিয়ে আনুন',copied:'খসড়া কপি হয়েছে',copy_fail:'কপি করা যায়নি',downloaded:'ডাউনলোড শুরু হয়েছে',sample_loaded:'স্যাম্পল ম্যাটার লোড হয়েছে।',instruction_applied:'যেখানে সম্ভব নির্দেশ প্রয়োগ হয়েছে। আপডেটেড ড্রাফট দেখুন।',firmer_fb:'কঠোর আইনি ভঙ্গির জন্য টোন কড়া করা হয়েছে।',softer_fb:'আরও সংযত ও পেশাদার টোনে ভাষা নরম করা হয়েছে।',urgent_fb:'সতর্কীকরণ অংশে জরুরিতা যোগ করা হয়েছে।',shorter_fb:'ঘটনা ও দাবি অংশ সংক্ষিপ্ত করা হবে।',bangla_fb:'ড্রাফট বাংলায় নেওয়া হয়েছে।',english_fb:'ড্রাফট ইংরেজিতে নেওয়া হয়েছে।',thread_title:'নামহীন থ্রেড',thread_type:'সহকারী থ্রেড',notice_type:'নোটিশ ড্রাফট',favorite:'প্রিয়',unfavorite:'প্রিয় তালিকা থেকে বাদ',use_in_assistant:'সহকারীতে নিন',open_thread:'থ্রেড খুলুন',open_draft:'ড্রাফট খুলুন',issue_card_title:'ইস্যু স্পটিং',issue_card_desc:'একটি ঘটনা থেকে দাবি, ডিফেন্স, ঝুঁকি ও অনুপস্থিত তথ্য আলাদা করুন।',notice_card_title:'নোটিশ ড্রাফটিং',notice_card_desc:'ঘটনার বর্ণনা থেকে টোন-নিয়ন্ত্রিত প্রথম নোটিশ ড্রাফট তৈরি করুন।',research_card_title:'রিসার্চ নোট',research_card_desc:'ইস্যু, কর্তৃত্বের লক্ষ্য এবং পরের ধাপসহ কাঠামোবদ্ধ নোট তৈরি করুন।',playbook_card_title:'প্লেবুক আউটলাইন',playbook_card_desc:'ফলব্যাক পজিশন, অগ্রহণযোগ্য পয়েন্ট ও রিভিউ প্রশ্ন লিখুন।',seed_issue:'নিচের ম্যাটার থেকে ইস্যু বের করুন এবং কোন তথ্য এখনও দরকার তা বলুন।',seed_notice:'নিচের ঘটনাগুলো থেকে একটি আনুষ্ঠানিক আইনগত নোটিশ ড্রাফট করুন।',seed_research:'ইস্যু, সম্ভাব্য কর্তৃত্বের লক্ষ্য ও পরের ধাপসহ সংক্ষিপ্ত রিসার্চ নোট তৈরি করুন।',seed_playbook:'নিচের বাণিজ্যিক অবস্থান থেকে একটি সহজ চুক্তি প্লেবুক আউটলাইন তৈরি করুন।',activity_empty:'এখনও কোনো সাম্প্রতিক কার্যকলাপ নেই।',cite_title:'এভিডেন্স ট্রেইল',output_title:'আউটপুট',memo_output:'মেমো আউটলাইন',slides_output:'স্লাইড আউটলাইন',table_output:'ওয়ার্কিং টেবিল',source_summary:'সক্রিয় সোর্স',kb_internal:'ইন্টারনাল পলিসি ব্যাংক',kb_regulatory:'রেগুলেটরি নোটস',kb_templates:'টেমপ্লেট শেলফ',kb_desc_internal:'পুনর্ব্যবহারযোগ্য অভ্যন্তরীণ অবস্থান ও ড্রাফটিং স্ট্যান্ডার্ড।',kb_desc_regulatory:'গ্রাউন্ডিংয়ের জন্য পাবলিক-ল এবং কমপ্লায়েন্সমুখী নোট।',kb_desc_templates:'নোটিশ, মেমো এবং রিভিউর স্টার্টার স্ট্রাকচার।'}
     };
 
     const LIBRARY=[
@@ -312,114 +228,118 @@
       {id:'playbook_outline', titleKey:'playbook_card_title', descKey:'playbook_card_desc', seedKey:'seed_playbook', tags:['playbook','contracts']}
     ];
 
+    const KNOWLEDGE=[
+      {titleKey:'kb_internal', descKey:'kb_desc_internal'},
+      {titleKey:'kb_regulatory', descKey:'kb_desc_regulatory'},
+      {titleKey:'kb_templates', descKey:'kb_desc_templates'}
+    ];
+
     let draft='';
-    let currentSurface='assistant';
     let currentThread=[];
     let refineState={urgency:false,shorter:false,softer:false};
+    let assistantState={taskMode:'chat', writingStyle:'neutral', sources:['uploads','vault','knowledge']};
     const q=id=>document.getElementById(id);
     const langSel=q('lang');
     const tr=k=>(I18N[langSel.value]&&I18N[langSel.value][k])||I18N.en[k]||k;
-
-    function notify(msg){alert(msg)}
-    function getThreads(){return JSON.parse(localStorage.getItem('zhuxin_phase1_threads')||'[]')}
-    function setThreads(arr){localStorage.setItem('zhuxin_phase1_threads',JSON.stringify(arr.slice(0,20)))}
-    function getFavorites(){return JSON.parse(localStorage.getItem('zhuxin_phase1_favorites')||'[]')}
-    function setFavorites(arr){localStorage.setItem('zhuxin_phase1_favorites',JSON.stringify(arr))}
-    function getNoticeVersions(){return JSON.parse(localStorage.getItem('zhuxin_notice_mono_versions')||'[]')}
-    function getSearch(){return (q('globalSearch').value||'').trim().toLowerCase()}
-
-    function today(){return new Date().toLocaleDateString(langSel.value==='bn'?'bn-BD':'en-GB',{day:'2-digit',month:'long',year:'numeric'})}
-    function due(n){return langSel.value==='bn'?`${n} দিনের মধ্যে`:`within ${n} days`}
+    const getThreads=()=>JSON.parse(localStorage.getItem('zhuxin_phase2_threads')||'[]');
+    const setThreads=arr=>localStorage.setItem('zhuxin_phase2_threads',JSON.stringify(arr.slice(0,25)));
+    const getFavorites=()=>JSON.parse(localStorage.getItem('zhuxin_phase2_favorites')||'[]');
+    const setFavorites=arr=>localStorage.setItem('zhuxin_phase2_favorites',JSON.stringify(arr));
+    const getNoticeVersions=()=>JSON.parse(localStorage.getItem('zhuxin_notice_mono_versions')||'[]');
+    const getSearch=()=> (q('globalSearch').value||'').trim().toLowerCase();
+    const notify=msg=>alert(msg);
+    const today=()=> new Date().toLocaleDateString(langSel.value==='bn'?'bn-BD':'en-GB',{day:'2-digit',month:'long',year:'numeric'});
+    const due=n=> langSel.value==='bn'?`${n} দিনের মধ্যে`:`within ${n} days`;
 
     function ui(){
       document.body.classList.toggle('bn',langSel.value==='bn');
-      document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=tr(el.dataset.i18n)});
-      document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{el.placeholder=tr(el.dataset.i18nPlaceholder)});
+      document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=tr(el.dataset.i18n));
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>el.placeholder=tr(el.dataset.i18nPlaceholder));
       q('langToggle').textContent=langSel.value==='bn'?'English':'বাংলা';
       q('langBadge').textContent=langSel.value==='bn'?'বাংলা':'English';
       q('toneBadge').textContent=q('tone').selectedOptions[0].textContent;
       q('modelBadge').textContent=q('modelSelector').value;
-      renderChat();
-      renderLibrary();
-      renderFavorites();
-      renderHistory();
-      renderRecentActivity();
-      renderVersions();
-      generateDraft();
+      syncAssistantControls();
+      renderChat(); renderLibrary(); renderFavorites(); renderHistory(); renderRecentActivity(); renderVersions(); renderKnowledge(); generateDraft();
     }
-
     function toggleLang(){langSel.value=langSel.value==='en'?'bn':'en';ui()}
+    function openSurface(name){document.querySelectorAll('.surface').forEach(el=>el.classList.remove('active')); q('surface-'+name).classList.add('active'); document.querySelectorAll('.rail-item[data-surface],.strip-btn[data-surface]').forEach(el=>el.classList.remove('active')); document.querySelectorAll('[data-surface="'+name+'"]').forEach(el=>el.classList.add('active'));}
+    function openNoticeView(name){document.querySelectorAll('.notice-view').forEach(el=>el.classList.remove('active')); q('notice-'+name).classList.add('active'); document.querySelectorAll('.tab[data-notice-view]').forEach(el=>el.classList.remove('active')); document.querySelector('.tab[data-notice-view="'+name+'"]').classList.add('active');}
 
-    function openSurface(name){
-      currentSurface=name;
-      document.querySelectorAll('.surface').forEach(el=>el.classList.remove('active'));
-      q('surface-'+name).classList.add('active');
-      document.querySelectorAll('.rail-item[data-surface],.strip-btn[data-surface]').forEach(el=>el.classList.remove('active'));
-      document.querySelectorAll('[data-surface="'+name+'"]').forEach(el=>el.classList.add('active'));
+    function syncAssistantControls(){
+      document.querySelectorAll('#taskModeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===assistantState.taskMode));
+      document.querySelectorAll('#styleSeg button').forEach(b=>b.classList.toggle('active',b.dataset.style===assistantState.writingStyle));
+      document.querySelectorAll('#sourceChips button').forEach(b=>b.classList.toggle('active',assistantState.sources.includes(b.dataset.source)));
     }
-
-    function openNoticeView(name){
-      document.querySelectorAll('.notice-view').forEach(el=>el.classList.remove('active'));
-      q('notice-'+name).classList.add('active');
-      document.querySelectorAll('.tab[data-notice-view]').forEach(el=>el.classList.remove('active'));
-      document.querySelector('.tab[data-notice-view="'+name+'"]').classList.add('active');
-    }
-
-    function newThread(){
-      currentThread=[];
-      renderChat();
-    }
-
-    function addMessage(role,text){currentThread.push({role,text,ts:Date.now()});renderChat();}
+    function setTaskMode(mode){assistantState.taskMode=mode;syncAssistantControls();}
+    function setWritingStyle(style){assistantState.writingStyle=style;syncAssistantControls();}
+    function toggleSource(src){assistantState.sources=assistantState.sources.includes(src)?assistantState.sources.filter(x=>x!==src):[...assistantState.sources,src]; if(!assistantState.sources.length) assistantState.sources=['knowledge']; syncAssistantControls();}
+    function newThread(){currentThread=[]; renderChat();}
+    function addMessage(obj){currentThread.push({...obj,ts:Date.now()}); renderChat();}
 
     function renderChat(){
-      const box=q('chatThread');
-      if(!box) return;
-      box.innerHTML='';
-      if(!currentThread.length){
-        const d=document.createElement('div');
-        d.className='msg ai';
-        d.textContent=tr('assistant_ready');
-        box.appendChild(d);
-        return;
-      }
+      const box=q('chatThread'); box.innerHTML='';
+      if(!currentThread.length){const d=document.createElement('div'); d.className='msg ai'; d.textContent=tr('assistant_ready'); box.appendChild(d); return;}
       currentThread.forEach(m=>{
-        const d=document.createElement('div');
-        d.className='msg '+(m.role==='user'?'user':'ai');
-        d.textContent=m.text;
-        box.appendChild(d);
+        const d=document.createElement('div'); d.className='msg '+(m.role==='user'?'user':'ai');
+        let html='<div class="msg-head"><div class="msg-role">'+(m.role==='user'?'User':'Zhuxin')+'</div><div class="msg-tools"><span>'+q('modelSelector').value+'</span>'+(m.mode?'<span>'+m.mode+'</span>':'')+'</div></div><div>'+escapeHtml(m.text).replace(/\n/g,'<br>')+'</div>';
+        if(m.citations && m.citations.length){html+='<div class="cite-block"><div class="cite-title">'+tr('cite_title')+'</div>'+m.citations.map(c=>'<div class="cite-item">'+escapeHtml(c)+'</div>').join('')+'</div>';}
+        if(m.outputs && m.outputs.length){html+='<div class="output-block"><div class="output-title">'+tr('output_title')+'</div>'+m.outputs.map((o,i)=>'<div class="output-card"><div><strong>'+escapeHtml(o.title)+'</strong><small>'+escapeHtml(o.desc)+'</small></div><button class="soft-btn" onclick="downloadOutput('+m.ts+','+i+')">'+tr('download')+'</button></div>').join('')+'</div>';}
+        d.innerHTML=html; box.appendChild(d);
       });
     }
 
-    function usePrompt(id){
-      const p=LIBRARY.find(x=>x.id===id);
-      if(!p) return;
-      q('assistantInput').value=tr(p.seedKey)+'\n\n';
-      openSurface('assistant');
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+    function usePrompt(id){const p=LIBRARY.find(x=>x.id===id); if(!p) return; q('assistantInput').value=tr(p.seedKey)+'\n\n'; openSurface('assistant');}
+    function insertSourceTag(){q('assistantInput').value += (q('assistantInput').value.endsWith('\n')||!q('assistantInput').value?'':'\n')+'[Sources: '+assistantState.sources.join(', ')+']\n'; q('assistantInput').focus();}
+
+    function buildCitations(input){
+      const sources=assistantState.sources.map(s=>s[0].toUpperCase()+s.slice(1)).join(' · ');
+      if(langSel.value==='bn') return ['সোর্স স্তর: '+sources, 'কাজের মোড: '+assistantState.taskMode+' · স্টাইল: '+assistantState.writingStyle, 'এই উত্তরটি Phase 2 evidence-style grounding block হিসেবে দেখানো হয়েছে।'];
+      return ['Source layer: '+sources, 'Task mode: '+assistantState.taskMode+' · Style: '+assistantState.writingStyle, 'This answer is shown with a Phase 2 evidence-style grounding block.'];
     }
 
-    function insertSourceTag(){
-      q('assistantInput').value += (q('assistantInput').value.endsWith('\n')||!q('assistantInput').value?'':'\n')+'[Sources: uploaded files, vault, knowledge, web]\n';
-      q('assistantInput').focus();
+    function buildOutputs(input){
+      const outputs=[];
+      if(assistantState.taskMode==='analysis' || /memo|note|analysis/i.test(input)) outputs.push({title:tr('memo_output'), desc:langSel.value==='bn'?'ইস্যু, বিশ্লেষণ ও পরের ধাপসহ একটি সংক্ষিপ্ত কাঠামো।':'A concise structure with issues, analysis, and next steps.', content:(langSel.value==='bn'?'মেমো আউটলাইন\n\n১. ইস্যু\n২. প্রাসঙ্গিক তথ্য\n৩. বিশ্লেষণ\n৪. ঝুঁকি\n৫. পরের ধাপ':'Memo Outline\n\n1. Issues\n2. Relevant facts\n3. Analysis\n4. Risks\n5. Next steps')});
+      if(assistantState.taskMode==='draft' || /slide|deck|presentation/i.test(input)) outputs.push({title:tr('slides_output'), desc:langSel.value==='bn'?'স্লাইড-ভিত্তিক outline যা পরে deck-এ নেওয়া যাবে।':'A slide-based outline that can later become a deck.', content:(langSel.value==='bn'?'স্লাইড আউটলাইন\n\nস্লাইড ১: শিরোনাম\nস্লাইড ২: পটভূমি\nস্লাইড ৩: মূল ইস্যু\nস্লাইড ৪: বিশ্লেষণ':'Slide Outline\n\nSlide 1: Title\nSlide 2: Background\nSlide 3: Core issues\nSlide 4: Analysis')});
+      if(assistantState.taskMode==='edit' || /table|compare|extract/i.test(input)) outputs.push({title:tr('table_output'), desc:langSel.value==='bn'?'কাজের জন্য একটি CSV-ধরনের স্ট্রাকচার।':'A CSV-style structure for working review.', content:'Column,Value\nIssue,\nFact,\nRisk,\nNext Step,'});
+      return outputs;
     }
 
     function assistantReply(input){
-      const prefix=langSel.value==='bn'
-        ? 'কাজের কাঠামো:\n১) মূল ইস্যু\n২) দরকারি তথ্য\n৩) খসড়া বা পরের ধাপ\n\n'
-        : 'Working structure:\n1) Core issues\n2) Missing facts\n3) Draft or next steps\n\n';
-      const suffix=langSel.value==='bn'
-        ? 'প্রাথমিক পর্যবেক্ষণ: এই অনুরোধটিকে Zhuxin Phase 1 shell-এ একটি structured task হিসেবে নেওয়া হয়েছে।'
-        : 'Initial observation: this request has been treated as a structured task inside the Zhuxin Phase 1 shell.';
-      return prefix+input+'\n\n'+suffix;
+      const sources=assistantState.sources.join(', ');
+      let text='';
+      if(langSel.value==='bn'){
+        if(assistantState.taskMode==='analysis') text='কাজের কাঠামো:\n১) মূল ইস্যু\n২) অনুপস্থিত তথ্য\n৩) যুক্তির দিক\n৪) সম্ভাব্য আউটপুট\n\n';
+        else if(assistantState.taskMode==='draft') text='ড্রাফটিং ফোকাস:\n১) উদ্দেশ্য\n২) কাঙ্ক্ষিত টোন\n৩) প্রয়োজনীয় উপাদান\n৪) খসড়া কাঠামো\n\n';
+        else if(assistantState.taskMode==='edit') text='এডিটিং ফোকাস:\n১) কী বদলাতে হবে\n২) কী রাখতে হবে\n৩) স্টাইল ও ফরম্যাট বিবেচনা\n\n';
+        else text='ওয়ার্কিং স্ট্রাকচার:\n১) কাজের সংজ্ঞা\n২) দরকারি তথ্য\n৩) পরের ধাপ\n\n';
+        text += input+'\n\nসোর্স ব্যবহৃত হয়েছে: '+sources+'। বর্তমান স্টাইল: '+assistantState.writingStyle+'।';
+      } else {
+        if(assistantState.taskMode==='analysis') text='Working structure:\n1) Core issues\n2) Missing facts\n3) Reasoning path\n4) Likely outputs\n\n';
+        else if(assistantState.taskMode==='draft') text='Drafting focus:\n1) Objective\n2) Desired tone\n3) Required elements\n4) Draft structure\n\n';
+        else if(assistantState.taskMode==='edit') text='Editing focus:\n1) What changes\n2) What stays fixed\n3) Style and formatting considerations\n\n';
+        else text='Working structure:\n1) Task definition\n2) Needed facts\n3) Next steps\n\n';
+        text += input+'\n\nSources used: '+sources+'. Current style: '+assistantState.writingStyle+'.';
+      }
+      return {text, citations:buildCitations(input), outputs:buildOutputs(input)};
     }
 
     function sendAssistant(){
-      const text=q('assistantInput').value.trim();
-      if(!text) return;
-      addMessage('user',text);
-      addMessage('ai',assistantReply(text));
+      const text=q('assistantInput').value.trim(); if(!text) return;
+      addMessage({role:'user', text, mode:assistantState.taskMode});
+      const r=assistantReply(text);
+      addMessage({role:'ai', text:r.text, citations:r.citations, outputs:r.outputs, mode:assistantState.taskMode});
       q('assistantInput').value='';
       saveCurrentThread(true);
+    }
+
+    function buildOutput(kind){
+      const prompt = kind==='memo'? tr('build_memo') : kind==='slides'? tr('build_slides') : tr('build_table');
+      q('assistantInput').value = (q('assistantInput').value? q('assistantInput').value+'\n\n':'') + prompt;
+      q('assistantInput').focus();
     }
 
     function saveCurrentThread(silent=false){
@@ -428,219 +348,71 @@
       const firstUser=currentThread.find(m=>m.role==='user');
       const title=(firstUser?firstUser.text:tr('thread_title')).slice(0,70);
       threads.unshift({id:Date.now(), title:title||tr('thread_title'), type:tr('thread_type'), date:new Date().toISOString(), messages:currentThread});
-      setThreads(threads);
-      renderHistory();
-      renderRecentActivity();
-      if(!silent) notify(tr('thread_saved'));
+      setThreads(threads); renderHistory(); renderRecentActivity(); if(!silent) notify(tr('thread_saved'));
     }
-
-    function loadThread(id){
-      const t=getThreads().find(x=>String(x.id)===String(id));
-      if(!t) return;
-      currentThread=t.messages||[];
-      openSurface('assistant');
-      renderChat();
-    }
+    function loadThread(id){const t=getThreads().find(x=>String(x.id)===String(id)); if(!t) return; currentThread=t.messages||[]; openSurface('assistant'); renderChat();}
 
     function renderLibrary(){
-      const grid=q('libraryGrid');
-      if(!grid) return;
-      const search=getSearch();
-      const favs=getFavorites();
-      grid.innerHTML='';
-      const rows=LIBRARY.filter(item=>{
-        const text=(tr(item.titleKey)+' '+tr(item.descKey)+' '+item.tags.join(' ')).toLowerCase();
-        return !search || text.includes(search);
-      });
-      rows.forEach(item=>{
-        const card=document.createElement('div');
-        card.className='prompt-card';
-        const isFav=favs.includes(item.id);
-        card.innerHTML='<div class="split-head"><strong>'+tr(item.titleKey)+'</strong><div class="row"><button class="soft-btn" onclick="toggleFavorite(\''+item.id+'\')">'+tr(isFav?'unfavorite':'favorite')+'</button><button class="primary-btn" onclick="usePrompt(\''+item.id+'\')">'+tr('use_in_assistant')+'</button></div></div><p>'+tr(item.descKey)+'</p><div class="prompt-tags">'+item.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+'</div>';
-        grid.appendChild(card);
-      });
+      const grid=q('libraryGrid'); const search=getSearch(); const favs=getFavorites(); grid.innerHTML='';
+      const rows=LIBRARY.filter(item=>{const text=(tr(item.titleKey)+' '+tr(item.descKey)+' '+item.tags.join(' ')).toLowerCase(); return !search || text.includes(search);});
+      rows.forEach(item=>{const card=document.createElement('div'); card.className='prompt-card'; const isFav=favs.includes(item.id); card.innerHTML='<div class="split-head"><strong>'+tr(item.titleKey)+'</strong><div class="row"><button class="soft-btn" onclick="toggleFavorite(\''+item.id+'\')">'+tr(isFav?'unfavorite':'favorite')+'</button><button class="primary-btn" onclick="usePrompt(\''+item.id+'\')">'+tr('use_in_assistant')+'</button></div></div><p>'+tr(item.descKey)+'</p><div class="prompt-tags">'+item.tags.map(t=>'<span class="tag">'+t+'</span>').join('')+'</div>'; grid.appendChild(card);});
       if(!rows.length) grid.innerHTML='<div class="empty">'+tr('history_empty')+'</div>';
     }
-
-    function toggleFavorite(id){
-      let favs=getFavorites();
-      favs=favs.includes(id)?favs.filter(x=>x!==id):[id,...favs];
-      setFavorites(favs);
-      renderLibrary();
-      renderFavorites();
-    }
-
-    function renderFavorites(){
-      const box=q('favoritesList');
-      if(!box) return;
-      const favs=getFavorites();
-      box.innerHTML='';
-      if(!favs.length){box.innerHTML='<div class="empty">'+tr('activity_empty')+'</div>';return;}
-      favs.forEach(id=>{
-        const item=LIBRARY.find(x=>x.id===id);
-        if(!item) return;
-        const d=document.createElement('div');
-        d.className='history-card';
-        d.innerHTML='<strong>'+tr(item.titleKey)+'</strong><p>'+tr(item.descKey)+'</p><div class="row"><button class="soft-btn" onclick="usePrompt(\''+item.id+'\')">'+tr('use_in_assistant')+'</button></div>';
-        box.appendChild(d);
-      });
-    }
+    function toggleFavorite(id){let favs=getFavorites(); favs=favs.includes(id)?favs.filter(x=>x!==id):[id,...favs]; setFavorites(favs); renderLibrary(); renderFavorites();}
+    function renderFavorites(){const box=q('favoritesList'); const favs=getFavorites(); box.innerHTML=''; if(!favs.length){box.innerHTML='<div class="empty">'+tr('activity_empty')+'</div>'; return;} favs.forEach(id=>{const item=LIBRARY.find(x=>x.id===id); if(!item) return; const d=document.createElement('div'); d.className='history-card'; d.innerHTML='<strong>'+tr(item.titleKey)+'</strong><p>'+tr(item.descKey)+'</p><div class="row"><button class="soft-btn" onclick="usePrompt(\''+item.id+'\')">'+tr('use_in_assistant')+'</button></div>'; box.appendChild(d);});}
+    function renderKnowledge(){const box=q('knowledgeShelf'); box.innerHTML=''; KNOWLEDGE.forEach(item=>{const d=document.createElement('div'); d.className='kb-card'; d.innerHTML='<strong>'+tr(item.titleKey)+'</strong><p>'+tr(item.descKey)+'</p>'; box.appendChild(d);});}
 
     function renderHistory(){
-      const box=q('historyList');
-      if(!box) return;
-      const search=getSearch();
-      const threads=getThreads();
-      const versions=getNoticeVersions();
-      box.innerHTML='';
-      const combined=[];
-      threads.forEach(t=>combined.push({kind:'thread', id:t.id, title:t.title, subtitle:t.type, date:t.date, action:'open_thread'}));
-      versions.forEach(v=>combined.push({kind:'draft', id:v.id, title:v.subject||tr('notice_type'), subtitle:v.matter||tr('notice_type'), date:v.date, action:'open_draft'}));
-      combined.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const box=q('historyList'); const search=getSearch(); const threads=getThreads(); const versions=getNoticeVersions(); box.innerHTML='';
+      const combined=[]; threads.forEach(t=>combined.push({kind:'thread', id:t.id, title:t.title, subtitle:t.type, date:t.date})); versions.forEach(v=>combined.push({kind:'draft', id:v.id, title:v.subject||tr('notice_type'), subtitle:v.matter||tr('notice_type'), date:v.date})); combined.sort((a,b)=>new Date(b.date)-new Date(a.date));
       const rows=combined.filter(item=>!search || (item.title+' '+item.subtitle).toLowerCase().includes(search));
-      if(!rows.length){box.innerHTML='<div class="empty">'+tr('history_empty')+'</div>';return;}
-      rows.forEach(item=>{
-        const card=document.createElement('div');
-        card.className='history-card';
-        const btn=item.kind==='thread'
-          ? '<button class="soft-btn" onclick="loadThread('+item.id+')">'+tr('open_thread')+'</button>'
-          : '<button class="soft-btn" onclick="restoreVersion('+item.id+')">'+tr('open_draft')+'</button>';
-        card.innerHTML='<strong>'+item.title+'</strong><p>'+item.subtitle+' · '+new Date(item.date).toLocaleString(langSel.value==='bn'?'bn-BD':'en-GB')+'</p><div class="row">'+btn+'</div>';
-        box.appendChild(card);
-      });
+      if(!rows.length){box.innerHTML='<div class="empty">'+tr('history_empty')+'</div>'; return;}
+      rows.forEach(item=>{const card=document.createElement('div'); card.className='history-card'; const btn=item.kind==='thread'?'<button class="soft-btn" onclick="loadThread('+item.id+')">'+tr('open_thread')+'</button>':'<button class="soft-btn" onclick="restoreVersion('+item.id+')">'+tr('open_draft')+'</button>'; card.innerHTML='<strong>'+item.title+'</strong><p>'+item.subtitle+' · '+new Date(item.date).toLocaleString(langSel.value==='bn'?'bn-BD':'en-GB')+'</p><div class="row">'+btn+'</div>'; box.appendChild(card);});
     }
+    function renderRecentActivity(){const box=q('recentActivity'); const threads=getThreads().slice(0,3); const versions=getNoticeVersions().slice(0,3); const items=[]; threads.forEach(t=>items.push({title:t.title, subtitle:tr('thread_type'), date:t.date})); versions.forEach(v=>items.push({title:v.subject||tr('notice_type'), subtitle:tr('notice_type'), date:v.date})); items.sort((a,b)=>new Date(b.date)-new Date(a.date)); box.innerHTML=''; if(!items.length){box.innerHTML='<div class="empty">'+tr('activity_empty')+'</div>'; return;} items.slice(0,5).forEach(item=>{const d=document.createElement('div'); d.className='history-card'; d.innerHTML='<strong>'+item.title+'</strong><p>'+item.subtitle+'</p>'; box.appendChild(d);});}
+    function onSearch(){renderLibrary(); renderHistory();}
 
-    function renderRecentActivity(){
-      const box=q('recentActivity');
-      if(!box) return;
-      const threads=getThreads().slice(0,3);
-      const versions=getNoticeVersions().slice(0,3);
-      const items=[];
-      threads.forEach(t=>items.push({title:t.title, subtitle:tr('thread_type'), date:t.date}));
-      versions.forEach(v=>items.push({title:v.subject||tr('notice_type'), subtitle:tr('notice_type'), date:v.date}));
-      items.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      box.innerHTML='';
-      if(!items.length){box.innerHTML='<div class="empty">'+tr('activity_empty')+'</div>';return;}
-      items.slice(0,5).forEach(item=>{
-        const d=document.createElement('div');
-        d.className='history-card';
-        d.innerHTML='<strong>'+item.title+'</strong><p>'+item.subtitle+'</p>';
-        box.appendChild(d);
-      });
-    }
-
-    function onSearch(){renderLibrary();renderHistory();}
-
-    function reasonText(r){const m={en:{payment:'failure to pay the lawful dues',possession:'illegal interference with possession',vacate:'unlawful occupation / refusal to vacate',deed:'failure regarding deed or document obligations',general:'acts causing legal grievance to my client'},bn:{payment:'বৈধ পাওনা পরিশোধে ব্যর্থতা',possession:'দখলে বেআইনি হস্তক্ষেপ',vacate:'অবৈধ দখল / খালি করতে অস্বীকৃতি',deed:'দলিল বা কাগজপত্র সংক্রান্ত দায়িত্ব পালন না করা',general:'আমার মক্কেলের প্রতি আইনগত ক্ষোভ সৃষ্টিকারী কার্যকলাপ'}};return m[langSel.value][r]}
-    function toneText(t){const m={en:{formal:'You are hereby requested to comply peacefully.',firm:'You are hereby called upon to comply without further delay.',strict:'Take notice that failure to comply may compel my client to take legal steps without any further reference.'},bn:{formal:'আপনাকে শান্তিপূর্ণভাবে বিষয়টি নিষ্পত্তির জন্য অনুরোধ করা যাচ্ছে।',firm:'অতএব, আপনাকে আর বিলম্ব না করে বিষয়টি নিষ্পত্তির জন্য বলা যাচ্ছে।',strict:'এই মর্মে নোটিশ করা যাইতেছে যে, নির্দেশ পালন না করলে আমার মক্কেল আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।'}};let x=m[langSel.value][t];if(refineState.softer)x=langSel.value==='bn'?'আপনাকে সৌহার্দ্যপূর্ণভাবে বিষয়টি দ্রুত নিষ্পত্তির আহ্বান জানানো যাচ্ছে।':'You are requested to resolve the matter amicably and without delay.';if(refineState.urgency)x+=langSel.value==='bn'?' বিষয়টির জরুরি প্রকৃতির কারণে অবিলম্বে পদক্ষেপ প্রত্যাশিত।':' Given the urgency of the matter, immediate action is expected.';return x}
+    function reasonText(r){const m={en:{payment:'failure to pay the lawful dues',possession:'illegal interference with possession',vacate:'unlawful occupation / refusal to vacate',deed:'failure regarding deed or document obligations',general:'acts causing legal grievance to my client'},bn:{payment:'বৈধ পাওনা পরিশোধে ব্যর্থতা',possession:'দখলে বেআইনি হস্তক্ষেপ',vacate:'অবৈধ দখল / খালি করতে অস্বীকৃতি',deed:'দলিল বা কাগজপত্র সংক্রান্ত দায়িত্ব পালন না করা',general:'আমার মক্কেলের প্রতি আইনগত ক্ষোভ সৃষ্টিকারী কার্যকলাপ'}}; return m[langSel.value][r]}
+    function toneText(t){const m={en:{formal:'You are hereby requested to comply peacefully.',firm:'You are hereby called upon to comply without further delay.',strict:'Take notice that failure to comply may compel my client to take legal steps without any further reference.'},bn:{formal:'আপনাকে শান্তিপূর্ণভাবে বিষয়টি নিষ্পত্তির জন্য অনুরোধ করা যাচ্ছে।',firm:'অতএব, আপনাকে আর বিলম্ব না করে বিষয়টি নিষ্পত্তির জন্য বলা যাচ্ছে।',strict:'এই মর্মে নোটিশ করা যাইতেছে যে, নির্দেশ পালন না করলে আমার মক্কেল আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।'}}; let x=m[langSel.value][t]; if(refineState.softer)x=langSel.value==='bn'?'আপনাকে সৌহার্দ্যপূর্ণভাবে বিষয়টি দ্রুত নিষ্পত্তির আহ্বান জানানো যাচ্ছে।':'You are requested to resolve the matter amicably and without delay.'; if(refineState.urgency)x+=langSel.value==='bn'?' বিষয়টির জরুরি প্রকৃতির কারণে অবিলম্বে পদক্ষেপ প্রত্যাশিত।':' Given the urgency of the matter, immediate action is expected.'; return x}
 
     function generateDraft(show){
       const matter=q('matterName').value.trim(),sender=q('sender').value.trim(),recipient=q('recipient').value.trim(),advocate=q('advocate').value.trim(),chamber=q('chamber').value.trim(),address=q('address').value.trim(),subject=q('subject').value.trim(),reason=q('reason').value||'general',days=q('days').value||'7',facts=q('facts').value.trim(),demand=q('demand').value.trim(),reference=q('reference').value.trim(),tone=q('tone').value||'formal';
-      q('toneBadge').textContent=q('tone').selectedOptions[0].textContent;
-      q('modelBadge').textContent=q('modelSelector').value;
-      if(!matter&&!sender&&!recipient&&!facts&&!demand){q('paper').classList.toggle('bn',langSel.value==='bn');q('paper').textContent=tr('empty');draft='';return}
+      q('toneBadge').textContent=q('tone').selectedOptions[0].textContent; q('modelBadge').textContent=q('modelSelector').value;
+      if(!matter&&!sender&&!recipient&&!facts&&!demand){q('paper').classList.toggle('bn',langSel.value==='bn'); q('paper').textContent=tr('empty'); draft=''; return;}
       let bodyFacts=facts||(langSel.value==='bn'?'[এখানে ঘটনার মূল বিবরণ লিখুন।]':'[Insert the material facts of the dispute or grievance here.]');
       let bodyDemand=demand||(langSel.value==='bn'?'[যে কাজটি করতে হবে তা লিখুন]':'[state the exact act required from the recipient]');
-      if(refineState.shorter){bodyFacts=bodyFacts.length>180?bodyFacts.slice(0,177)+'...':bodyFacts;bodyDemand=bodyDemand.length>120?bodyDemand.slice(0,117)+'...':bodyDemand}
-      if(langSel.value==='en'){q('paper').classList.remove('bn');draft=`LEGAL NOTICE\n\nMatter: ${matter||'[Matter name]'}\nDate: ${today()}\n\nTo,\n${recipient||'Recipient Name'}\n${address||'Recipient Address'}\n\nSubject: ${subject||'Legal notice regarding '+reasonText(reason)}\n${reference?`Reference: ${reference}\n`:''}Sir/Madam,\n\nUnder instructions from and on behalf of my client ${sender||'[Client Name]'}, I hereby serve upon you this legal notice for ${reasonText(reason)}.\n\n${bodyFacts}\n\n${toneText(tone)} My client demands that you ${bodyDemand} ${due(days)} from receipt of this notice.\n\nFailing such compliance, my client shall be constrained to take appropriate legal action at your risk, cost, and consequence, without any further notice.\n\nThis notice is issued without prejudice to all other legal rights and remedies available to my client.\n\nIssued by:\n${advocate||'[Advocate Name]'}\n${chamber||'[Chamber / Firm Name]'}\nFor and on behalf of ${sender||'[Client Name]'}`;}
-      else{q('paper').classList.add('bn');draft=`আইনগত নোটিশ\n\nম্যাটার: ${matter||'[ম্যাটারের নাম]'}\nতারিখ: ${today()}\n\nবরাবর,\n${recipient||'প্রাপক নাম'}\n${address||'প্রাপকের ঠিকানা'}\n\nবিষয়: ${subject||'আইনগত নোটিশ প্রসঙ্গে '+reasonText(reason)}\n${reference?`রেফারেন্স: ${reference}\n`:''}জনাব/জনাবা,\n\nআমার মক্কেল ${sender||'[মক্কেলের নাম]'}-এর নির্দেশক্রমে আপনাকে এই মর্মে আইনগত নোটিশ প্রদান করা যাইতেছে যে, ${reasonText(reason)} সংক্রান্ত বিষয়ে নিম্নোক্ত ঘটনা ঘটিয়াছে।\n\n${bodyFacts}\n\n${toneText(tone)} অতএব, এই নোটিশ প্রাপ্তির ${due(days)} আপনি ${bodyDemand}।\n\nঅন্যথায়, আমার মক্কেল আপনার বিরুদ্ধে প্রয়োজনীয় আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন এবং তজ্জনিত দায়-দায়িত্ব, খরচ ও পরিণতি আপনার উপর বর্তাইবে।\n\nএই নোটিশ আমার মক্কেলের অন্যান্য আইনগত অধিকার ও প্রতিকার অক্ষুণ্ণ রাখিয়া প্রদান করা হইল।\n\nপ্রদানকারী:\n${advocate||'[এডভোকেটের নাম]'}\n${chamber||'[চেম্বার / ফার্মের নাম]'}\nমক্কেল: ${sender||'[মক্কেলের নাম]'}`;}
-      q('paper').textContent=draft;
-      if(show) notify(tr('generated'));
+      if(refineState.shorter){bodyFacts=bodyFacts.length>180?bodyFacts.slice(0,177)+'...':bodyFacts; bodyDemand=bodyDemand.length>120?bodyDemand.slice(0,117)+'...':bodyDemand;}
+      if(langSel.value==='en'){q('paper').classList.remove('bn'); draft=`LEGAL NOTICE\n\nMatter: ${matter||'[Matter name]'}\nDate: ${today()}\n\nTo,\n${recipient||'Recipient Name'}\n${address||'Recipient Address'}\n\nSubject: ${subject||'Legal notice regarding '+reasonText(reason)}\n${reference?`Reference: ${reference}\n`:''}Sir/Madam,\n\nUnder instructions from and on behalf of my client ${sender||'[Client Name]'}, I hereby serve upon you this legal notice for ${reasonText(reason)}.\n\n${bodyFacts}\n\n${toneText(tone)} My client demands that you ${bodyDemand} ${due(days)} from receipt of this notice.\n\nFailing such compliance, my client shall be constrained to take appropriate legal action at your risk, cost, and consequence, without any further notice.\n\nThis notice is issued without prejudice to all other legal rights and remedies available to my client.\n\nIssued by:\n${advocate||'[Advocate Name]'}\n${chamber||'[Chamber / Firm Name]'}\nFor and on behalf of ${sender||'[Client Name]'}`;}
+      else{q('paper').classList.add('bn'); draft=`আইনগত নোটিশ\n\nম্যাটার: ${matter||'[ম্যাটারের নাম]'}\nতারিখ: ${today()}\n\nবরাবর,\n${recipient||'প্রাপক নাম'}\n${address||'প্রাপকের ঠিকানা'}\n\nবিষয়: ${subject||'আইনগত নোটিশ প্রসঙ্গে '+reasonText(reason)}\n${reference?`রেফারেন্স: ${reference}\n`:''}জনাব/জনাবা,\n\nআমার মক্কেল ${sender||'[মক্কেলের নাম]'}-এর নির্দেশক্রমে আপনাকে এই মর্মে আইনগত নোটিশ প্রদান করা যাইতেছে যে, ${reasonText(reason)} সংক্রান্ত বিষয়ে নিম্নোক্ত ঘটনা ঘটিয়াছে।\n\n${bodyFacts}\n\n${toneText(tone)} অতএব, এই নোটিশ প্রাপ্তির ${due(days)} আপনি ${bodyDemand}।\n\nঅন্যথায়, আমার মক্কেল আপনার বিরুদ্ধে প্রয়োজনীয় আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন এবং তজ্জনিত দায়-দায়িত্ব, খরচ ও পরিণতি আপনার উপর বর্তাইবে।\n\nএই নোটিশ আমার মক্কেলের অন্যান্য আইনগত অধিকার ও প্রতিকার অক্ষুণ্ণ রাখিয়া প্রদান করা হইল।\n\nপ্রদানকারী:\n${advocate||'[এডভোকেটের নাম]'}\n${chamber||'[চেম্বার / ফার্মের নাম]'}\nমক্কেল: ${sender||'[মক্কেলের নাম]'}`;}
+      q('paper').textContent=draft; if(show) notify(tr('generated'));
     }
 
-    function applyQuick(mode){
-      if(mode==='firmer'){q('tone').value='strict';refineState.softer=false;refineState.urgency=false;addChat('user',tr('quick_firmer'));addChat('ai',tr('firmer_fb'))}
-      if(mode==='softer'){refineState.softer=true;q('tone').value='formal';addChat('user',tr('quick_softer'));addChat('ai',tr('softer_fb'))}
-      if(mode==='urgent'){refineState.urgency=true;addChat('user',tr('quick_urgent'));addChat('ai',tr('urgent_fb'))}
-      if(mode==='shorter'){refineState.shorter=true;addChat('user',tr('quick_shorter'));addChat('ai',tr('shorter_fb'))}
-      if(mode==='bangla'){langSel.value='bn';ui();addChat('user',tr('quick_bangla'));addChat('ai',tr('bangla_fb'))}
-      if(mode==='english'){langSel.value='en';ui();addChat('user',tr('quick_english'));addChat('ai',tr('english_fb'))}
-      generateDraft();
-    }
-
-    function applyInstruction(){
-      const t=q('assistantInstruction').value.toLowerCase();
-      if(!t){notify(tr('need_instruction'));return}
-      addChat('user',q('assistantInstruction').value);
-      if(t.includes('firm')||t.includes('কড়া')){q('tone').value='strict';refineState.softer=false}
-      if(t.includes('soft')||t.includes('নরম')){refineState.softer=true;q('tone').value='formal'}
-      if(t.includes('urgent')||t.includes('জরুরি'))refineState.urgency=true;
-      if(t.includes('short')||t.includes('সংক্ষিপ্ত')||t.includes('ছোট'))refineState.shorter=true;
-      if(t.includes('bangla')||t.includes('বাংলা')){langSel.value='bn';ui()}
-      if(t.includes('english')||t.includes('ইংরেজি')){langSel.value='en';ui()}
-      q('assistantInstruction').value='';
-      addChat('ai',tr('instruction_applied'));
-      generateDraft();
-    }
+    function applyQuick(mode){if(mode==='firmer'){q('tone').value='strict'; refineState.softer=false; refineState.urgency=false; addMessage({role:'ai',text:tr('firmer_fb')});} if(mode==='softer'){refineState.softer=true; q('tone').value='formal'; addMessage({role:'ai',text:tr('softer_fb')});} if(mode==='urgent'){refineState.urgency=true; addMessage({role:'ai',text:tr('urgent_fb')});} if(mode==='shorter'){refineState.shorter=true; addMessage({role:'ai',text:tr('shorter_fb')});} if(mode==='bangla'){langSel.value='bn'; ui(); addMessage({role:'ai',text:tr('bangla_fb')});} if(mode==='english'){langSel.value='en'; ui(); addMessage({role:'ai',text:tr('english_fb')});} generateDraft();}
+    function applyInstruction(){const t=q('assistantInstruction').value.toLowerCase(); if(!t){notify(tr('need_instruction')); return;} addMessage({role:'user', text:q('assistantInstruction').value, mode:'instruction'}); if(t.includes('firm')||t.includes('কড়া')){q('tone').value='strict'; refineState.softer=false;} if(t.includes('soft')||t.includes('নরম')){refineState.softer=true; q('tone').value='formal';} if(t.includes('urgent')||t.includes('জরুরি')) refineState.urgency=true; if(t.includes('short')||t.includes('সংক্ষিপ্ত')||t.includes('ছোট')) refineState.shorter=true; if(t.includes('bangla')||t.includes('বাংলা')){langSel.value='bn'; ui();} if(t.includes('english')||t.includes('ইংরেজি')){langSel.value='en'; ui();} q('assistantInstruction').value=''; addMessage({role:'ai', text:tr('instruction_applied'), citations:buildCitations('instruction'), outputs:[]}); generateDraft();}
 
     function loadSample(){
-      if(langSel.value==='bn'){
-        q('matterName').value='রহিম বনাম করিম — টাকা আদায়';q('sender').value='মোঃ রহিম উদ্দিন';q('recipient').value='করিম মিয়া';q('advocate').value='এডভোকেট এ. করিম';q('chamber').value='Zhuxin লিগ্যাল ডেস্ক';q('address').value='গ্রাম: কালীগঞ্জ, জেলা: গাজীপুর';q('subject').value='টাকা ফেরতের দাবি';q('reason').value='payment';q('days').value='15';q('reference').value='৫০,০০০ টাকা ঋণ, তারিখ ১০ মার্চ ২০২৬';q('facts').value='আপনি ১০ মার্চ ২০২৬ তারিখে আমার মক্কেলের নিকট হইতে ৫০,০০০ টাকা গ্রহণ করেন এবং একাধিক দাবি সত্ত্বেও উক্ত টাকা পরিশোধ করেন নাই।';q('demand').value='বকেয়া সম্পূর্ণ টাকা অবিলম্বে পরিশোধ করুন';}
-      else{
-        q('matterName').value='Rahim v Karim — Payment recovery';q('sender').value='Md. Rahim Uddin';q('recipient').value='Karim Mia';q('advocate').value='Advocate A. Karim';q('chamber').value='Zhuxin Legal Desk';q('address').value='Village: Kaliganj, District: Gazipur';q('subject').value='Demand for repayment of money';q('reason').value='payment';q('days').value='15';q('reference').value='Tk. 50,000 loan dated 10 March 2026';q('facts').value='You borrowed Tk. 50,000 from my client on 10 March 2026 and despite repeated demands, you have failed to repay the amount.';q('demand').value='repay the outstanding amount in full';}
-      refineState={urgency:false,shorter:false,softer:false};
-      addChat('ai',tr('sample_loaded'));
-      generateDraft();
+      if(langSel.value==='bn'){q('matterName').value='রহিম বনাম করিম — টাকা আদায়'; q('sender').value='মোঃ রহিম উদ্দিন'; q('recipient').value='করিম মিয়া'; q('advocate').value='এডভোকেট এ. করিম'; q('chamber').value='Zhuxin লিগ্যাল ডেস্ক'; q('address').value='গ্রাম: কালীগঞ্জ, জেলা: গাজীপুর'; q('subject').value='টাকা ফেরতের দাবি'; q('reason').value='payment'; q('days').value='15'; q('reference').value='৫০,০০০ টাকা ঋণ, তারিখ ১০ মার্চ ২০২৬'; q('facts').value='আপনি ১০ মার্চ ২০২৬ তারিখে আমার মক্কেলের নিকট হইতে ৫০,০০০ টাকা গ্রহণ করেন এবং একাধিক দাবি সত্ত্বেও উক্ত টাকা পরিশোধ করেন নাই।'; q('demand').value='বকেয়া সম্পূর্ণ টাকা অবিলম্বে পরিশোধ করুন';}
+      else{q('matterName').value='Rahim v Karim — Payment recovery'; q('sender').value='Md. Rahim Uddin'; q('recipient').value='Karim Mia'; q('advocate').value='Advocate A. Karim'; q('chamber').value='Zhuxin Legal Desk'; q('address').value='Village: Kaliganj, District: Gazipur'; q('subject').value='Demand for repayment of money'; q('reason').value='payment'; q('days').value='15'; q('reference').value='Tk. 50,000 loan dated 10 March 2026'; q('facts').value='You borrowed Tk. 50,000 from my client on 10 March 2026 and despite repeated demands, you have failed to repay the amount.'; q('demand').value='repay the outstanding amount in full';}
+      refineState={urgency:false,shorter:false,softer:false}; addMessage({role:'ai', text:tr('sample_loaded')}); generateDraft();}
+    function saveMatter(){const p={matterName:q('matterName').value,lang:langSel.value,tone:q('tone').value,sender:q('sender').value,recipient:q('recipient').value,advocate:q('advocate').value,chamber:q('chamber').value,address:q('address').value,subject:q('subject').value,reason:q('reason').value,days:q('days').value,facts:q('facts').value,demand:q('demand').value,reference:q('reference').value}; localStorage.setItem('zhuxin_notice_mono_matter',JSON.stringify(p)); notify(tr('matter_saved')); renderRecentActivity();}
+    function loadMatter(){const raw=localStorage.getItem('zhuxin_notice_mono_matter'); if(!raw) return; try{const d=JSON.parse(raw); Object.keys(d).forEach(k=>{const el=q(k); if(el) el.value=d[k]})}catch(e){}}
+    function saveVersion(){if(!draft){notify(tr('need_draft')); return;} const arr=getNoticeVersions(); arr.unshift({id:Date.now(), lang:langSel.value, matter:q('matterName').value||'Matter', subject:q('subject').value||tr('notice_type'), date:new Date().toISOString(), content:draft}); localStorage.setItem('zhuxin_notice_mono_versions',JSON.stringify(arr.slice(0,20))); renderVersions(); renderHistory(); renderRecentActivity(); notify(tr('version_saved'));}
+    function restoreVersion(id){const arr=getNoticeVersions(); const v=arr.find(x=>String(x.id)===String(id)); if(!v) return; draft=v.content; langSel.value=v.lang||'en'; ui(); q('paper').classList.toggle('bn',v.lang==='bn'); q('paper').textContent=v.content; openSurface('notice'); openNoticeView('draft');}
+    function renderVersions(){const box=q('versionsList'); const arr=getNoticeVersions(); box.innerHTML=''; if(!arr.length){box.innerHTML='<div class="empty">'+tr('history_empty')+'</div>'; return;} arr.forEach(v=>{const d=document.createElement('div'); d.className='version-card'; d.innerHTML='<strong>'+(v.subject||tr('notice_type'))+'</strong><p>'+(v.matter||'')+' · '+new Date(v.date).toLocaleString(langSel.value==='bn'?'bn-BD':'en-GB')+'</p><div class="row"><button class="soft-btn" onclick="restoreVersion('+v.id+')">'+tr('restore')+'</button></div>'; box.appendChild(d);});}
+    function copyDraft(){if(!draft){notify(tr('need_draft')); return;} navigator.clipboard.writeText(draft).then(()=>notify(tr('copied'))).catch(()=>notify(tr('copy_fail')))}
+    function downloadDraft(){if(!draft){notify(tr('need_draft')); return;} const blob=new Blob([draft],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zhuxin-notice.txt'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),500); notify(tr('downloaded'))}
+
+    function downloadOutput(ts, index){
+      const msg=currentThread.find(m=>m.ts===ts); if(!msg || !msg.outputs || !msg.outputs[index]) return;
+      const out=msg.outputs[index];
+      let type='text/plain;charset=utf-8', ext='txt';
+      if(out.title===tr('table_output')){type='text/csv;charset=utf-8'; ext='csv';}
+      if(out.title===tr('slides_output')){ext='md';}
+      const blob=new Blob([out.content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zhuxin-'+out.title.toLowerCase().replace(/\s+/g,'-')+'.'+ext; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),500);
     }
 
-    function saveMatter(){
-      const p={matterName:q('matterName').value,lang:langSel.value,tone:q('tone').value,sender:q('sender').value,recipient:q('recipient').value,advocate:q('advocate').value,chamber:q('chamber').value,address:q('address').value,subject:q('subject').value,reason:q('reason').value,days:q('days').value,facts:q('facts').value,demand:q('demand').value,reference:q('reference').value};
-      localStorage.setItem('zhuxin_notice_mono_matter',JSON.stringify(p));
-      notify(tr('matter_saved'));
-      renderRecentActivity();
-    }
-
-    function loadMatter(){
-      const raw=localStorage.getItem('zhuxin_notice_mono_matter');
-      if(!raw) return;
-      try{const d=JSON.parse(raw);Object.keys(d).forEach(k=>{const el=q(k);if(el) el.value=d[k]})}catch(e){}
-    }
-
-    function saveVersion(){
-      if(!draft){notify(tr('need_draft'));return}
-      const arr=getNoticeVersions();
-      arr.unshift({id:Date.now(),lang:langSel.value,matter:q('matterName').value||'Matter',subject:q('subject').value||tr('notice_type'),date:new Date().toISOString(),content:draft});
-      localStorage.setItem('zhuxin_notice_mono_versions',JSON.stringify(arr.slice(0,20)));
-      renderVersions();renderHistory();renderRecentActivity();
-      notify(tr('version_saved'));
-    }
-
-    function restoreVersion(id){
-      const arr=getNoticeVersions();
-      const v=arr.find(x=>String(x.id)===String(id));
-      if(!v) return;
-      draft=v.content;
-      langSel.value=v.lang||'en';
-      ui();
-      q('paper').classList.toggle('bn',v.lang==='bn');
-      q('paper').textContent=v.content;
-      openSurface('notice');
-      openNoticeView('draft');
-    }
-
-    function renderVersions(){
-      const box=q('versionsList');
-      if(!box) return;
-      const arr=getNoticeVersions();
-      box.innerHTML='';
-      if(!arr.length){box.innerHTML='<div class="empty">'+tr('history_empty')+'</div>';return;}
-      arr.forEach(v=>{
-        const d=document.createElement('div');
-        d.className='version-card';
-        d.innerHTML='<strong>'+ (v.subject||tr('notice_type')) +'</strong><p>'+ (v.matter||'') +' · '+new Date(v.date).toLocaleString(langSel.value==='bn'?'bn-BD':'en-GB') +'</p><div class="row"><button class="soft-btn" onclick="restoreVersion('+v.id+')">'+tr('restore')+'</button></div>';
-        box.appendChild(d);
-      });
-    }
-
-    function copyDraft(){if(!draft){notify(tr('need_draft'));return}navigator.clipboard.writeText(draft).then(()=>notify(tr('copied'))).catch(()=>notify(tr('copy_fail')))}
-    function downloadDraft(){if(!draft){notify(tr('need_draft'));return}const blob=new Blob([draft],{type:'text/plain;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='zhuxin-notice.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),500);notify(tr('downloaded'))}
-
-    q('modelSelector').addEventListener('change',()=>{q('modelBadge').textContent=q('modelSelector').value;renderRecentActivity()});
-
-    loadMatter();
-    ui();
-    openSurface('assistant');
-    openNoticeView('draft');
+    q('modelSelector').addEventListener('change',()=>{q('modelBadge').textContent=q('modelSelector').value; renderRecentActivity();});
+    loadMatter(); ui(); openSurface('assistant'); openNoticeView('draft');
   </script>
 </body>
 </html>
