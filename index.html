@@ -30,21 +30,21 @@
     .surface,.rail-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px}.surface{display:none}.surface.active{display:block}
     .surface-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}.surface-title{font-family:'Cormorant Garamond',serif;font-size:54px;line-height:.92;font-weight:600;letter-spacing:-.06em;margin:0}.surface-sub{margin-top:10px;color:var(--muted);font-size:14px;line-height:1.6;max-width:780px}
     body.bn .surface-title{font-family:'Noto Sans Bengali',Inter,sans-serif;font-size:32px;font-weight:700;line-height:1.08}
-    .badges,.row,.pills,.prompt-tags{display:flex;gap:8px;flex-wrap:wrap}.badge,.pill,.tag{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#111;color:var(--muted);font-size:12px}.badge.soft{background:var(--soft);color:#111;border-color:var(--soft)}
-    .hero-grid,.grid2,.grid3,.cards,.iframe-grid{display:grid;gap:14px}.cards{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}
-    .launch-card,.small-card,.history-card,.prompt-card,.msg,.output-card{background:#101010;border:1px solid var(--line);border-radius:16px;padding:14px}.launch-card h3,.small-card strong,.history-card strong,.prompt-card strong,.output-card strong{margin:0;font-size:15px}.launch-card p,.small-card p,.history-card p,.prompt-card p{margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
-    .control-grid{display:grid;grid-template-columns:1fr;gap:10px}.control-card{background:#101010;border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px}.control-title{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .badges,.row,.prompt-tags,.route-tags{display:flex;gap:8px;flex-wrap:wrap}.badge,.tag{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#111;color:var(--muted);font-size:12px}.badge.soft{background:var(--soft);color:#111;border-color:var(--soft)}
+    .cards,.grid2,.grid3,.control-grid,.route-grid{display:grid;gap:14px}.cards{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.control-grid{grid-template-columns:1fr}
+    .launch-card,.small-card,.history-card,.prompt-card,.msg,.output-card,.guide-card,.route-step{background:#101010;border:1px solid var(--line);border-radius:16px;padding:14px}.launch-card h3,.small-card strong,.history-card strong,.prompt-card strong,.output-card strong,.guide-card strong,.route-step strong{margin:0;font-size:15px}.launch-card p,.small-card p,.history-card p,.prompt-card p,.guide-card p,.route-step p{margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.55}
+    .control-card{background:#101010;border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px}.control-title{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
     .seg,.chips{display:flex;gap:8px;flex-wrap:wrap}.seg button,.chips button{border:1px solid var(--line);background:#131313;color:var(--muted);padding:9px 10px;border-radius:12px;cursor:pointer}.seg button.active,.chips button.active{background:var(--soft);color:#111;border-color:var(--soft)}
     .chat{display:grid;gap:12px;max-height:58vh;overflow:auto;padding-right:2px}.msg.user{background:#171717}.msg-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.msg-role{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.msg-tools{display:flex;gap:6px;flex-wrap:wrap}.msg-tools span{font-size:11px;padding:5px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
     .cite-block,.output-block{margin-top:10px;background:#0d0d0d;border:1px solid var(--line);border-radius:14px;padding:12px}.cite-title,.output-title{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.cite-item{padding:8px 10px;border-radius:10px;background:#131313;border:1px solid var(--line);font-size:12px;line-height:1.55;margin-top:8px}
     .output-card{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:8px}.output-card small{display:block;color:var(--muted);font-size:11px;line-height:1.45}
-    .composer{display:grid;gap:10px}.composer textarea,.field input,.field textarea,.field select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:none}.composer textarea,.field textarea{min-height:110px;resize:vertical}.field{display:grid;gap:6px}.field span{font-size:12px;color:var(--muted);font-weight:600}
+    .composer{display:grid;gap:10px}.composer textarea,.field input,.field textarea,.field select,.guide-input,.route-input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);outline:none}.composer textarea,.field textarea,.guide-input,.route-input{min-height:110px;resize:vertical}.field{display:grid;gap:6px}.field span{font-size:12px;color:var(--muted);font-weight:600}
     .tabs{display:flex;gap:8px;overflow:auto}.tab{border:1px solid var(--line);background:#0f0f0f;color:var(--muted);padding:10px 12px;border-radius:12px;cursor:pointer}.tab.active{background:var(--soft);color:#111;border-color:var(--soft);font-weight:700}
     .subview{display:none;margin-top:14px}.subview.active{display:block}
     .paper{background:var(--soft);color:#171717;border-radius:18px;padding:20px;min-height:420px;white-space:pre-wrap;line-height:1.82;font-size:14px;border:1px solid rgba(0,0,0,.08)}.paper.bn{font-family:'Noto Sans Bengali',Inter,sans-serif;line-height:1.95}
     .review,.empty,.mini{color:var(--muted);font-size:12px;line-height:1.55}
     .embed-toolbar{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.embed-frame{width:100%;height:72vh;border:1px solid var(--line);border-radius:18px;background:#0a0a0a}
-    @media(min-width:760px){.cards{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr 1fr}.control-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:760px){.cards{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr 1fr}.control-grid{grid-template-columns:repeat(3,1fr)}.route-grid{grid-template-columns:1fr 1fr}}
     @media(min-width:1100px){.mobile-nav{display:none}.layout{grid-template-columns:250px minmax(0,1fr) 320px;align-items:start}.sidebar{display:block}.surface-title{font-size:68px}}
   </style>
 </head>
@@ -78,16 +78,18 @@
             <div>
               <div class="badges"><span class="badge soft">Main</span><span class="badge">Unified entry point</span><span class="badge">Monochrome theme</span></div>
               <h1 class="surface-title">Zhuxin Platform</h1>
-              <div class="surface-sub">This main page now acts as the single entry point for Zhuxin: core Assistant, Notice, Library, and History live directly here, while Vault, Workflows, Ecosystem, and Platform views are accessible inside the same app shell.</div>
+              <div class="surface-sub">The main app now works as one product shell. Core tools are native here, and the larger phase modules stay accessible from the same unified navigation.</div>
             </div>
           </div>
           <div class="cards">
             <div class="launch-card"><h3>Assistant</h3><p>Threaded legal work, source controls, evidence blocks, and output cards.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('assistant')">Open Assistant</button></div></div>
             <div class="launch-card"><h3>Notice</h3><p>Working notice generator with saved drafts and Bangla/English output.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('notice')">Open Notice</button></div></div>
+            <div class="launch-card"><h3>Guide</h3><p>Native help surface for using Zhuxin modules and flows.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('guide')">Open Guide</button></div></div>
+            <div class="launch-card"><h3>Routing</h3><p>Native routing view showing how work can move across layers.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('routing')">Open Routing</button></div></div>
             <div class="launch-card"><h3>Vault</h3><p>Phase 3 matter folders, document cards, review tables, and ask-over-vault.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('vault')">Open Vault</button></div></div>
             <div class="launch-card"><h3>Workflows</h3><p>Phase 4 workflow builder, playbooks, and agents.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('workflow')">Open Workflows</button></div></div>
             <div class="launch-card"><h3>Ecosystem</h3><p>Phase 5 integrations, mobile tools, sharing, and admin previews.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('ecosystem')">Open Ecosystem</button></div></div>
-            <div class="launch-card"><h3>Platform</h3><p>Phase 6 guide, routing, and launchpad layer.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('platform')">Open Platform</button></div></div>
+            <div class="launch-card"><h3>Platform</h3><p>Phase 6 launchpad and broader platform layer.</p><div class="row" style="margin-top:12px"><button class="primary-btn" onclick="openMainView('platform')">Open Platform</button></div></div>
           </div>
         </section>
 
@@ -131,6 +133,22 @@
           <div id="historyCards" class="cards"></div>
         </section>
 
+        <section id="view-guide" class="surface">
+          <div class="surface-head"><div><div class="badges"><span class="badge soft">Native</span><span class="badge">Guide</span></div><h1 class="surface-title">Guide</h1><div class="surface-sub">Ask how to use any Zhuxin surface and get a help-style answer directly inside the main app.</div></div></div>
+          <div class="grid2">
+            <div class="guide-card"><strong>Ask Zhuxin Guide</strong><p>Use this to understand which module to open and what each action does.</p><textarea id="guideInput" class="guide-input" placeholder="Example: how do I build a review table in Vault?"></textarea><div class="row" style="margin-top:12px"><button class="soft-btn" onclick="guideSample('vault')">Vault help</button><button class="soft-btn" onclick="guideSample('workflow')">Workflow help</button><button class="soft-btn" onclick="guideSample('mobile')">Mobile help</button><button class="primary-btn" onclick="runGuide()">Ask Guide</button></div></div>
+            <div class="guide-card"><strong>Guide answer</strong><div id="guideAnswer" class="mini" style="margin-top:10px;white-space:pre-wrap">Guide answer will appear here.</div></div>
+          </div>
+        </section>
+
+        <section id="view-routing" class="surface">
+          <div class="surface-head"><div><div class="badges"><span class="badge soft">Native</span><span class="badge">Routing</span></div><h1 class="surface-title">Routing</h1><div class="surface-sub">Visualize how a request moves across parsing, drafting, reasoning, extraction, and review layers.</div></div></div>
+          <div class="grid2">
+            <div class="guide-card"><strong>Task routing</strong><p>Use this to map a task into the likely work layers Zhuxin would use.</p><textarea id="routeInput" class="route-input" placeholder="Example: review a lease, compare assignment language, and prepare a negotiation summary."></textarea><div class="row" style="margin-top:12px"><button class="soft-btn" onclick="routeSample()">Load sample</button><button class="primary-btn" onclick="runRouting()">Visualize routing</button></div></div>
+            <div class="guide-card"><strong>Routing plan</strong><div id="routePlan" class="route-grid" style="margin-top:10px"></div></div>
+          </div>
+        </section>
+
         <section id="view-vault" class="surface">
           <div class="surface-head"><div><div class="badges"><span class="badge soft">Embedded</span><span class="badge">Phase 3</span></div><h1 class="surface-title">Vault</h1><div class="surface-sub">Matter folders, document cards, review tables, ask-over-vault, and knowledge conversion.</div></div></div>
           <div class="embed-toolbar"><div class="row"><button class="soft-btn" onclick="refreshEmbed('phase3-vault.html')">Refresh</button><a class="primary-btn" href="https://uis2868.github.io/zhuxinapp/phase3-vault.html" target="_blank" rel="noopener noreferrer">Open in new tab</a></div></div>
@@ -150,7 +168,7 @@
         </section>
 
         <section id="view-platform" class="surface">
-          <div class="surface-head"><div><div class="badges"><span class="badge soft">Embedded</span><span class="badge">Phase 6</span></div><h1 class="surface-title">Platform</h1><div class="surface-sub">Guide, routing, launchpad, and platform-home layer.</div></div></div>
+          <div class="surface-head"><div><div class="badges"><span class="badge soft">Embedded</span><span class="badge">Phase 6</span></div><h1 class="surface-title">Platform</h1><div class="surface-sub">Launchpad and broader platform layer.</div></div></div>
           <div class="embed-toolbar"><div class="row"><button class="soft-btn" onclick="refreshEmbed('phase6-platform.html')">Refresh</button><a class="primary-btn" href="https://uis2868.github.io/zhuxinapp/phase6-platform.html" target="_blank" rel="noopener noreferrer">Open in new tab</a></div></div>
           <iframe id="platformFrame" class="embed-frame" src="https://uis2868.github.io/zhuxinapp/phase6-platform.html"></iframe>
         </section>
@@ -160,6 +178,7 @@
         <section class="rail-card"><strong>Favorite prompts</strong><div id="favoriteList" class="cards" style="margin-top:12px"></div></section>
         <section class="rail-card"><strong>Recent activity</strong><div id="activityList" class="cards" style="margin-top:12px"></div></section>
         <section class="rail-card"><strong>Knowledge shelf</strong><div id="knowledgeList" class="cards" style="margin-top:12px"></div></section>
+        <section class="rail-card"><strong>Platform status</strong><div class="small-card" style="margin-top:12px"><strong>Main hub</strong><p>Core tools are native in the main app. Larger phase modules remain connected from the same shell.</p></div></section>
       </aside>
     </div>
   </div>
@@ -171,6 +190,8 @@
       {id:'notice',label:'Notice',small:'core'},
       {id:'library',label:'Library',small:'core'},
       {id:'history',label:'History',small:'core'},
+      {id:'guide',label:'Guide',small:'native'},
+      {id:'routing',label:'Routing',small:'native'},
       {id:'vault',label:'Vault',small:'phase 3'},
       {id:'workflow',label:'Workflows',small:'phase 4'},
       {id:'ecosystem',label:'Ecosystem',small:'phase 5'},
@@ -203,87 +224,21 @@
     const getSearch=()=> (q('globalSearch').value||'').trim().toLowerCase();
     const notify=msg=>alert(msg);
 
-    function renderNav(){
-      const side=q('sidebarNav'), mobile=q('mobileNav');
-      side.innerHTML=''; mobile.innerHTML='';
-      NAV.forEach(n=>{
-        const s=document.createElement('button');
-        s.className='side-btn'+(currentView===n.id?' active':'');
-        s.onclick=()=>openMainView(n.id);
-        s.innerHTML='<span>'+n.label+'</span><small>'+n.small+'</small>';
-        side.appendChild(s);
-        const m=document.createElement('button');
-        m.className='mobile-chip'+(currentView===n.id?' active':'');
-        m.textContent=n.label;
-        m.onclick=()=>openMainView(n.id);
-        mobile.appendChild(m);
-      });
-    }
+    function toggleLang(){document.body.classList.toggle('bn'); q('langToggle').textContent=document.body.classList.contains('bn')?'English':'বাংলা';}
+    function renderNav(){const side=q('sidebarNav'), mobile=q('mobileNav'); side.innerHTML=''; mobile.innerHTML=''; NAV.forEach(n=>{const s=document.createElement('button'); s.className='side-btn'+(currentView===n.id?' active':''); s.onclick=()=>openMainView(n.id); s.innerHTML='<span>'+n.label+'</span><small>'+n.small+'</small>'; side.appendChild(s); const m=document.createElement('button'); m.className='mobile-chip'+(currentView===n.id?' active':''); m.textContent=n.label; m.onclick=()=>openMainView(n.id); mobile.appendChild(m);});}
+    function openMainView(id){currentView=id; document.querySelectorAll('.surface').forEach(el=>el.classList.remove('active')); q('view-'+id).classList.add('active'); renderNav();}
+    function refreshEmbed(name){const map={'phase3-vault.html':'vaultFrame','phase4-workflows.html':'workflowFrame','phase5-ecosystem.html':'ecosystemFrame','phase6-platform.html':'platformFrame'}; const frame=q(map[name]); if(frame) frame.src='https://uis2868.github.io/zhuxinapp/'+name+'?t='+(Date.now());}
 
-    function openMainView(id){
-      currentView=id;
-      document.querySelectorAll('.surface').forEach(el=>el.classList.remove('active'));
-      q('view-'+id).classList.add('active');
-      renderNav();
-    }
-
-    function refreshEmbed(name){
-      const map={
-        'phase3-vault.html':'vaultFrame',
-        'phase4-workflows.html':'workflowFrame',
-        'phase5-ecosystem.html':'ecosystemFrame',
-        'phase6-platform.html':'platformFrame'
-      };
-      const frame=q(map[name]);
-      if(frame) frame.src='https://uis2868.github.io/zhuxinapp/'+name+'?t='+(Date.now());
-    }
-
-    function renderAssistantControls(){
-      const modeBox=q('taskModeSeg'), styleBox=q('styleSeg'), sourceBox=q('sourceChips');
-      modeBox.innerHTML=''; styleBox.innerHTML=''; sourceBox.innerHTML='';
-      ['chat','analysis','draft','edit'].forEach(m=>{
-        const b=document.createElement('button'); b.textContent=m; b.className=assistantState.mode===m?'active':''; b.onclick=()=>{assistantState.mode=m; renderAssistantControls(); q('assistantModeBadge').textContent=m;}; modeBox.appendChild(b);
-      });
-      ['neutral','firm','executive','formal'].forEach(s=>{
-        const b=document.createElement('button'); b.textContent=s; b.className=assistantState.style===s?'active':''; b.onclick=()=>{assistantState.style=s; renderAssistantControls();}; styleBox.appendChild(b);
-      });
-      ['uploads','vault','knowledge','web','library'].forEach(src=>{
-        const b=document.createElement('button'); b.textContent=src; b.className=assistantState.sources.includes(src)?'active':''; b.onclick=()=>toggleSource(src); sourceBox.appendChild(b);
-      });
-    }
+    function renderAssistantControls(){const modeBox=q('taskModeSeg'), styleBox=q('styleSeg'), sourceBox=q('sourceChips'); modeBox.innerHTML=''; styleBox.innerHTML=''; sourceBox.innerHTML=''; ['chat','analysis','draft','edit'].forEach(m=>{const b=document.createElement('button'); b.textContent=m; b.className=assistantState.mode===m?'active':''; b.onclick=()=>{assistantState.mode=m; renderAssistantControls(); q('assistantModeBadge').textContent=m;}; modeBox.appendChild(b);}); ['neutral','firm','executive','formal'].forEach(s=>{const b=document.createElement('button'); b.textContent=s; b.className=assistantState.style===s?'active':''; b.onclick=()=>{assistantState.style=s; renderAssistantControls();}; styleBox.appendChild(b);}); ['uploads','vault','knowledge','web','library'].forEach(src=>{const b=document.createElement('button'); b.textContent=src; b.className=assistantState.sources.includes(src)?'active':''; b.onclick=()=>toggleSource(src); sourceBox.appendChild(b);});}
     function toggleSource(src){assistantState.sources=assistantState.sources.includes(src)?assistantState.sources.filter(x=>x!==src):[...assistantState.sources,src]; if(!assistantState.sources.length) assistantState.sources=['knowledge']; renderAssistantControls();}
-
-    function renderAssistantChat(){
-      const box=q('assistantChat'); box.innerHTML='';
-      if(!assistantMsgs.length){const d=document.createElement('div'); d.className='msg'; d.textContent='Assistant ready. Use the controls above or write a custom instruction.'; box.appendChild(d); return;}
-      assistantMsgs.forEach(m=>{
-        const d=document.createElement('div'); d.className='msg '+(m.role==='user'?'user':'');
-        let html='<div class="msg-head"><div class="msg-role">'+(m.role==='user'?'User':'Zhuxin')+'</div><div class="msg-tools"><span>'+assistantState.mode+'</span><span>'+assistantState.style+'</span></div></div><div>'+escapeHtml(m.text).replace(/\n/g,'<br>')+'</div>';
-        if(m.citations&&m.citations.length){html+='<div class="cite-block"><div class="cite-title">Evidence trail</div>'+m.citations.map(c=>'<div class="cite-item">'+escapeHtml(c)+'</div>').join('')+'</div>';}
-        if(m.outputs&&m.outputs.length){html+='<div class="output-block"><div class="output-title">Outputs</div>'+m.outputs.map((o,i)=>'<div class="output-card"><div><strong>'+escapeHtml(o.title)+'</strong><small>'+escapeHtml(o.desc)+'</small></div><button class="soft-btn" onclick="downloadAssistantOutput('+m.ts+','+i+')">Download</button></div>').join('')+'</div>';}
-        d.innerHTML=html; box.appendChild(d);
-      });
-    }
+    function renderAssistantChat(){const box=q('assistantChat'); box.innerHTML=''; if(!assistantMsgs.length){const d=document.createElement('div'); d.className='msg'; d.textContent='Assistant ready. Use the controls above or write a custom instruction.'; box.appendChild(d); return;} assistantMsgs.forEach(m=>{const d=document.createElement('div'); d.className='msg '+(m.role==='user'?'user':''); let html='<div class="msg-head"><div class="msg-role">'+(m.role==='user'?'User':'Zhuxin')+'</div><div class="msg-tools"><span>'+assistantState.mode+'</span><span>'+assistantState.style+'</span></div></div><div>'+escapeHtml(m.text).replace(/\n/g,'<br>')+'</div>'; if(m.citations&&m.citations.length){html+='<div class="cite-block"><div class="cite-title">Evidence trail</div>'+m.citations.map(c=>'<div class="cite-item">'+escapeHtml(c)+'</div>').join('')+'</div>';} if(m.outputs&&m.outputs.length){html+='<div class="output-block"><div class="output-title">Outputs</div>'+m.outputs.map((o,i)=>'<div class="output-card"><div><strong>'+escapeHtml(o.title)+'</strong><small>'+escapeHtml(o.desc)+'</small></div><button class="soft-btn" onclick="downloadAssistantOutput('+m.ts+','+i+')">Download</button></div>').join('')+'</div>';} d.innerHTML=html; box.appendChild(d);});}
     function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
     function newThread(){assistantMsgs=[]; renderAssistantChat();}
     function saveThread(){if(!assistantMsgs.length) return; const first=assistantMsgs.find(m=>m.role==='user'); const arr=getAssistantHistory(); arr.unshift({id:Date.now(),title:(first?first.text:'Untitled thread').slice(0,70),date:new Date().toISOString(),messages:assistantMsgs}); setAssistantHistory(arr); renderHistory(); renderActivity(); notify('Thread saved');}
     function usePrompt(id){const p=LIBRARY.find(x=>x.id===id); if(!p) return; q('assistantInput').value=p.seed+'\n\n'; openMainView('assistant');}
     function insertSourceTag(){q('assistantInput').value+=(q('assistantInput').value.endsWith('\n')||!q('assistantInput').value?'':'\n')+'[Sources: '+assistantState.sources.join(', ')+']\n'; q('assistantInput').focus();}
     function buildOutput(kind){const labels={memo:'Build memo',slides:'Build slides',table:'Build table'}; q('assistantInput').value=(q('assistantInput').value?q('assistantInput').value+'\n\n':'')+labels[kind]; q('assistantInput').focus();}
-    function makeAssistantReply(input){
-      let intro='';
-      if(assistantState.mode==='analysis') intro='Working structure:\n1) Core issues\n2) Missing facts\n3) Reasoning path\n4) Likely outputs\n\n';
-      else if(assistantState.mode==='draft') intro='Drafting focus:\n1) Objective\n2) Desired tone\n3) Required elements\n4) Draft structure\n\n';
-      else if(assistantState.mode==='edit') intro='Editing focus:\n1) What changes\n2) What stays fixed\n3) Formatting considerations\n\n';
-      else intro='Working structure:\n1) Task definition\n2) Needed facts\n3) Next steps\n\n';
-      const text=intro+input+'\n\nSources used: '+assistantState.sources.join(', ')+'. Current style: '+assistantState.style+'.';
-      const citations=['Source layer: '+assistantState.sources.join(' · '),'Task mode: '+assistantState.mode+' · Style: '+assistantState.style,'This answer is shown with an evidence-style grounding block.'];
-      const outputs=[];
-      if(assistantState.mode==='analysis'||/memo|analysis|note/i.test(input)) outputs.push({title:'Memo outline',desc:'A concise structure with issues, analysis, and next steps.',content:'Memo Outline\n\n1. Issues\n2. Relevant facts\n3. Analysis\n4. Risks\n5. Next steps'});
-      if(assistantState.mode==='draft'||/slide|deck|presentation/i.test(input)) outputs.push({title:'Slide outline',desc:'A slide-based structure for later deck creation.',content:'Slide Outline\n\nSlide 1: Title\nSlide 2: Background\nSlide 3: Core issues\nSlide 4: Analysis'});
-      if(assistantState.mode==='edit'||/table|compare|extract/i.test(input)) outputs.push({title:'Working table',desc:'A CSV-style structure for working review.',content:'Column,Value\nIssue,\nFact,\nRisk,\nNext Step,'});
-      return {text,citations,outputs};
-    }
+    function makeAssistantReply(input){let intro=''; if(assistantState.mode==='analysis') intro='Working structure:\n1) Core issues\n2) Missing facts\n3) Reasoning path\n4) Likely outputs\n\n'; else if(assistantState.mode==='draft') intro='Drafting focus:\n1) Objective\n2) Desired tone\n3) Required elements\n4) Draft structure\n\n'; else if(assistantState.mode==='edit') intro='Editing focus:\n1) What changes\n2) What stays fixed\n3) Formatting considerations\n\n'; else intro='Working structure:\n1) Task definition\n2) Needed facts\n3) Next steps\n\n'; const text=intro+input+'\n\nSources used: '+assistantState.sources.join(', ')+'. Current style: '+assistantState.style+'.'; const citations=['Source layer: '+assistantState.sources.join(' · '),'Task mode: '+assistantState.mode+' · Style: '+assistantState.style,'This answer is shown with an evidence-style grounding block.']; const outputs=[]; if(assistantState.mode==='analysis'||/memo|analysis|note/i.test(input)) outputs.push({title:'Memo outline',desc:'A concise structure with issues, analysis, and next steps.',content:'Memo Outline\n\n1. Issues\n2. Relevant facts\n3. Analysis\n4. Risks\n5. Next steps'}); if(assistantState.mode==='draft'||/slide|deck|presentation/i.test(input)) outputs.push({title:'Slide outline',desc:'A slide-based structure for later deck creation.',content:'Slide Outline\n\nSlide 1: Title\nSlide 2: Background\nSlide 3: Core issues\nSlide 4: Analysis'}); if(assistantState.mode==='edit'||/table|compare|extract/i.test(input)) outputs.push({title:'Working table',desc:'A CSV-style structure for working review.',content:'Column,Value\nIssue,\nFact,\nRisk,\nNext Step,'}); return {text,citations,outputs};}
     function sendAssistant(){const text=q('assistantInput').value.trim(); if(!text) return; const reply=makeAssistantReply(text); assistantMsgs.push({role:'user',text,ts:Date.now()}); assistantMsgs.push({role:'ai',text:reply.text,citations:reply.citations,outputs:reply.outputs,ts:Date.now()+1}); q('assistantInput').value=''; renderAssistantChat(); renderActivity();}
     function downloadAssistantOutput(ts,index){const msg=assistantMsgs.find(m=>m.ts===ts); if(!msg||!msg.outputs||!msg.outputs[index]) return; const out=msg.outputs[index]; let type='text/plain;charset=utf-8', ext='txt'; if(out.title==='Working table'){type='text/csv;charset=utf-8'; ext='csv';} if(out.title==='Slide outline'){ext='md';} const blob=new Blob([out.content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zhuxin-'+out.title.toLowerCase().replace(/\s+/g,'-')+'.'+ext; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),500);}
 
@@ -292,16 +247,7 @@
     function reasonText(r,lang){const m={en:{payment:'failure to pay the lawful dues',possession:'illegal interference with possession',vacate:'unlawful occupation / refusal to vacate',deed:'failure regarding deed or document obligations',general:'acts causing legal grievance to my client'},bn:{payment:'বৈধ পাওনা পরিশোধে ব্যর্থতা',possession:'দখলে বেআইনি হস্তক্ষেপ',vacate:'অবৈধ দখল / খালি করতে অস্বীকৃতি',deed:'দলিল বা কাগজপত্র সংক্রান্ত দায়িত্ব পালন না করা',general:'আমার মক্কেলের প্রতি আইনগত ক্ষোভ সৃষ্টিকারী কার্যকলাপ'}}; return m[lang][r];}
     function toneText(t,lang){const m={en:{formal:'You are hereby requested to comply peacefully.',firm:'You are hereby called upon to comply without further delay.',strict:'Take notice that failure to comply may compel my client to take legal steps without any further reference.'},bn:{formal:'আপনাকে শান্তিপূর্ণভাবে বিষয়টি নিষ্পত্তির জন্য অনুরোধ করা যাচ্ছে।',firm:'অতএব, আপনাকে আর বিলম্ব না করে বিষয়টি নিষ্পত্তির জন্য বলা যাচ্ছে।',strict:'এই মর্মে নোটিশ করা যাইতেছে যে, নির্দেশ পালন না করলে আমার মক্কেল আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।'}}; return m[lang][t];}
     function today(lang){return new Date().toLocaleDateString(lang==='bn'?'bn-BD':'en-GB',{day:'2-digit',month:'long',year:'numeric'});}
-    function generateNotice(show){
-      const lang=q('nLang').value, matter=q('nMatter').value.trim(), sender=q('nSender').value.trim(), recipient=q('nRecipient').value.trim(), advocate=q('nAdvocate').value.trim(), chamber=q('nChamber').value.trim(), address=q('nAddress').value.trim(), subject=q('nSubject').value.trim(), reason=q('nReason').value||'general', days=q('nDays').value||'7', facts=q('nFacts').value.trim(), demand=q('nDemand').value.trim(), reference=q('nReference').value.trim(), tone=q('nTone').value||'formal';
-      q('noticeLangBadge').textContent=lang==='bn'?'বাংলা':'English'; q('noticeToneBadge').textContent=tone;
-      if(!matter&&!sender&&!recipient&&!facts&&!demand){q('noticePaper').classList.toggle('bn',lang==='bn'); q('noticePaper').textContent='Notice draft will appear here.'; noticeDraft=''; return;}
-      let bodyFacts=facts||(lang==='bn'?'[এখানে ঘটনার মূল বিবরণ লিখুন।]':'[Insert the material facts here.]');
-      let bodyDemand=demand||(lang==='bn'?'[যে কাজটি করতে হবে তা লিখুন]':'[state the exact act required]');
-      if(lang==='en'){q('noticePaper').classList.remove('bn'); noticeDraft=`LEGAL NOTICE\n\nMatter: ${matter||'[Matter name]'}\nDate: ${today(lang)}\n\nTo,\n${recipient||'Recipient Name'}\n${address||'Recipient Address'}\n\nSubject: ${subject||'Legal notice regarding '+reasonText(reason,lang)}\n${reference?`Reference: ${reference}\n`:''}Sir/Madam,\n\nUnder instructions from and on behalf of my client ${sender||'[Client Name]'}, I hereby serve upon you this legal notice for ${reasonText(reason,lang)}.\n\n${bodyFacts}\n\n${toneText(tone,lang)} My client demands that you ${bodyDemand} within ${days} days from receipt of this notice.\n\nFailing such compliance, my client shall be constrained to take appropriate legal action without further notice.\n\nIssued by:\n${advocate||'[Advocate Name]'}\n${chamber||'[Chamber / Firm Name]'}\nFor and on behalf of ${sender||'[Client Name]'}`;}
-      else{q('noticePaper').classList.add('bn'); noticeDraft=`আইনগত নোটিশ\n\nম্যাটার: ${matter||'[ম্যাটারের নাম]'}\nতারিখ: ${today(lang)}\n\nবরাবর,\n${recipient||'প্রাপক নাম'}\n${address||'প্রাপকের ঠিকানা'}\n\nবিষয়: ${subject||'আইনগত নোটিশ প্রসঙ্গে '+reasonText(reason,lang)}\n${reference?`রেফারেন্স: ${reference}\n`:''}জনাব/জনাবা,\n\nআমার মক্কেল ${sender||'[মক্কেলের নাম]'}-এর নির্দেশক্রমে আপনাকে এই মর্মে আইনগত নোটিশ প্রদান করা যাইতেছে যে, ${reasonText(reason,lang)} সংক্রান্ত বিষয়ে নিম্নোক্ত ঘটনা ঘটিয়াছে।\n\n${bodyFacts}\n\n${toneText(tone,lang)} অতএব, এই নোটিশ প্রাপ্তির ${days} দিনের মধ্যে আপনি ${bodyDemand}।\n\nঅন্যথায়, আমার মক্কেল আপনার বিরুদ্ধে প্রয়োজনীয় আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।\n\nপ্রদানকারী:\n${advocate||'[এডভোকেটের নাম]'}\n${chamber||'[চেম্বার / ফার্মের নাম]'}\nমক্কেল: ${sender||'[মক্কেলের নাম]'}`;}
-      q('noticePaper').textContent=noticeDraft; if(show) notify('Notice generated');
-    }
+    function generateNotice(show){const lang=q('nLang').value, matter=q('nMatter').value.trim(), sender=q('nSender').value.trim(), recipient=q('nRecipient').value.trim(), advocate=q('nAdvocate').value.trim(), chamber=q('nChamber').value.trim(), address=q('nAddress').value.trim(), subject=q('nSubject').value.trim(), reason=q('nReason').value||'general', days=q('nDays').value||'7', facts=q('nFacts').value.trim(), demand=q('nDemand').value.trim(), reference=q('nReference').value.trim(), tone=q('nTone').value||'formal'; q('noticeLangBadge').textContent=lang==='bn'?'বাংলা':'English'; q('noticeToneBadge').textContent=tone; if(!matter&&!sender&&!recipient&&!facts&&!demand){q('noticePaper').classList.toggle('bn',lang==='bn'); q('noticePaper').textContent='Notice draft will appear here.'; noticeDraft=''; return;} let bodyFacts=facts||(lang==='bn'?'[এখানে ঘটনার মূল বিবরণ লিখুন।]':'[Insert the material facts here.]'); let bodyDemand=demand||(lang==='bn'?'[যে কাজটি করতে হবে তা লিখুন]':'[state the exact act required]'); if(lang==='en'){q('noticePaper').classList.remove('bn'); noticeDraft=`LEGAL NOTICE\n\nMatter: ${matter||'[Matter name]'}\nDate: ${today(lang)}\n\nTo,\n${recipient||'Recipient Name'}\n${address||'Recipient Address'}\n\nSubject: ${subject||'Legal notice regarding '+reasonText(reason,lang)}\n${reference?`Reference: ${reference}\n`:''}Sir/Madam,\n\nUnder instructions from and on behalf of my client ${sender||'[Client Name]'}, I hereby serve upon you this legal notice for ${reasonText(reason,lang)}.\n\n${bodyFacts}\n\n${toneText(tone,lang)} My client demands that you ${bodyDemand} within ${days} days from receipt of this notice.\n\nFailing such compliance, my client shall be constrained to take appropriate legal action without further notice.\n\nIssued by:\n${advocate||'[Advocate Name]'}\n${chamber||'[Chamber / Firm Name]'}\nFor and on behalf of ${sender||'[Client Name]'}`;} else {q('noticePaper').classList.add('bn'); noticeDraft=`আইনগত নোটিশ\n\nম্যাটার: ${matter||'[ম্যাটারের নাম]'}\nতারিখ: ${today(lang)}\n\nবরাবর,\n${recipient||'প্রাপক নাম'}\n${address||'প্রাপকের ঠিকানা'}\n\nবিষয়: ${subject||'আইনগত নোটিশ প্রসঙ্গে '+reasonText(reason,lang)}\n${reference?`রেফারেন্স: ${reference}\n`:''}জনাব/জনাবা,\n\nআমার মক্কেল ${sender||'[মক্কেলের নাম]'}-এর নির্দেশক্রমে আপনাকে এই মর্মে আইনগত নোটিশ প্রদান করা যাইতেছে যে, ${reasonText(reason,lang)} সংক্রান্ত বিষয়ে নিম্নোক্ত ঘটনা ঘটিয়াছে।\n\n${bodyFacts}\n\n${toneText(tone,lang)} অতএব, এই নোটিশ প্রাপ্তির ${days} দিনের মধ্যে আপনি ${bodyDemand}।\n\nঅন্যথায়, আমার মক্কেল আপনার বিরুদ্ধে প্রয়োজনীয় আইনগত ব্যবস্থা গ্রহণে বাধ্য হইবেন।\n\nপ্রদানকারী:\n${advocate||'[এডভোকেটের নাম]'}\n${chamber||'[চেম্বার / ফার্মের নাম]'}\nমক্কেল: ${sender||'[মক্কেলের নাম]'}`;} q('noticePaper').textContent=noticeDraft; if(show) notify('Notice generated');}
     function copyNotice(){if(!noticeDraft){notify('Generate draft first'); return;} navigator.clipboard.writeText(noticeDraft).then(()=>notify('Draft copied')).catch(()=>notify('Copy failed'));}
     function downloadNotice(){if(!noticeDraft){notify('Generate draft first'); return;} const blob=new Blob([noticeDraft],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zhuxin-notice.txt'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),500); notify('Download started');}
     function saveNoticeMatter(){const obj={matter:q('nMatter').value,lang:q('nLang').value,tone:q('nTone').value,reason:q('nReason').value,days:q('nDays').value,sender:q('nSender').value,recipient:q('nRecipient').value,advocate:q('nAdvocate').value,chamber:q('nChamber').value,address:q('nAddress').value,subject:q('nSubject').value,reference:q('nReference').value,facts:q('nFacts').value,demand:q('nDemand').value}; setNoticeMatter(obj); notify('Matter saved'); renderActivity();}
@@ -318,8 +264,12 @@
     function renderActivity(){const box=q('activityList'); box.innerHTML=''; const items=[]; getAssistantHistory().slice(0,4).forEach(t=>items.push({title:t.title,sub:'Assistant'})); getNoticeVersions().slice(0,4).forEach(v=>items.push({title:v.title,sub:'Notice'})); if(!items.length){box.innerHTML='<div class="empty">No recent activity yet.</div>'; return;} items.slice(0,6).forEach(i=>{const c=document.createElement('div'); c.className='small-card'; c.innerHTML='<strong>'+escapeHtml(i.title)+'</strong><p>'+i.sub+'</p>'; box.appendChild(c);});}
     function renderKnowledge(){const box=q('knowledgeList'); box.innerHTML=''; KNOWLEDGE.forEach(k=>{const c=document.createElement('div'); c.className='small-card'; c.innerHTML='<strong>'+k.title+'</strong><p>'+k.desc+'</p>'; box.appendChild(c);});}
 
-    function syncAll(){renderNav(); renderAssistantControls(); renderAssistantChat(); renderLibrary(); renderFavorites(); renderHistory(); renderActivity(); renderKnowledge(); renderNoticeVersions(); generateNotice();}
+    function guideSample(kind){if(kind==='vault') q('guideInput').value='How do I build a review table in Vault?'; if(kind==='workflow') q('guideInput').value='How do I create a workflow from a natural-language description?'; if(kind==='mobile') q('guideInput').value='How do I scan a file and save it into Zhuxin from mobile?';}
+    function runGuide(){const text=(q('guideInput').value||'').trim(); if(!text) return; let answer=''; if(/vault|review table/i.test(text)){answer='1. Open Vault from the main hub.\n2. Use the embedded Phase 3 surface.\n3. Select a matter folder.\n4. Open the Review table tab.\n5. Press Build review table.\n6. Use Download CSV to export the extracted rows.';} else if(/workflow/i.test(text)){answer='1. Open Workflows from the main hub.\n2. Use the embedded Phase 4 surface.\n3. Describe the legal process in the workflow prompt box.\n4. Press Build workflow.\n5. Save it for reuse.';} else if(/mobile|scan/i.test(text)){answer='1. Open Ecosystem from the main hub.\n2. Use the embedded Phase 5 surface.\n3. Go to the Mobile tab.\n4. Tap Scan file, Voice prompt, or Hearing transcription.';} else {answer='Open the relevant module from the main hub and use the visible action buttons in that surface.';} q('guideAnswer').textContent=answer;}
+    function routeSample(){q('routeInput').value='Review a lease, compare assignment language, and prepare a negotiation summary.';}
+    function runRouting(){const text=(q('routeInput').value||'').trim(); if(!text) return; const box=q('routePlan'); box.innerHTML=''; [['Input parser','Break the request into review, comparison, and summary tasks.'],['Fast Draft layer','Generate a first-pass summary or draft.'],['Reasoning layer','Map issues, fallback positions, and risk ranking.'],['Extraction layer','Capture clause fields into a working table.'],['Review layer','Prepare final output for human approval.']].forEach(step=>{const d=document.createElement('div'); d.className='route-step'; d.innerHTML='<strong>'+step[0]+'</strong><p>'+step[1]+'</p>'; box.appendChild(d);});}
 
+    function syncAll(){renderNav(); renderAssistantControls(); renderAssistantChat(); renderLibrary(); renderFavorites(); renderHistory(); renderActivity(); renderKnowledge(); renderNoticeVersions(); generateNotice();}
     loadNoticeMatter(); syncAll();
   </script>
 </body>
