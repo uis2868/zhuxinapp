@@ -93,6 +93,26 @@ function buildAssistantUserPrompt({ prompt, matter, files }) {
   ].join('\n');
 }
 
+async function fetchJsonFast(url, options = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    if (!res.ok) return null;
+    const text = await res.text();
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { content: text };
+    }
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function callConfiguredAi({ messages, settings }) {
   const ai = getAiSource(settings);
   if (ai.provider === 'builtin') return null;
@@ -112,48 +132,16 @@ async function callConfiguredAi({ messages, settings }) {
     temperature: 0.2
   };
 
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error('AI source request failed.');
-    const data = await res.json();
-    const content = data?.choices?.[0]?.message?.content || data?.message?.content || data?.response || data?.content || '';
-    return String(content || '').trim() || null;
-  } catch {
-    return null;
-  }
+  const data = await fetchJsonFast(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body)
+  }, 8000);
+  const content = data?.choices?.[0]?.message?.content || data?.message?.content || data?.response || data?.content || '';
+  return String(content || '').trim() || null;
 }
 
-export async function generateAssistantReply({ prompt, matter, files, settings }) {
-  const cfg = window.ZHUXIN_SUPABASE_CONFIG || {};
-  if (cfg.apiBaseUrl) {
-    try {
-      const res = await fetch(cfg.apiBaseUrl.replace(/\/$/, '') + '/assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, matter, files, settings })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.content) return data.content;
-      }
-    } catch {
-      // fallback below
-    }
-  }
-
-  const aiResponse = await callConfiguredAi({
-    settings,
-    messages: [
-      { role: 'system', content: buildAssistantSystemPrompt({ matter, files, settings }) },
-      { role: 'user', content: buildAssistantUserPrompt({ prompt, matter, files }) }
-    ]
-  });
-  if (aiResponse) return aiResponse;
-
+function buildFallbackAssistantReply({ prompt, matter, files, settings }) {
   const style = settings?.preferences?.responseStyle || 'structured';
   const toneLine = style === 'formal' ? 'Formal advisory draft' : style === 'concise' ? 'Concise working note' : 'Structured working analysis';
   const facts = files?.length ? files.slice(0, 3).map((f, i) => `${i + 1}. ${f.name}${f.note ? ' — ' + f.note : ''}`).join('\n') : '1. No attached files yet.';
@@ -183,6 +171,29 @@ export async function generateAssistantReply({ prompt, matter, files, settings }
     'Quick evidence view:',
     facts
   ].join('\n');
+}
+
+export async function generateAssistantReply({ prompt, matter, files, settings }) {
+  const cfg = window.ZHUXIN_SUPABASE_CONFIG || {};
+  if (cfg.apiBaseUrl) {
+    const data = await fetchJsonFast(cfg.apiBaseUrl.replace(/\/$/, '') + '/assistant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, matter, files, settings })
+    }, 8000);
+    if (data?.content) return data.content;
+  }
+
+  const aiResponse = await callConfiguredAi({
+    settings,
+    messages: [
+      { role: 'system', content: buildAssistantSystemPrompt({ matter, files, settings }) },
+      { role: 'user', content: buildAssistantUserPrompt({ prompt, matter, files }) }
+    ]
+  });
+  if (aiResponse) return aiResponse;
+
+  return buildFallbackAssistantReply({ prompt, matter, files, settings });
 }
 
 function buildNoticeSystemPrompt(settings) {
@@ -229,18 +240,13 @@ function buildNoticeUserPrompt({ input, matter, files, settings }) {
 export async function generateNoticeContent({ input, matter, files, settings }) {
   const cfg = window.ZHUXIN_SUPABASE_CONFIG || {};
   if (cfg.apiBaseUrl) {
-    try {
-      const res = await fetch(cfg.apiBaseUrl.replace(/\/$/, '') + '/notice-generator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input, matter, files, settings })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.content) return { title: data.title || ('Notice — ' + (input.subject || 'Draft')), content: data.content };
-      }
-    } catch {
-      // fallback below
+    const data = await fetchJsonFast(cfg.apiBaseUrl.replace(/\/$/, '') + '/notice-generator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input, matter, files, settings })
+    }, 8000);
+    if (data?.content) {
+      return { title: data.title || ('Notice — ' + (input.subject || 'Draft')), content: data.content };
     }
   }
 
