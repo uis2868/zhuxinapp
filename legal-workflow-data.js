@@ -60,6 +60,7 @@ function buildTitleChainAnalysis(classifications, confirmations) {
   const missing = CORE_LAYERS.filter(layer => counts[layer] === 0);
   const duplicateLayers = CORE_LAYERS.filter(layer => counts[layer] > 1).map(layer => ({ layer, count: counts[layer] }));
   const unclassified = classifications.filter(c => c.type === 'Unclassified');
+  const unordered = classifications.filter((c, index, arr) => index > 0 && Number(c.sequenceNumber || 0) <= Number(arr[index - 1].sequenceNumber || 0));
   const hasStart = counts.CS > 0 || counts.SA > 0;
   const hasMiddle = counts.RS > 0 || counts.BRS > 0;
   const hasTransfer = counts.Deed > 0;
@@ -76,10 +77,11 @@ function buildTitleChainAnalysis(classifications, confirmations) {
   if (!confirmations.completenessConfirmed) score += 2;
   if (unclassified.length) score += Math.min(2, unclassified.length);
   if (duplicateLayers.length) score += 1;
+  if (unordered.length) score += 1;
   if (!hasStart || !hasMiddle || !hasTransfer) score += 1;
 
   const label = score >= 9 ? 'High risk' : score >= 5 ? 'Moderate risk' : 'Preliminary low risk';
-  const confidence = confirmations.arrangementConfirmed && confirmations.completenessConfirmed && !unclassified.length
+  const confidence = confirmations.arrangementConfirmed && confirmations.completenessConfirmed && !unclassified.length && !unordered.length
     ? 'Higher preliminary confidence'
     : 'Limited preliminary confidence';
 
@@ -106,6 +108,14 @@ function buildTitleChainAnalysis(classifications, confirmations) {
       title: 'Unclassified files present',
       detail: `${plural(unclassified.length, 'file remains', 'files remain')} unclassified and may affect chain continuity.`,
       severity: 'moderate'
+    });
+  }
+  if (unordered.length) {
+    issues.push({
+      type: 'ordering',
+      title: 'Sequence ordering may be weak',
+      detail: 'One or more files appear out of intended sequence order. Recheck the sequence numbers in Matter Files.',
+      severity: 'major'
     });
   }
   if (!confirmations.arrangementConfirmed) {
@@ -138,7 +148,8 @@ function buildTitleChainAnalysis(classifications, confirmations) {
   if (missing.includes('CS') || missing.includes('SA')) recommendations.push('Obtain the older foundational record layer to strengthen the origin side of the chain.');
   if (missing.includes('RS') || missing.includes('BRS')) recommendations.push('Obtain the later survey layer to confirm how the land appears in more recent records.');
   if (!counts.Mutation) recommendations.push('Add mutation or namjari support if available to show later administrative recognition.');
-  if (unclassified.length) recommendations.push('Rename or re-tag unclear files so the chain can be read more confidently.');
+  if (unclassified.length) recommendations.push('Use Matter Files to classify unclear files into CS/SA/RS/BRS/Deed/Mutation where possible.');
+  if (unordered.length) recommendations.push('Adjust sequence numbers in Matter Files so the title chain runs in a clear order from older to later material.');
   if (!confirmations.arrangementConfirmed || !confirmations.completenessConfirmed) recommendations.push('Confirm file arrangement and completeness before treating the chain result as reliable.');
   if (!recommendations.length) recommendations.push('Move the current chain result into advocate verification before professional use.');
 
@@ -146,7 +157,8 @@ function buildTitleChainAnalysis(classifications, confirmations) {
     counts.CS || counts.SA ? 'Origin-side layer visible.' : 'Origin-side layer weak or absent.',
     counts.RS || counts.BRS ? 'Later survey layer visible.' : 'Later survey layer weak or absent.',
     counts.Deed ? 'Transfer layer visible.' : 'Transfer layer weak or absent.',
-    counts.Mutation ? 'Mutation support visible.' : 'Mutation support not visible.'
+    counts.Mutation ? 'Mutation support visible.' : 'Mutation support not visible.',
+    unordered.length ? 'Sequence ordering needs attention.' : 'Sequence ordering looks usable.'
   ].join(' ');
 
   return {
@@ -156,6 +168,7 @@ function buildTitleChainAnalysis(classifications, confirmations) {
     counts,
     duplicateLayers,
     unclassified,
+    unordered,
     confidence,
     sequenceNarrative,
     issues,
@@ -175,7 +188,7 @@ function formatTitleChainContent(matter, analysis, classifications, notes, confi
     'Confidence: ' + analysis.confidence,
     '',
     'Detected files and tentative classification:',
-    ...(classifications.length ? classifications.map((c, i) => `${i + 1}. ${c.name} — ${c.type} (${c.origin})`) : ['1. No files attached.']),
+    ...(classifications.length ? classifications.map((c, i) => `${i + 1}. [${c.sequenceNumber || 0}] ${c.name} — ${c.type} (${c.origin})`) : ['1. No files attached.']),
     '',
     'Layer coverage summary:',
     ...CORE_LAYERS.map(layer => `- ${layer}: ${analysis.counts[layer] || 0}`),
@@ -203,7 +216,7 @@ export async function createTitleChainAnalysis({ notes = '', arrangementConfirme
   const matter = getCurrentMatterFromMirror();
   if (!matter) throw new Error('Select a current matter first.');
   const files = await listMatterFiles(matter.id);
-  const classifications = files.map(f => ({ name: f.name, type: classifyDocumentName(f.name), origin: f.origin }));
+  const classifications = files.map(f => ({ name: f.name, type: f.recordType || classifyDocumentName(f.name), origin: f.origin, sequenceNumber: f.sequenceNumber || 0 }));
   const analysis = buildTitleChainAnalysis(classifications, { arrangementConfirmed, completenessConfirmed });
   const content = formatTitleChainContent(matter, analysis, classifications, notes, { arrangementConfirmed, completenessConfirmed });
 
