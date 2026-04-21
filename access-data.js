@@ -116,3 +116,21 @@ export async function changeCurrentPlan(planId) {
   if (!PLAN_CATALOG[planId]) throw new Error('Unknown plan selected.');
   return saveCurrentAccessProfile({ planId });
 }
+
+export async function currentUserHasCapability(capability) {
+  const profile = await getCurrentAccessProfile();
+  const controls = getAdminControls();
+  if (capability === 'draft-studio' && profile.role === 'public' && controls.publicAdvancedDrafting) return true;
+  return getRoleCapabilities(profile.role).includes(capability);
+}
+
+export function capabilityRestrictionMessage(capability) {
+  const map = {
+    'draft-studio': 'Draft Studio is reserved for chamber and advocate workflows.',
+    'review-tables': 'Review Tables are reserved for chamber and advocate workflows.',
+    'verification-queue': 'Verification Queue is reserved for professional review workflows.',
+    'billing': 'Billing & Plans management is reserved for chamber or admin users.',
+    'admin-console': 'Admin Console is reserved for platform admins.'
+  };
+  return map[capability] || 'This page is not available for the current role.';
+}
