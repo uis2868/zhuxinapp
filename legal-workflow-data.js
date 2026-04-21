@@ -489,26 +489,50 @@ export async function createReviewVerificationRequest(tableId) {
   });
 }
 
-export async function createDraftStudioDocument({ matterClass = 'civil/property', instructions = '' }) {
+function draftTypeLabel(documentType) {
+  const labels = {
+    pleading: 'Pleading / petition draft',
+    memo: 'Internal legal memo',
+    application: 'Application / representation',
+    agreement: 'Agreement / clause outline',
+    advisory: 'Client advisory note'
+  };
+  return labels[documentType] || 'Professional draft';
+}
+
+function draftStructure(documentType) {
+  const structures = {
+    pleading: ['Caption / title', 'Facts', 'Cause of action / grounds', 'Documents relied on', 'Reliefs sought', 'Review risks'],
+    memo: ['Issue presented', 'Short answer', 'Facts', 'Applicable law', 'Analysis', 'Risk / recommendation'],
+    application: ['Applicant and authority', 'Background facts', 'Legal or equitable grounds', 'Prayer / request', 'Attachments / enclosure list'],
+    agreement: ['Parties', 'Commercial purpose', 'Key obligations', 'Payment / timeline', 'Risk clauses', 'Open points for review'],
+    advisory: ['Client question', 'Relevant facts', 'Legal position', 'Risk areas', 'Recommended next steps', 'Documents needed']
+  };
+  return structures[documentType] || ['Facts', 'Issues', 'Documents', 'Relief / position', 'Review flags'];
+}
+
+export async function createDraftStudioDocument({ matterClass = 'civil/property', documentType = 'pleading', objective = '', instructions = '' }) {
   const matter = getCurrentMatterFromMirror();
-  const title = 'Draft Studio — ' + (matter?.name || matterClass);
+  const sections = draftStructure(documentType);
+  const title = draftTypeLabel(documentType) + ' — ' + (matter?.name || matterClass);
   const content = [
-    'DRAFT STUDIO WORKING DRAFT',
+    'PROFESSIONAL DRAFTING WORKSPACE OUTPUT',
     '',
+    'Draft type: ' + draftTypeLabel(documentType),
     'Matter class: ' + matterClass,
     'Matter: ' + (matter?.name || 'No current matter'),
     '',
-    'Instructions:',
+    'Drafting objective:',
+    objective || 'No objective entered.',
+    '',
+    'Drafting instructions:',
     instructions || 'No instructions inserted.',
     '',
-    'Suggested structure:',
-    '1. Facts',
-    '2. Legal issues',
-    '3. Evidence / documents',
-    '4. Relief / position',
-    '5. Review flags',
+    'Structured working sections:',
+    ...sections.map((section, index) => `${index + 1}. ${section}`),
     '',
-    'This is a chamber-grade working draft and should be reviewed before filing or service.'
+    'Professional drafting note:',
+    'This output is intended as a chamber-grade working draft. Review, verification, and governed export should follow before filing, service, or client delivery.'
   ].join('\n');
   return createGeneratedDocument({ matterId: matter?.id || null, moduleName: 'draft-studio', title, content, exportType: 'draft-studio' });
 }
