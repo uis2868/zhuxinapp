@@ -244,26 +244,78 @@ export async function createTitleChainReviewTable(runId) {
   return createReviewTable({ title: 'Title Chain Review — ' + new Date(run.createdAt).toLocaleDateString('en-GB'), matterId: run.matterId, rows });
 }
 
-function simpleInheritanceShares(input) {
-  const sons = Number(input.sons || 0);
-  const daughters = Number(input.daughters || 0);
-  const wifeCount = Number(input.wives || 0);
-  const husband = Boolean(input.husband);
-  const mother = Boolean(input.mother);
-  const father = Boolean(input.father);
-  const shares = [];
-  if (wifeCount > 0) shares.push({ label: wifeCount === 1 ? 'Wife' : 'Wives (collectively)', share: sons || daughters ? '1/8' : '1/4' });
-  if (husband) shares.push({ label: 'Husband', share: sons || daughters ? '1/4' : '1/2' });
-  if (mother) shares.push({ label: 'Mother', share: sons || daughters ? '1/6' : '1/3 subject to other heirs' });
-  if (father) shares.push({ label: 'Father', share: sons || daughters ? '1/6 plus residue if applicable' : 'Residue or fixed share depending on facts' });
-  if (sons || daughters) shares.push({ label: 'Children', share: daughters && sons ? 'Residue with male receiving roughly twice female share' : sons ? 'Residue among sons' : daughters === 1 ? '1/2 to one daughter' : '2/3 collectively to daughters subject to residue rules' });
-  return shares;
+function toNumber(value) {
+  const n = Number(value || 0);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
 }
 
-export async function createInheritanceCalculation(input) {
-  const matter = getCurrentMatterFromMirror();
-  const shares = simpleInheritanceShares(input);
-  const content = [
+function buildInheritanceAnalysis(input) {
+  const wives = toNumber(input.wives);
+  const sons = toNumber(input.sons);
+  const daughters = toNumber(input.daughters);
+  const husband = Boolean(input.husband);
+  const father = Boolean(input.father);
+  const mother = Boolean(input.mother);
+  const childrenPresent = sons + daughters > 0;
+  const warnings = [];
+  const explanations = [];
+  const shares = [];
+
+  if (husband && wives > 0) warnings.push('Both husband and wives were entered. Normally only one spousal side should apply for one deceased person.');
+  if (!husband && wives === 0 && !father && !mother && !childrenPresent) warnings.push('No obvious heir was entered. This result is only a placeholder until heirs are added.');
+  if (wives > 4) warnings.push('More than four wives were entered. Recheck the input facts.');
+
+  if (wives > 0) {
+    const share = childrenPresent ? '1/8 collectively' : '1/4 collectively';
+    shares.push({ label: wives === 1 ? 'Wife' : 'Wives', share });
+    explanations.push(childrenPresent ? 'Because children are present, the wife/wives side usually drops to 1/8 collectively.' : 'Because no child is entered, the wife/wives side is usually treated as 1/4 collectively.');
+  }
+  if (husband) {
+    const share = childrenPresent ? '1/4' : '1/2';
+    shares.push({ label: 'Husband', share });
+    explanations.push(childrenPresent ? 'Because children are present, the husband usually takes 1/4.' : 'Because no child is entered, the husband usually takes 1/2.');
+  }
+  if (mother) {
+    const share = childrenPresent ? '1/6' : '1/3 subject to surrounding heirs';
+    shares.push({ label: 'Mother', share });
+    explanations.push(childrenPresent ? 'Mother usually reduces to 1/6 when children are present.' : 'Without children, mother may move toward 1/3 subject to surrounding heirs.');
+  }
+  if (father) {
+    const share = childrenPresent ? '1/6 plus possible residue questions' : 'Residue or fixed share depending on surrounding heirs';
+    shares.push({ label: 'Father', share });
+    explanations.push(childrenPresent ? 'Father usually takes 1/6 when children are present, but residue questions can still matter.' : 'Without children, the father may absorb residue depending on the wider heir picture.');
+  }
+  if (sons > 0 || daughters > 0) {
+    let share = '';
+    if (sons > 0 && daughters > 0) share = 'Residue with male usually taking roughly double the female share';
+    else if (sons > 0) share = 'Residue among sons';
+    else share = daughters === 1 ? '1/2 to one daughter subject to surrounding heirs' : '2/3 collectively to daughters subject to surrounding heirs';
+    shares.push({ label: 'Children', share });
+    explanations.push(sons > 0 && daughters > 0 ? 'Where sons and daughters are both present, distribution usually moves into residue with the male taking about twice the female share.' : sons > 0 ? 'With sons only, the children side normally takes residue among the sons.' : daughters === 1 ? 'A single daughter commonly appears with a 1/2 share subject to the wider heir picture.' : 'Multiple daughters often appear at 2/3 collectively, again subject to the wider heir picture.');
+  }
+
+  const quickSummary = shares.length
+    ? shares.map(s => `${s.label}: ${s.share}`).join(' • ')
+    : 'No clear share could be produced from the current heir input.';
+
+  const recommendations = [];
+  if (warnings.length) recommendations.push('Correct any inconsistent heir input before treating the result as reliable.');
+  recommendations.push('Treat this as an indicative calculation only if the facts entered are true and complete.');
+  recommendations.push('Use advocate verification for complex family trees, debts, wills, exclusions, or disputed heir status.');
+
+  return {
+    normalizedInput: { deceasedName: input.deceasedName || '', wives, sons, daughters, husband, father, mother },
+    shares,
+    warnings,
+    explanations,
+    quickSummary,
+    recommendations
+  };
+}
+
+function formatInheritanceContent(matter, analysis) {
+  const input = analysis.normalizedInput;
+  return [
     'INHERITANCE CALCULATION WORKFLOW RESULT',
     '',
     'Matter: ' + (matter?.name || 'General inheritance matter'),
@@ -271,22 +323,48 @@ export async function createInheritanceCalculation(input) {
     '',
     'Heir summary:',
     'Husband present: ' + (input.husband ? 'Yes' : 'No'),
-    'Wives: ' + (input.wives || 0),
+    'Wives: ' + input.wives,
     'Father present: ' + (input.father ? 'Yes' : 'No'),
     'Mother present: ' + (input.mother ? 'Yes' : 'No'),
-    'Sons: ' + (input.sons || 0),
-    'Daughters: ' + (input.daughters || 0),
+    'Sons: ' + input.sons,
+    'Daughters: ' + input.daughters,
     '',
     'Indicative shares:',
-    ...(shares.length ? shares.map((s, i) => `${i + 1}. ${s.label}: ${s.share}`) : ['1. No supported heir set entered.']),
+    ...(analysis.shares.length ? analysis.shares.map((s, i) => `${i + 1}. ${s.label}: ${s.share}`) : ['1. No supported heir set entered.']),
+    '',
+    'Explanation:',
+    ...(analysis.explanations.length ? analysis.explanations.map((line, i) => `${i + 1}. ${line}`) : ['1. No explanatory line generated.']),
+    '',
+    'Warnings:',
+    ...(analysis.warnings.length ? analysis.warnings.map((line, i) => `${i + 1}. ${line}`) : ['1. No immediate warning detected from the entered heir set.']),
+    '',
+    'Recommendations:',
+    ...analysis.recommendations.map((line, i) => `${i + 1}. ${line}`),
     '',
     'Important disclaimer:',
     'If the description given by the user is true and complete, this is the likely inheritance position. Complex facts, debts, wills, exclusions, and school-specific questions should be verified by an enrolled advocate.'
   ].join('\n');
+}
 
-  const document = await createGeneratedDocument({ matterId: matter?.id || null, moduleName: 'inheritance', title: 'Inheritance — ' + (input.deceasedName || 'Draft'), content, exportType: 'governed-draft' });
+export async function createInheritanceCalculation(input) {
+  const matter = getCurrentMatterFromMirror();
+  const analysis = buildInheritanceAnalysis(input);
+  const content = formatInheritanceContent(matter, analysis);
+
+  const document = await createGeneratedDocument({ matterId: matter?.id || null, moduleName: 'inheritance', title: 'Inheritance — ' + (analysis.normalizedInput.deceasedName || 'Draft'), content, exportType: 'governed-draft' });
   const state = getInheritanceState();
-  const run = { id: 'inh_' + Date.now(), matterId: matter?.id || null, createdAt: new Date().toISOString(), input, shares, documentId: document.id };
+  const run = {
+    id: 'inh_' + Date.now(),
+    matterId: matter?.id || null,
+    createdAt: new Date().toISOString(),
+    input: analysis.normalizedInput,
+    shares: analysis.shares,
+    warnings: analysis.warnings,
+    explanations: analysis.explanations,
+    quickSummary: analysis.quickSummary,
+    recommendations: analysis.recommendations,
+    documentId: document.id
+  };
   state.runs.unshift(run);
   saveJson(INHERITANCE_KEY, state);
   return { run, document };
