@@ -164,15 +164,31 @@ function mapMatterRow(row) {
   };
 }
 
+export function inferRecordType(name) {
+  const n = String(name || '').toLowerCase();
+  if (n.includes('brs')) return 'BRS';
+  if (n.includes('mutation') || n.includes('namjari')) return 'Mutation';
+  if (n.includes('deed') || n.includes('kobala') || n.includes('sale') || n.includes('heba') || n.includes('gift')) return 'Deed';
+  if (n.includes('cs')) return 'CS';
+  if (n.includes('sa')) return 'SA';
+  if (n.includes('rs')) return 'RS';
+  return 'Unclassified';
+}
+
 function mapFileRow(row) {
+  const name = row.file_name || row.name;
   return {
     id: row.id,
-    name: row.file_name || row.name,
+    name,
     origin: row.origin || 'manual',
     status: row.status || 'attached',
     note: row.note || '',
     createdAt: row.created_at || row.createdAt || new Date().toISOString(),
-    fileType: row.file_type || ''
+    fileType: row.file_type || deriveFileType(name),
+    recordType: row.record_type || row.recordType || inferRecordType(name),
+    sequenceNumber: row.sequence_number || row.sequenceNumber || 0,
+    isVerified: row.is_verified || row.isVerified || false,
+    tag: row.tag || row.fileTag || ''
   };
 }
 
@@ -353,7 +369,7 @@ export async function listMatterFiles(matterId) {
   const mode = await getDataMode();
   if (mode === 'local') {
     const state = getLocalFilesState();
-    return state.byMatter[matterId] || [];
+    return (state.byMatter[matterId] || []).slice().sort((a,b)=> (a.sequenceNumber||0) - (b.sequenceNumber||0) || String(a.createdAt).localeCompare(String(b.createdAt)));
   }
   const client = await getSupabaseClient();
   const { data, error } = await client
@@ -362,7 +378,7 @@ export async function listMatterFiles(matterId) {
     .eq('matter_id', matterId)
     .order('created_at', { ascending: false });
   if (error) throw error;
-  const files = (data || []).map(mapFileRow);
+  const files = (data || []).map(mapFileRow).sort((a,b)=> (a.sequenceNumber||0) - (b.sequenceNumber||0) || String(a.createdAt).localeCompare(String(b.createdAt)));
   syncMatterFilesMirror(matterId, files);
   return files;
 }
@@ -372,6 +388,7 @@ export async function addMatterFile(matterId, file) {
   if (mode === 'local') {
     const state = getLocalFilesState();
     if (!state.byMatter[matterId]) state.byMatter[matterId] = [];
+    const nextSequence = (state.byMatter[matterId][0]?.sequenceNumber || state.byMatter[matterId].length || 0) + 1;
     const record = {
       id: 'file_' + Date.now(),
       name: file.name,
@@ -379,7 +396,11 @@ export async function addMatterFile(matterId, file) {
       status: file.status || 'attached',
       note: file.note || '',
       createdAt: new Date().toISOString(),
-      fileType: deriveFileType(file.name)
+      fileType: deriveFileType(file.name),
+      recordType: file.recordType || inferRecordType(file.name),
+      sequenceNumber: file.sequenceNumber || nextSequence,
+      isVerified: Boolean(file.isVerified),
+      tag: file.tag || ''
     };
     state.byMatter[matterId].unshift(record);
     setLocalFilesState(state);
@@ -394,10 +415,45 @@ export async function addMatterFile(matterId, file) {
     file_type: deriveFileType(file.name),
     origin: file.origin || 'manual',
     status: file.status || 'attached',
-    note: file.note || null,
+    note: JSON.stringify({
+      text: file.note || null,
+      recordType: file.recordType || inferRecordType(file.name),
+      sequenceNumber: file.sequenceNumber || 0,
+      isVerified: Boolean(file.isVerified),
+      tag: file.tag || ''
+    }),
     storage_path: file.storagePath || null
   };
   const { data, error } = await client.from('matter_files').insert(payload).select().single();
+  if (error) throw error;
+  await listMatterFiles(matterId);
+  return mapFileRow(data);
+}
+
+export async function updateMatterFile(matterId, fileId, patch) {
+  const mode = await getDataMode();
+  if (mode === 'local') {
+    const state = getLocalFilesState();
+    state.byMatter[matterId] = (state.byMatter[matterId] || []).map(f => f.id === fileId ? { ...f, ...patch } : f);
+    setLocalFilesState(state);
+    return (state.byMatter[matterId] || []).find(f => f.id === fileId) || null;
+  }
+  const current = (await listMatterFiles(matterId)).find(f => f.id === fileId);
+  if (!current) throw new Error('Matter file not found.');
+  const client = await getSupabaseClient();
+  const notePayload = {
+    text: patch.note ?? current.note ?? null,
+    recordType: patch.recordType || current.recordType || inferRecordType(current.name),
+    sequenceNumber: patch.sequenceNumber ?? current.sequenceNumber ?? 0,
+    isVerified: patch.isVerified ?? current.isVerified ?? false,
+    tag: patch.tag ?? current.tag ?? ''
+  };
+  const payload = {
+    file_name: patch.name || current.name,
+    status: patch.status || current.status,
+    note: JSON.stringify(notePayload)
+  };
+  const { data, error } = await client.from('matter_files').update(payload).eq('id', fileId).select().single();
   if (error) throw error;
   await listMatterFiles(matterId);
   return mapFileRow(data);
