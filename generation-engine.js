@@ -38,6 +38,95 @@ function fileSummary(files) {
   return files.slice(0, 5).map(f => f.name).join(', ');
 }
 
+function getAiSource(settings) {
+  return settings?.preferences?.aiSource || {
+    provider: 'builtin',
+    label: 'Built-in Zhuxin fallback',
+    endpoint: '',
+    model: '',
+    apiKey: '',
+    systemPrompt: ''
+  };
+}
+
+export function getAiSourceLabel(settings) {
+  const ai = getAiSource(settings);
+  const labels = {
+    builtin: 'Built-in fallback',
+    'openai-compatible': 'Open-source / custom endpoint',
+    ollama: 'Ollama local',
+    backend: 'Backend AI route'
+  };
+  return ai.label || labels[ai.provider] || 'Built-in fallback';
+}
+
+function buildAssistantSystemPrompt({ matter, files, settings }) {
+  const style = settings?.preferences?.responseStyle || 'structured';
+  const base = [
+    'You are Zhuxin, a Bangladesh-focused legal workflow assistant.',
+    'Give practical structured legal workflow help.',
+    'Do not claim final legal certainty.',
+    'Use the supplied matter and file context only as working context.'
+  ];
+  if (style === 'formal') base.push('Use a formal advisory tone.');
+  if (style === 'concise') base.push('Keep the response concise and direct.');
+  const custom = getAiSource(settings)?.systemPrompt?.trim();
+  return [...base, custom || ''].filter(Boolean).join(' ');
+}
+
+function buildAssistantUserPrompt({ prompt, matter, files }) {
+  const facts = files?.length ? files.slice(0, 5).map((f, i) => `${i + 1}. ${f.name}${f.note ? ' — ' + f.note : ''}`).join('\n') : '1. No attached files yet.';
+  return [
+    'Current matter:',
+    matterSummary(matter),
+    '',
+    'Attached files:',
+    fileSummary(files),
+    '',
+    'Quick file notes:',
+    facts,
+    '',
+    'User request:',
+    prompt,
+    '',
+    'Return a structured working answer with practical next steps.'
+  ].join('\n');
+}
+
+async function callConfiguredAi({ messages, settings }) {
+  const ai = getAiSource(settings);
+  if (ai.provider === 'builtin') return null;
+
+  const endpoint = ai.provider === 'ollama'
+    ? (ai.endpoint?.trim() || 'http://localhost:11434/v1/chat/completions')
+    : ai.endpoint?.trim();
+
+  if (!endpoint) return null;
+
+  const headers = { 'Content-Type': 'application/json' };
+  if (ai.apiKey?.trim()) headers.Authorization = 'Bearer ' + ai.apiKey.trim();
+
+  const body = {
+    model: ai.model?.trim() || (ai.provider === 'ollama' ? 'llama3.1' : ''),
+    messages,
+    temperature: 0.2
+  };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('AI source request failed.');
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content || data?.message?.content || data?.response || data?.content || '';
+    return String(content || '').trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function generateAssistantReply({ prompt, matter, files, settings }) {
   const cfg = window.ZHUXIN_SUPABASE_CONFIG || {};
   if (cfg.apiBaseUrl) {
@@ -55,6 +144,15 @@ export async function generateAssistantReply({ prompt, matter, files, settings }
       // fallback below
     }
   }
+
+  const aiResponse = await callConfiguredAi({
+    settings,
+    messages: [
+      { role: 'system', content: buildAssistantSystemPrompt({ matter, files, settings }) },
+      { role: 'user', content: buildAssistantUserPrompt({ prompt, matter, files }) }
+    ]
+  });
+  if (aiResponse) return aiResponse;
 
   const style = settings?.preferences?.responseStyle || 'structured';
   const toneLine = style === 'formal' ? 'Formal advisory draft' : style === 'concise' ? 'Concise working note' : 'Structured working analysis';
@@ -87,6 +185,47 @@ export async function generateAssistantReply({ prompt, matter, files, settings }
   ].join('\n');
 }
 
+function buildNoticeSystemPrompt(settings) {
+  const ai = getAiSource(settings);
+  return [
+    'You are Zhuxin, a legal drafting assistant.',
+    'Draft a notice in clean professional English.',
+    'Do not invent legal certainty beyond the facts provided.',
+    ai.systemPrompt?.trim() || ''
+  ].filter(Boolean).join(' ');
+}
+
+function buildNoticeUserPrompt({ input, matter, files, settings }) {
+  const responseDays = input.responseDays || settings?.preferences?.noticeDays || '7';
+  return [
+    'Generate a legal notice draft.',
+    '',
+    'Matter:',
+    matterSummary(matter),
+    '',
+    'Recipient:',
+    input.recipientName || '',
+    input.recipientAddress || '',
+    '',
+    'Subject:',
+    input.subject || '',
+    '',
+    'Facts:',
+    input.facts || 'Facts not yet inserted.',
+    '',
+    'Demand:',
+    input.demandText || 'Please comply with the obligations set out above.',
+    '',
+    'Documents reviewed:',
+    fileSummary(files),
+    '',
+    'Response period:',
+    responseDays + ' days',
+    '',
+    'Return only the draft notice text.'
+  ].join('\n');
+}
+
 export async function generateNoticeContent({ input, matter, files, settings }) {
   const cfg = window.ZHUXIN_SUPABASE_CONFIG || {};
   if (cfg.apiBaseUrl) {
@@ -103,6 +242,17 @@ export async function generateNoticeContent({ input, matter, files, settings }) 
     } catch {
       // fallback below
     }
+  }
+
+  const aiResponse = await callConfiguredAi({
+    settings,
+    messages: [
+      { role: 'system', content: buildNoticeSystemPrompt(settings) },
+      { role: 'user', content: buildNoticeUserPrompt({ input, matter, files, settings }) }
+    ]
+  });
+  if (aiResponse) {
+    return { title: 'Notice — ' + (input.subject || 'Draft'), content: aiResponse };
   }
 
   const responseDays = input.responseDays || settings?.preferences?.noticeDays || '7';
