@@ -32,7 +32,7 @@ export function getReviewState() {
   return safeJson(REVIEW_KEY, { tables: [] });
 }
 
-function classifyDocumentName(name) {
+export function classifyDocumentName(name) {
   const n = String(name || '').toLowerCase();
   if (n.includes('cs')) return 'CS';
   if (n.includes('sa')) return 'SA';
@@ -55,7 +55,13 @@ function computeTitleChainRisk(files, confirmations) {
   if (!confirmations.completenessConfirmed) score += 2;
   if (files.some(f => f.origin === 'intake')) score += 1;
   const label = score >= 7 ? 'High risk' : score >= 4 ? 'Moderate risk' : 'Preliminary low risk';
-  return { score, label, missing: ['CS','SA','RS','BRS','Deed'].filter(t => !types.includes(t)) };
+  return { score, label, missing: ['CS', 'SA', 'RS', 'BRS', 'Deed'].filter(t => !types.includes(t)) };
+}
+
+function severityFromMissing(type) {
+  if (type === 'Deed') return 'critical';
+  if (type === 'CS' || type === 'RS') return 'major';
+  return 'moderate';
 }
 
 export async function createTitleChainAnalysis({ notes = '', arrangementConfirmed = false, completenessConfirmed = false } = {}) {
@@ -99,6 +105,20 @@ export async function createTitleChainAnalysis({ notes = '', arrangementConfirme
 export function listTitleChainAnalyses(matterId = null) {
   const state = getTitleChainState();
   return matterId ? state.runs.filter(r => r.matterId === matterId) : state.runs;
+}
+
+export async function createTitleChainReviewTable(runId) {
+  const run = getTitleChainState().runs.find(r => r.id === runId);
+  if (!run) throw new Error('Title-chain run not found.');
+  const rows = run.risk.missing.length
+    ? run.risk.missing.map(missing => ({
+        issue: 'Missing ' + missing + ' layer',
+        source: 'Title-chain analysis',
+        severity: severityFromMissing(missing),
+        status: 'open'
+      }))
+    : [{ issue: 'No obvious missing core layer found', source: 'Title-chain analysis', severity: 'minor', status: 'open' }];
+  return createReviewTable({ title: 'Title Chain Review — ' + new Date(run.createdAt).toLocaleDateString('en-GB'), matterId: run.matterId, rows });
 }
 
 function simpleInheritanceShares(input) {
@@ -156,6 +176,8 @@ export function listInheritanceCalculations(matterId = null) {
 
 export async function createVerificationRequest({ matterId = null, title = 'Verification request', sourceModule = 'assistant', sourceDocumentId = null, note = '', priority = 'standard' }) {
   const state = getVerificationState();
+  const existing = sourceDocumentId ? state.requests.find(r => r.sourceDocumentId === sourceDocumentId && r.status !== 'verification rejected') : null;
+  if (existing) return existing;
   const request = {
     id: 'vr_' + Date.now(),
     matterId,
@@ -188,7 +210,7 @@ export async function updateVerificationRequest(id, patch) {
 
 export async function createReviewTable({ title = 'Review table', matterId = null, rows = [] }) {
   const state = getReviewState();
-  const table = { id: 'rt_' + Date.now(), title, matterId, rows, createdAt: new Date().toISOString() };
+  const table = { id: 'rt_' + Date.now(), title, matterId, rows, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
   state.tables.unshift(table);
   saveJson(REVIEW_KEY, state);
   return table;
@@ -197,6 +219,43 @@ export async function createReviewTable({ title = 'Review table', matterId = nul
 export function listReviewTables(matterId = null) {
   const state = getReviewState();
   return matterId ? state.tables.filter(t => t.matterId === matterId) : state.tables;
+}
+
+export function getReviewTable(tableId) {
+  return getReviewState().tables.find(t => t.id === tableId) || null;
+}
+
+export async function updateReviewTable(tableId, patch) {
+  const state = getReviewState();
+  state.tables = state.tables.map(t => t.id === tableId ? { ...t, ...patch, updatedAt: new Date().toISOString() } : t);
+  saveJson(REVIEW_KEY, state);
+  return state.tables.find(t => t.id === tableId) || null;
+}
+
+export async function addReviewTableRow(tableId, row) {
+  const table = getReviewTable(tableId);
+  if (!table) throw new Error('Review table not found.');
+  const rows = [...(table.rows || []), { ...row, id: 'rtr_' + Date.now() }];
+  return updateReviewTable(tableId, { rows });
+}
+
+export async function updateReviewTableRow(tableId, rowId, patch) {
+  const table = getReviewTable(tableId);
+  if (!table) throw new Error('Review table not found.');
+  const rows = (table.rows || []).map(r => r.id === rowId ? { ...r, ...patch } : r);
+  return updateReviewTable(tableId, { rows });
+}
+
+export async function createReviewVerificationRequest(tableId) {
+  const table = getReviewTable(tableId);
+  if (!table) throw new Error('Review table not found.');
+  return createVerificationRequest({
+    matterId: table.matterId,
+    title: table.title + ' verification',
+    sourceModule: 'review-table',
+    sourceDocumentId: null,
+    note: 'Review table sent for advocate review.'
+  });
 }
 
 export async function createDraftStudioDocument({ matterClass = 'civil/property', instructions = '' }) {
@@ -223,6 +282,16 @@ export async function createDraftStudioDocument({ matterClass = 'civil/property'
   return createGeneratedDocument({ matterId: matter?.id || null, moduleName: 'draft-studio', title, content, exportType: 'draft-studio' });
 }
 
+export async function createDraftVerificationRequest(documentId, matterId = null) {
+  return createVerificationRequest({
+    matterId,
+    title: 'Draft Studio verification',
+    sourceModule: 'draft-studio',
+    sourceDocumentId: documentId,
+    note: 'Draft Studio output sent for advocate review.'
+  });
+}
+
 export async function getGovernedExportSummary(documentId) {
   const docs = await listGeneratedDocuments({});
   const doc = docs.find(d => d.id === documentId);
@@ -235,6 +304,11 @@ export async function getGovernedExportSummary(documentId) {
     exportMode: verified ? 'verified-export' : 'governed-unverified',
     disclaimer: verified
       ? 'Verified output: show advocate or chamber verification block and allow broader export.'
-      : 'Unverified output: keep strong system-generated disclaimer and limit editable export.'
+      : 'Unverified output: keep strong system-generated disclaimer and limit editable export.',
+    displayContent: doc
+      ? (verified
+          ? doc.content
+          : 'SYSTEM-GENERATED UNVERIFIED OUTPUT\n\nThis document has not yet been verified by an advocate.\n\n' + doc.content)
+      : ''
   };
 }
