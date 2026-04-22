@@ -41,16 +41,21 @@ async function init() {
   store = createAssistantStore(buildAssistantInitialState({ matter, settings, files }));
 
   bindEvents();
+
+  // 🔥 ensure modals hidden at start
+  els.exportModal?.classList.remove('show');
+  els.shareModal?.classList.remove('show');
+
   store.subscribe(render);
   render(store.getState());
 }
 
 function bindEvents() {
 
-  // send
-  els.sendBtn.addEventListener('click', handleSend);
+  // SEND
+  els.sendBtn?.addEventListener('click', handleSend);
 
-  // tabs
+  // TABS
   els.tabs.forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
@@ -64,21 +69,35 @@ function bindEvents() {
     });
   });
 
-  // modals
+  // MODALS OPEN
   els.exportBtn?.addEventListener('click', () => {
-    els.exportModal.classList.add('show');
+    els.exportModal?.classList.add('show');
   });
 
   els.shareBtn?.addEventListener('click', () => {
-    els.shareModal.classList.add('show');
+    els.shareModal?.classList.add('show');
   });
 
+  // MODALS CLOSE BUTTON
   els.closeExportModalBtn?.addEventListener('click', () => {
-    els.exportModal.classList.remove('show');
+    els.exportModal?.classList.remove('show');
   });
 
   els.closeShareModalBtn?.addEventListener('click', () => {
-    els.shareModal.classList.remove('show');
+    els.shareModal?.classList.remove('show');
+  });
+
+  // 🔥 CLICK OUTSIDE TO CLOSE
+  els.exportModal?.addEventListener('click', (e) => {
+    if (e.target === els.exportModal) {
+      els.exportModal.classList.remove('show');
+    }
+  });
+
+  els.shareModal?.addEventListener('click', (e) => {
+    if (e.target === els.shareModal) {
+      els.shareModal.classList.remove('show');
+    }
   });
 }
 
@@ -131,19 +150,24 @@ async function handleSend() {
   els.sendBtn.disabled = true;
   els.statusBar.textContent = 'Generating…';
 
-  const result = await runAssistantWorkflow({
-    prompt,
-    matter: state.matter,
-    files: state.files,
-    settings: state.settings
-  });
+  try {
+    const result = await runAssistantWorkflow({
+      prompt,
+      matter: state.matter,
+      files: state.files,
+      settings: state.settings
+    });
 
-  store.setState(d => {
-    d.workspace.answer = result.answer;
-    d.workspace.citations = result.citations;
-  });
+    store.setState(d => {
+      d.workspace.answer = result.answer;
+      d.workspace.citations = result.citations;
+    });
 
-  els.statusBar.textContent = 'Done.';
+    els.statusBar.textContent = 'Done.';
+  } catch (e) {
+    els.statusBar.textContent = 'Error generating response';
+  }
+
   els.sendBtn.disabled = false;
 }
 
