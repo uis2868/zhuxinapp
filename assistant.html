@@ -2,8 +2,206 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Assistant</title>
-<link rel="stylesheet" href="assistant.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zhuxin Assistant</title>
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+}
+.zhx-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #111;
+  color: white;
+}
+.zhx-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.zhx-mark {
+  background: #007bff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+.zhx-name {
+  font-weight: bold;
+}
+.zhx-sub {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.zhx-actions {
+  display: flex;
+  gap: 8px;
+}
+.zhx-chip {
+  background: #333;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.zhx-shell {
+  padding: 15px;
+}
+.zhx-layout {
+  display: flex;
+  gap: 15px;
+}
+.zhx-side {
+  width: 25%;
+}
+.zhx-main {
+  width: 75%;
+}
+.zhx-card {
+  background: white;
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.zhx-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.zhx-textarea {
+  width: 100%;
+  min-height: 100px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.zhx-input {
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.zhx-btn-primary {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.zhx-soft {
+  background: #eee;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #111;
+  text-decoration: none;
+}
+.zhx-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.zhx-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.zhx-tab {
+  padding: 6px 10px;
+  background: #eee;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.zhx-tab.is-active {
+  background: #007bff;
+  color: white;
+}
+.zhx-tab-panel {
+  display: none;
+}
+.zhx-tab-panel.is-active {
+  display: block;
+}
+.zhx-msg {
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+.zhx-empty {
+  color: #888;
+}
+.zhx-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.zhx-statusbar {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
+}
+.zhx-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.zhx-modal-backdrop.show {
+  display: flex;
+}
+.zhx-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+}
+.zhx-drawer {
+  position: fixed;
+  right: -100%;
+  top: 0;
+  width: 80%;
+  max-width: 300px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+  transition: right 0.3s;
+  padding: 15px;
+  z-index: 1001;
+  overflow-y: auto;
+}
+.zhx-drawer.open {
+  right: 0;
+}
+.zhx-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+@media (max-width: 768px) {
+  .zhx-layout {
+    flex-direction: column;
+  }
+  .zhx-side,
+  .zhx-main {
+    width: 100%;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -15,16 +213,14 @@
       <div class="zhx-sub">Assistant</div>
     </div>
   </div>
-
   <div class="zhx-actions">
-    <span id="matterChip" class="zhx-chip">Loading...</span>
+    <span id="matterChip" class="zhx-chip">No current matter</span>
     <span id="aiChip" class="zhx-chip">AI</span>
   </div>
 </div>
 
 <div class="zhx-shell">
   <div class="zhx-layout">
-
     <div class="zhx-side">
       <div class="zhx-card">
         <div class="zhx-panel-head">
@@ -36,10 +232,8 @@
     </div>
 
     <div class="zhx-main">
-
-      <div class="zhx-card zhx-composer">
+      <div class="zhx-card">
         <textarea id="promptBox" class="zhx-textarea" placeholder="Ask anything..."></textarea>
-
         <div class="zhx-row">
           <select id="taskType">
             <option value="answer">Answer</option>
@@ -57,20 +251,16 @@
             <option value="dense">Dense</option>
           </select>
 
-          <button id="improveBtn" class="zhx-soft">Improve</button>
-          <button id="sendBtn" class="zhx-btn-primary">Send</button>
-        </div>
-
-        <div id="improveWrap" style="display:none">
-          <div id="improvePreview" class="zhx-improve"></div>
+          <button id="improveBtn" class="zhx-soft" type="button">Improve</button>
+          <button id="sendBtn" class="zhx-btn-primary" type="button">Send</button>
         </div>
       </div>
 
       <div class="zhx-card">
         <div class="zhx-tabs">
-          <button data-tab="answer" class="zhx-tab is-active">Answer</button>
-          <button data-tab="draft" class="zhx-tab">Draft</button>
-          <button data-tab="deliverable" class="zhx-tab">Deliverable</button>
+          <button data-tab="answer" class="zhx-tab is-active" type="button">Answer</button>
+          <button data-tab="draft" class="zhx-tab" type="button">Draft</button>
+          <button data-tab="deliverable" class="zhx-tab" type="button">Deliverable</button>
         </div>
 
         <div data-panel="answer" class="zhx-tab-panel is-active">
@@ -79,13 +269,11 @@
 
         <div data-panel="draft" class="zhx-tab-panel">
           <textarea id="draftEditor" class="zhx-textarea"></textarea>
-          <button id="applyDraftBtn" class="zhx-soft">Refine Draft</button>
         </div>
 
         <div data-panel="deliverable" class="zhx-tab-panel">
-          <input id="deliverableTitle" placeholder="Title" class="zhx-input">
+          <input id="deliverableTitle" class="zhx-input" placeholder="Title">
           <textarea id="deliverableEditor" class="zhx-textarea"></textarea>
-          <button id="generateDeliverableBtn" class="zhx-soft">Generate</button>
         </div>
       </div>
 
@@ -95,12 +283,12 @@
       </div>
 
       <div class="zhx-toolbar">
-        <button id="copyBtn" class="zhx-soft">Copy</button>
-        <button id="downloadBtn" class="zhx-soft">Download</button>
-        <button id="saveDocBtn" class="zhx-soft">Save</button>
-        <button id="exportBtn" class="zhx-soft">Export</button>
-        <button id="shareBtn" class="zhx-soft">Share</button>
-        <button id="openDrawerBtn" class="zhx-soft">Sources</button>
+        <button id="copyBtn" class="zhx-soft" type="button">Copy</button>
+        <button id="downloadBtn" class="zhx-soft" type="button">Download</button>
+        <button id="saveDocBtn" class="zhx-soft" type="button">Save</button>
+        <button id="exportBtn" class="zhx-soft" type="button">Export</button>
+        <button id="shareBtn" class="zhx-soft" type="button">Share</button>
+        <button id="openDrawerBtn" class="zhx-soft" type="button">Sources</button>
       </div>
 
       <div id="statusBar" class="zhx-statusbar"></div>
@@ -111,44 +299,277 @@
 <div id="exportModal" class="zhx-modal-backdrop">
   <div class="zhx-modal">
     <h3>Export</h3>
-
     <label><input type="checkbox" id="exportIncludeHistory"> Include history</label><br>
     <label><input type="checkbox" id="exportIncludeSources"> Include sources</label><br><br>
-
-    <button id="buildExportBtn" class="zhx-soft">Build</button>
+    <button id="buildExportBtn" class="zhx-soft" type="button">Build</button>
     <a id="downloadExportLink" class="zhx-soft" href="#">Download</a>
-
     <pre id="exportPreview"></pre>
-
-    <button id="closeExportModalBtn" class="zhx-soft">Close</button>
+    <button id="closeExportModalBtn" class="zhx-soft" type="button">Close</button>
   </div>
 </div>
 
 <div id="shareModal" class="zhx-modal-backdrop">
   <div class="zhx-modal">
     <h3>Share</h3>
-
-    <input id="shareAssignee" class="zhx-input" placeholder="Assignee"><br><br>
-    <input id="shareReviewers" class="zhx-input" placeholder="Reviewers"><br><br>
-
-    <textarea id="shareNote" class="zhx-textarea" placeholder="Note"></textarea><br><br>
-
-    <button id="buildSharePacketBtn" class="zhx-soft">Build Packet</button>
-
+    <input id="shareAssignee" class="zhx-input" placeholder="Assignee">
+    <input id="shareReviewers" class="zhx-input" placeholder="Reviewers">
+    <textarea id="shareNote" class="zhx-textarea" placeholder="Note"></textarea>
+    <button id="buildSharePacketBtn" class="zhx-soft" type="button">Build Packet</button>
     <pre id="shareOutput"></pre>
-
-    <button id="closeShareModalBtn" class="zhx-soft">Close</button>
+    <button id="closeShareModalBtn" class="zhx-soft" type="button">Close</button>
   </div>
 </div>
 
 <div id="sourceDrawer" class="zhx-drawer">
   <div class="zhx-drawer-header">
     <h3>Sources</h3>
-    <button id="closeDrawerBtn" class="zhx-soft">Close</button>
+    <button id="closeDrawerBtn" class="zhx-soft" type="button">Close</button>
   </div>
   <div id="sourceList"></div>
 </div>
 
-<script src="./assistant-page.js?v=3"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+
+  const promptBox = $('promptBox');
+  const sendBtn = $('sendBtn');
+  const messages = $('messages');
+  const statusBar = $('statusBar');
+  const threadList = $('threadList');
+  const citationList = $('citationList');
+  const draftEditor = $('draftEditor');
+  const deliverableEditor = $('deliverableEditor');
+
+  const tabs = document.querySelectorAll('[data-tab]');
+  const panels = document.querySelectorAll('[data-panel]');
+
+  const exportBtn = $('exportBtn');
+  const shareBtn = $('shareBtn');
+  const exportModal = $('exportModal');
+  const shareModal = $('shareModal');
+  const closeExportModalBtn = $('closeExportModalBtn');
+  const closeShareModalBtn = $('closeShareModalBtn');
+  const buildExportBtn = $('buildExportBtn');
+  const downloadExportLink = $('downloadExportLink');
+  const exportPreview = $('exportPreview');
+  const exportIncludeHistory = $('exportIncludeHistory');
+  const exportIncludeSources = $('exportIncludeSources');
+
+  const shareAssignee = $('shareAssignee');
+  const shareReviewers = $('shareReviewers');
+  const shareNote = $('shareNote');
+  const buildSharePacketBtn = $('buildSharePacketBtn');
+  const shareOutput = $('shareOutput');
+
+  const openDrawerBtn = $('openDrawerBtn');
+  const closeDrawerBtn = $('closeDrawerBtn');
+  const sourceDrawer = $('sourceDrawer');
+  const sourceList = $('sourceList');
+
+  const copyBtn = $('copyBtn');
+  const downloadBtn = $('downloadBtn');
+  const saveDocBtn = $('saveDocBtn');
+  const newThreadBtn = $('newThreadBtn');
+  const improveBtn = $('improveBtn');
+
+  let currentAnswer = '';
+
+  function loadThreads() {
+    try {
+      return JSON.parse(localStorage.getItem('zhx_threads') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveThreads(threads) {
+    localStorage.setItem('zhx_threads', JSON.stringify(threads));
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function render() {
+    messages.innerHTML = '';
+    if (!currentAnswer) {
+      messages.innerHTML = '<div class="zhx-empty">No output yet.</div>';
+    } else {
+      const div = document.createElement('div');
+      div.className = 'zhx-msg';
+      div.innerHTML =
+        '<strong>assistant</strong><div>' +
+        currentAnswer.replace(/\n/g, '<br>') +
+        '</div>';
+      messages.appendChild(div);
+    }
+
+    draftEditor.value = currentAnswer;
+    deliverableEditor.value = currentAnswer;
+
+    citationList.innerHTML = currentAnswer
+      ? '<div class="zhx-empty">No citations yet.</div>'
+      : '<div class="zhx-empty">No citations yet.</div>';
+
+    const threads = loadThreads();
+    threadList.innerHTML = '';
+    if (!threads.length) {
+      threadList.innerHTML = '<div class="zhx-empty">No threads yet.</div>';
+    } else {
+      threads.forEach((t) => {
+        const div = document.createElement('div');
+        div.className = 'zhx-msg';
+        div.textContent = t.title;
+        div.onclick = () => {
+          currentAnswer = t.answer;
+          render();
+        };
+        threadList.appendChild(div);
+      });
+    }
+
+    sourceList.innerHTML = '<div class="zhx-empty">No sources yet.</div>';
+  }
+
+  function handleSend() {
+    const prompt = promptBox.value.trim();
+    if (!prompt) return;
+
+    sendBtn.disabled = true;
+    statusBar.textContent = 'Generating…';
+
+    currentAnswer = `Structured working analysis
+
+Request:
+${prompt}
+
+Working response:
+1. Identify key facts
+2. Review documents
+3. Generate output`;
+
+    const threads = loadThreads();
+    threads.unshift({
+      title: prompt.slice(0, 40),
+      answer: currentAnswer,
+      time: Date.now()
+    });
+    saveThreads(threads);
+
+    render();
+
+    statusBar.textContent = 'Done.';
+    sendBtn.disabled = false;
+  }
+
+  tabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      tabs.forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      panels.forEach((p) => {
+        p.classList.toggle('is-active', p.dataset.panel === tab);
+      });
+    });
+  });
+
+  sendBtn.addEventListener('click', handleSend);
+
+  improveBtn.addEventListener('click', () => {
+    const prompt = promptBox.value.trim();
+    if (!prompt) return;
+    promptBox.value = `Please improve this request and respond clearly:\n\n${prompt}`;
+  });
+
+  exportBtn.addEventListener('click', () => exportModal.classList.add('show'));
+  shareBtn.addEventListener('click', () => shareModal.classList.add('show'));
+  closeExportModalBtn.addEventListener('click', () => exportModal.classList.remove('show'));
+  closeShareModalBtn.addEventListener('click', () => shareModal.classList.remove('show'));
+
+  exportModal.addEventListener('click', (e) => {
+    if (e.target === exportModal) exportModal.classList.remove('show');
+  });
+  shareModal.addEventListener('click', (e) => {
+    if (e.target === shareModal) shareModal.classList.remove('show');
+  });
+
+  openDrawerBtn.addEventListener('click', () => sourceDrawer.classList.add('open'));
+  closeDrawerBtn.addEventListener('click', () => sourceDrawer.classList.remove('open'));
+
+  buildExportBtn.addEventListener('click', () => {
+    let output = currentAnswer || '';
+    if (exportIncludeSources.checked) {
+      output += '\n\nSources:\n- None yet';
+    }
+    if (exportIncludeHistory.checked) {
+      const threads = loadThreads();
+      output += '\n\nHistory:\n';
+      threads.forEach((t, i) => {
+        output += `${i + 1}. ${t.title}\n`;
+      });
+    }
+    exportPreview.textContent = output;
+    const blob = new Blob([output], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    downloadExportLink.href = url;
+    downloadExportLink.download = 'zhuxin-export.txt';
+  });
+
+  buildSharePacketBtn.addEventListener('click', () => {
+    shareOutput.textContent = [
+      `Assignee: ${shareAssignee.value || ''}`,
+      `Reviewers: ${shareReviewers.value || ''}`,
+      `Note: ${shareNote.value || ''}`,
+      '',
+      'Latest output:',
+      currentAnswer || ''
+    ].join('\n');
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!currentAnswer) return;
+    try {
+      await navigator.clipboard.writeText(currentAnswer);
+      statusBar.textContent = 'Copied.';
+    } catch {
+      statusBar.textContent = 'Copy failed.';
+    }
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    if (!currentAnswer) return;
+    const blob = new Blob([currentAnswer], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'zhuxin-output.txt';
+    a.click();
+  });
+
+  saveDocBtn.addEventListener('click', () => {
+    statusBar.textContent = 'Save action ready.';
+  });
+
+  newThreadBtn.addEventListener('click', () => {
+    const threads = loadThreads();
+    threads.unshift({
+      title: 'New thread',
+      answer: '',
+      time: Date.now()
+    });
+    saveThreads(threads);
+    render();
+    statusBar.textContent = 'New thread created.';
+  });
+
+  render();
+})();
+</script>
+
 </body>
 </html>
