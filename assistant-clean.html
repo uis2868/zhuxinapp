@@ -43,6 +43,7 @@
     .drawer.open { right:0; }
     .drawer-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
     .provider-grid { display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center; }
+    .action-card { background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
     @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -325,7 +326,7 @@
       pendingAction = data;
 
       let html = `
-        <div class="card" style="padding:12px; margin-top:12px;">
+        <div class="action-card">
           <div style="white-space:pre-wrap; margin-bottom:12px;">${escapeHtml(data.message || '')}</div>
       `;
 
