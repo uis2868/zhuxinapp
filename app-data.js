@@ -351,9 +351,9 @@ export async function seedDemoMatters() {
   const state = await listMatters();
   if (state.matters.length) throw new Error('Demo matters were not loaded because saved matters already exist.');
   const demo = [
-    { name: 'Acme v Delta — Patent Defense', client: 'Acme Corp', project: 'Delta Litigation', area: 'Litigation', jurisdiction: 'US / UK', notes: 'Initial complaint review and contradiction search.' },
     { name: 'Northbridge — Supply Agreement Review', client: 'Northbridge Holdings', project: 'Commercial Contracts', area: 'Commercial Contracts', jurisdiction: 'England', notes: 'Review change-of-control and assignment language.' },
-    { name: 'Avenor — Series B Financing', client: 'Avenor AI', project: 'Series B Financing', area: 'M&A', jurisdiction: 'Delaware', notes: 'Draft closing checklist and timeline.' }
+    { name: 'Avenor — Series B Financing', client: 'Avenor AI', project: 'Series B Financing', area: 'M&A', jurisdiction: 'Delaware', notes: 'Draft closing checklist and timeline.' },
+    { name: 'Bogura Land Record Review', client: 'Private Client', project: 'Land Record Review', area: 'Property', jurisdiction: 'Bangladesh', notes: 'Review khatian, mutation chain, and supporting land documents.' }
   ];
   for (const item of demo) {
     await createMatter(item);
@@ -716,27 +716,37 @@ export async function saveAppSettings(input) {
   return saved;
 }
 
-window.ZHUXIN_APP_DATA = window.ZHUXIN_APP_DATA || {};
-window.ZHUXIN_APP_DATA.assistant = window.ZHUXIN_APP_DATA.assistant || {};
+/* =========================
+   ZHUXIN ASSISTANT GLOBAL STATE (UNIFIED)
+   Subfeature 2 + Subfeature 3
+   ========================= */
 
-window.ZHUXIN_APP_DATA.assistant.contextOrchestration = {
-  defaultMode: "auto",
-  maxVisibleChips: 4,
-  maxInjectedChars: 6000,
-  maxPerSourceChars: 1600,
-  autoIncludeTypes: ["matter_profile", "thread_history"],
-  strictBlocksUnavailable: true,
-  typeLabels: {
-    matter_profile: "Matter",
-    thread_history: "Thread",
-    uploaded_file: "File",
-    saved_source: "Saved",
-    note: "Note"
-  }
-};
+window.appData = window.appData || {};
+window.appData.assistant = window.appData.assistant || {};
 
-window.ZHUXIN_APP_DATA.assistant.matterProfiles =
-  window.ZHUXIN_APP_DATA.assistant.matterProfiles || [
+(function bootstrapAssistantState() {
+  var assistant = window.appData.assistant;
+
+  assistant.settings = assistant.settings || {};
+  assistant.runtime = assistant.runtime || {};
+
+  assistant.contextOrchestration = Object.assign({
+    defaultMode: "auto",
+    maxVisibleChips: 4,
+    maxInjectedChars: 6000,
+    maxPerSourceChars: 1600,
+    autoIncludeTypes: ["matter_profile", "thread_history"],
+    strictBlocksUnavailable: true,
+    typeLabels: {
+      matter_profile: "Matter",
+      thread_history: "Thread",
+      uploaded_file: "File",
+      saved_source: "Saved",
+      note: "Note"
+    }
+  }, assistant.contextOrchestration || {});
+
+  assistant.matterProfiles = assistant.matterProfiles || [
     {
       id: "matter-default",
       label: "Default Matter",
@@ -745,8 +755,7 @@ window.ZHUXIN_APP_DATA.assistant.matterProfiles =
     }
   ];
 
-window.ZHUXIN_APP_DATA.assistant.threads =
-  window.ZHUXIN_APP_DATA.assistant.threads || [
+  assistant.threads = assistant.threads || [
     {
       id: "assistant-default-thread",
       matterId: "matter-default",
@@ -754,8 +763,19 @@ window.ZHUXIN_APP_DATA.assistant.threads =
     }
   ];
 
-window.ZHUXIN_APP_DATA.assistant.uploadedFiles =
-  window.ZHUXIN_APP_DATA.assistant.uploadedFiles || [];
+  assistant.uploadedFiles = assistant.uploadedFiles || [];
+  assistant.savedSources = assistant.savedSources || [];
 
-window.ZHUXIN_APP_DATA.assistant.savedSources =
-  window.ZHUXIN_APP_DATA.assistant.savedSources || [];
+  assistant.settings.groundedQa = Object.assign({
+    enabled: true,
+    groundedOnly: true,
+    analysisMode: "direct_answer",
+    failClosed: true,
+    maxSupportItems: 4,
+    showGapBlock: true
+  }, assistant.settings.groundedQa || {});
+
+  assistant.runtime.selectedSourceIds = assistant.runtime.selectedSourceIds || [];
+  assistant.runtime.selectedAttachmentIds = assistant.runtime.selectedAttachmentIds || [];
+  assistant.runtime.sourceBundleVersion = assistant.runtime.sourceBundleVersion || 0;
+})();
