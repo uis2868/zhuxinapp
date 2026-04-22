@@ -8,13 +8,6 @@ const els = {
   threadList: $('threadList')
 };
 
-let store = {
-  workspace: {
-    answer: '',
-    citations: []
-  }
-};
-
 function loadThreads() {
   return JSON.parse(localStorage.getItem('zhx_threads') || '[]');
 }
@@ -23,35 +16,37 @@ function saveThreads(threads) {
   localStorage.setItem('zhx_threads', JSON.stringify(threads));
 }
 
-function render() {
+function render(answer = '') {
   // OUTPUT
   els.messages.innerHTML = '';
 
-  if (!store.workspace.answer) {
+  if (!answer) {
     els.messages.innerHTML = '<div class="zhx-empty">No output yet.</div>';
   } else {
     const div = document.createElement('div');
     div.className = 'zhx-msg';
-    div.innerHTML = '<strong>assistant</strong><div>' + store.workspace.answer.replace(/\n/g,'<br>') + '</div>';
+    div.innerHTML =
+      '<strong>assistant</strong><div>' +
+      answer.replace(/\n/g, '<br>') +
+      '</div>';
     els.messages.appendChild(div);
   }
 
   // THREADS
   const threads = loadThreads();
-
   els.threadList.innerHTML = '';
 
   if (!threads.length) {
-    els.threadList.innerHTML = '<div class="zhx-empty">No threads yet.</div>';
+    els.threadList.innerHTML =
+      '<div class="zhx-empty">No threads yet.</div>';
   } else {
-    threads.forEach((t, i) => {
+    threads.forEach((t) => {
       const div = document.createElement('div');
       div.className = 'zhx-msg';
       div.textContent = t.title;
 
       div.onclick = () => {
-        store.workspace.answer = t.answer;
-        render();
+        render(t.answer);
       };
 
       els.threadList.appendChild(div);
@@ -66,7 +61,7 @@ async function handleSend() {
   els.sendBtn.disabled = true;
   els.statusBar.textContent = 'Generating…';
 
-  // FAKE RESPONSE (fallback)
+  // Simple fallback response
   const answer = `Structured working analysis
 
 Request:
@@ -77,8 +72,6 @@ Working response:
 2. Review documents
 3. Generate output`;
 
-  store.workspace.answer = answer;
-
   // SAVE THREAD
   const threads = loadThreads();
   threads.unshift({
@@ -88,7 +81,7 @@ Working response:
   });
   saveThreads(threads);
 
-  render();
+  render(answer);
 
   els.statusBar.textContent = 'Done.';
   els.sendBtn.disabled = false;
@@ -96,4 +89,5 @@ Working response:
 
 els.sendBtn.addEventListener('click', handleSend);
 
+// INIT
 render();
