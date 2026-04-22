@@ -1,1 +1,99 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><title>Zhuxin Assistant</title><link rel='preconnect' href='https://fonts.googleapis.com'><link rel='preconnect' href='https://fonts.gstatic.com' crossorigin><link href='https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500&display=swap' rel='stylesheet'><style>:root{--bg:#f4f3f0;--shell:#fbfbf9;--surface:#f1efeb;--card:#fff;--border:#e6e1d8;--text:#1a1816;--muted:#79726b;--shadow:0 22px 60px rgba(40,35,30,.12);--serif:'Playfair Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif}*{box-sizing:border-box}html,body{margin:0;padding:0;background:linear-gradient(180deg,#edeaf1,#f4f3f0 25%,#f4f3f0);color:var(--text);font-family:var(--sans)}a{text-decoration:none;color:inherit}button,textarea{font:inherit}button{cursor:pointer}.top{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:rgba(251,251,249,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}.brand{display:flex;align-items:center;gap:10px}.mark{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-family:var(--serif);font-weight:500;letter-spacing:-.04em;color:#fff;background:linear-gradient(180deg,#4b4844,#2e2b28)}.name{font-family:var(--serif);font-size:28px;line-height:1}.sub{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.row,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.chip,.btn,.primary,.soft{border:1px solid var(--border);background:#fff;border-radius:12px;padding:10px 14px;color:var(--text)}.chip{border-radius:999px;padding:8px 12px;font-size:12px;color:var(--muted)}.primary{background:#8e8a86;border-color:#8e8a86;color:#fff}.soft{background:#f7f5f0}.menu-wrap{position:relative}.menu-btn{width:40px;height:40px;border:1px solid var(--border);background:#fff;border-radius:12px;font-size:18px}.menu{position:absolute;right:0;top:48px;min-width:220px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:8px;display:none;z-index:20}.menu.show{display:grid;gap:4px}.menu a{padding:10px 12px;border-radius:10px;font-size:14px}.menu a:hover{background:#f4f1ec}.shell{max-width:1260px;margin:0 auto;padding:20px 16px 28px;display:grid;gap:16px}.hero,.card,.msg{background:var(--shell);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}.hero,.card{padding:18px}.hero h1{margin:10px 0 0;font-family:var(--serif);font-size:48px;font-weight:400;letter-spacing:-.02em}.meta,.desc{color:var(--muted);font-size:13px;line-height:1.65}.layout{display:grid;gap:16px}.thread-list{display:grid;gap:10px}.thread-item{padding:12px;border:1px solid var(--border);border-radius:14px;background:#fff;display:grid;gap:6px;cursor:pointer}.thread-item.active{background:#f0efec}.messages{display:grid;gap:12px}.msg{padding:14px;background:#fff}.msg.user{background:#f7f5f0}.msg strong{display:block;margin-bottom:6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.composer{display:grid;gap:10px}.composer textarea{min-height:140px;width:100%;padding:14px;border:1px solid var(--border);border-radius:18px;background:var(--surface);outline:none;color:var(--text);resize:vertical}.empty{padding:18px;border:1px dashed var(--border);border-radius:16px;color:var(--muted);background:#fff}.statusbar{min-height:20px;color:var(--muted);font-size:12px}.context-line{display:grid;gap:6px}.context-line div{font-size:13px;color:var(--muted)}@media(min-width:980px){.layout{grid-template-columns:320px minmax(0,1fr)}}</style><script src='./supabase-config.js'></script></head><body><header class='top'><div class='brand'><div class='mark'>Z</div><div><div class='name'>Zhuxin</div><div class='sub'>Assistant</div></div></div><div class='row'><span id='modeChip' class='chip'>Local mode</span><button class='primary' id='newThreadBtn'>New thread</button><div class='menu-wrap'><button class='menu-btn' id='menuBtn' aria-label='Open menu'>⋮</button><div class='menu' id='menuBox'><a href='./dashboard-home.html'>Dashboard</a><a href='./history.html'>History</a><a href='./draft-studio.html'>Draft Studio</a><a href='./notice-generator.html'>Notice Drafting</a><a href='./matter-files.html'>Vault support</a><a href='./settings.html'>Settings</a></div></div></div></header><main class='shell'><section class='hero'><div class='context-line'><div><strong style='color:var(--text)'>Matter:</strong> <span id='matterChip'>No current matter</span></div><div><strong style='color:var(--text)'>AI source:</strong> <span id='aiChip'>Built-in fallback</span></div></div><h1>Assistant</h1><div class='desc'>Use Assistant for flexible legal thinking, Q&A, issue spotting, and rough drafting. Structured chamber drafting belongs in Draft Studio.</div></section><section class='layout'><aside class='card'><div class='row' style='justify-content:space-between'><h3 style='margin:0;font-family:var(--serif);font-weight:400;font-size:24px'>Threads</h3><button class='btn' id='refreshBtn'>Refresh</button></div><div id='threadList' class='thread-list' style='margin-top:14px'></div></aside><section class='card'><div class='row' style='justify-content:space-between'><div><h3 id='threadTitle' style='margin:0;font-family:var(--serif);font-weight:400;font-size:28px'>New thread</h3><div id='threadMeta' class='meta' style='margin-top:6px'>Start a conversation below.</div></div><div class='actions'><button class='btn' id='saveDocBtn'>Save as document</button><button class='btn' id='copyBtn'>Copy latest</button><button class='btn' id='downloadBtn'>Download</button></div></div><div id='messages' class='messages' style='margin-top:16px'></div><div class='composer' style='margin-top:16px'><textarea id='promptBox' placeholder='Ask Zhuxin anything about the current matter.'></textarea><div class='row' style='justify-content:space-between'><div class='meta'>Uses current matter, matter files, and saved settings.</div><button class='primary' id='sendBtn'>Send</button></div><div id='statusBar' class='statusbar'></div></div></section></section></main><script type='module'>import { getAuthSummary, getCurrentMatterFromMirror, listThreads, createThread, getThreadMessages, appendThreadMessage, listMatterFiles, getAppSettings, createGeneratedDocument } from './app-data.js'; import { escapeHtml, copyText, downloadTextFile, generateAssistantReply, getAiSourceLabel } from './generation-engine.js'; const els={modeChip:document.getElementById('modeChip'),matterChip:document.getElementById('matterChip'),aiChip:document.getElementById('aiChip'),threadList:document.getElementById('threadList'),threadTitle:document.getElementById('threadTitle'),threadMeta:document.getElementById('threadMeta'),messages:document.getElementById('messages'),promptBox:document.getElementById('promptBox'),sendBtn:document.getElementById('sendBtn'),statusBar:document.getElementById('statusBar')}; const menuBtn=document.getElementById('menuBtn'); const menuBox=document.getElementById('menuBox'); let activeThreadId=null; let threadCache=[]; let latestAssistantText=''; let currentSettings=null; menuBtn.addEventListener('click',()=>menuBox.classList.toggle('show')); document.addEventListener('click',e=>{ if(!menuBtn.contains(e.target) && !menuBox.contains(e.target)) menuBox.classList.remove('show'); }); function formatDate(value){try{return new Date(value).toLocaleString('en-GB')}catch{return value}} async function renderHeader(){ const auth=await getAuthSummary(); els.modeChip.textContent=auth.mode==='supabase'?'Supabase mode':'Local mode'; const current=getCurrentMatterFromMirror(); els.matterChip.textContent=current?current.name:'No current matter'; currentSettings=await getAppSettings(); els.aiChip.textContent=getAiSourceLabel(currentSettings); return current; } async function loadThreads(){ const current=await renderHeader(); threadCache=await listThreads({ matterId: current?.id || null }); if(!activeThreadId && threadCache[0]) activeThreadId=threadCache[0].id; renderThreadList(); await renderActiveThread(); } function renderThreadList(){ els.threadList.innerHTML=''; if(!threadCache.length){ els.threadList.innerHTML='<div class="empty">No saved threads yet.</div>'; return; } threadCache.forEach(t=>{ const div=document.createElement('button'); div.className='thread-item'+(t.id===activeThreadId?' active':''); div.innerHTML='<strong style="font-size:14px">'+escapeHtml(t.title)+'</strong><div class="meta">'+escapeHtml(t.moduleName)+' · '+escapeHtml(formatDate(t.updatedAt||t.createdAt))+'</div>'; div.addEventListener('click',async()=>{ activeThreadId=t.id; renderThreadList(); await renderActiveThread(); }); els.threadList.appendChild(div); }); } async function renderActiveThread(){ latestAssistantText=''; els.messages.innerHTML=''; if(!activeThreadId){ els.threadTitle.textContent='New thread'; els.threadMeta.textContent='Start a conversation below.'; els.messages.innerHTML='<div class="empty">No active thread selected.</div>'; return; } const thread=threadCache.find(t=>t.id===activeThreadId); els.threadTitle.textContent=thread?.title||'Thread'; els.threadMeta.textContent=(thread?.moduleName||'assistant')+' · '+formatDate(thread?.updatedAt||thread?.createdAt); const messages=await getThreadMessages(activeThreadId); if(!messages.length){ els.messages.innerHTML='<div class="empty">No messages yet in this thread.</div>'; return; } messages.forEach(m=>{ const card=document.createElement('div'); card.className='msg '+(m.role==='user'?'user':'assistant'); card.innerHTML='<strong>'+escapeHtml(m.role)+'</strong><div>'+escapeHtml(m.content).replace(/\n/g,'<br>')+'</div>'; if(m.role==='assistant'){ latestAssistantText=m.content; const toolbar=document.createElement('div'); toolbar.className='actions'; toolbar.style.marginTop='10px'; const copyBtn=document.createElement('button'); copyBtn.className='soft'; copyBtn.textContent='Copy'; copyBtn.onclick=async()=>{ await copyText(m.content); els.statusBar.textContent='Copied assistant response.'; }; const dlBtn=document.createElement('button'); dlBtn.className='soft'; dlBtn.textContent='Download'; dlBtn.onclick=()=>downloadTextFile('zhuxin-assistant-output.txt',m.content); toolbar.append(copyBtn,dlBtn); card.appendChild(toolbar); } els.messages.appendChild(card); }); } async function startNewThread(){ const current=getCurrentMatterFromMirror(); const thread=await createThread({ matterId: current?.id || null, title: 'New thread', moduleName: 'assistant' }); activeThreadId=thread.id; await loadThreads(); } async function sendPrompt(){ const content=els.promptBox.value.trim(); if(!content) return; els.sendBtn.disabled=true; els.sendBtn.textContent='Generating…'; els.statusBar.textContent='Preparing reply using '+getAiSourceLabel(currentSettings||{})+'…'; try{ if(!activeThreadId){ await startNewThread(); } await appendThreadMessage(activeThreadId,{ role:'user', content, metadata:{ source:'assistant-page' } }); const current=getCurrentMatterFromMirror(); const files=current?.id ? await listMatterFiles(current.id) : []; const settings=await getAppSettings(); currentSettings=settings; const reply=await generateAssistantReply({ prompt: content, matter: current, files, settings }); await appendThreadMessage(activeThreadId,{ role:'assistant', content: reply, metadata:{ generated:true, aiSource:getAiSourceLabel(settings) } }); els.promptBox.value=''; els.statusBar.textContent='Assistant response generated and saved using '+getAiSourceLabel(settings)+'.'; await loadThreads(); }catch(error){ els.statusBar.textContent=error.message||'Assistant generation failed.'; }finally{ els.sendBtn.disabled=false; els.sendBtn.textContent='Send'; } } async function saveLatestAsDocument(){ if(!latestAssistantText){ els.statusBar.textContent='No assistant output to save yet.'; return; } const current=getCurrentMatterFromMirror(); const doc=await createGeneratedDocument({ matterId: current?.id||null, moduleName:'assistant', title:'Assistant output — '+new Date().toLocaleString('en-GB'), content: latestAssistantText, exportType:'text' }); els.statusBar.textContent='Saved assistant output as document: '+doc.title; } document.getElementById('newThreadBtn').addEventListener('click',startNewThread); document.getElementById('refreshBtn').addEventListener('click',loadThreads); document.getElementById('sendBtn').addEventListener('click',sendPrompt); document.getElementById('saveDocBtn').addEventListener('click',saveLatestAsDocument); document.getElementById('copyBtn').addEventListener('click',async()=>{ if(!latestAssistantText){ els.statusBar.textContent='No assistant output to copy yet.'; return; } await copyText(latestAssistantText); els.statusBar.textContent='Copied latest assistant output.'; }); document.getElementById('downloadBtn').addEventListener('click',()=>{ if(!latestAssistantText){ els.statusBar.textContent='No assistant output to download yet.'; return; } downloadTextFile('zhuxin-assistant-output.txt', latestAssistantText); els.statusBar.textContent='Downloaded latest assistant output.'; }); window.addEventListener('storage',e=>{ if(['zhuxin_matter_state','zhuxin_threads_state','zhuxin_local_auth','zhuxin_generated_documents','zhuxin_matter_files','zhuxin_app_settings'].includes(e.key)) loadThreads(); }); window.addEventListener('focus',loadThreads); loadThreads();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Assistant</title>
+
+<link rel="stylesheet" href="./assistant.css">
+
+</head>
+<body>
+
+<div class="zhx-top">
+  <div class="zhx-brand">
+    <div class="zhx-mark">Z</div>
+    <div>
+      <div class="zhx-name">Zhuxin</div>
+      <div class="zhx-sub">Assistant</div>
+    </div>
+  </div>
+
+  <div class="zhx-actions">
+    <span id="matterChip" class="zhx-chip">Loading...</span>
+    <span id="aiChip" class="zhx-chip">AI</span>
+  </div>
+</div>
+
+<div class="zhx-shell">
+
+  <!-- THREAD LIST -->
+  <div class="zhx-layout">
+    <div class="zhx-side">
+      <div class="zhx-panel">
+        <div class="zhx-panel-head">
+          <h3>Threads</h3>
+          <button id="newThreadBtn" class="zhx-btn">+</button>
+        </div>
+        <div id="threadList"></div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="zhx-main">
+
+      <!-- COMPOSER -->
+      <div class="zhx-card zhx-composer">
+
+        <textarea id="promptBox" class="zhx-textarea" placeholder="Ask anything..."></textarea>
+
+        <div class="zhx-row">
+          <select id="taskType">
+            <option value="answer">Answer</option>
+            <option value="draft">Draft</option>
+            <option value="revise">Revise</option>
+          </select>
+
+          <select id="tone">
+            <option value="clear">Clear</option>
+            <option value="formal">Formal</option>
+          </select>
+
+          <select id="density">
+            <option value="balanced">Balanced</option>
+            <option value="dense">Dense</option>
+          </select>
+
+          <button id="improveBtn" class="zhx-soft">Improve</button>
+          <button id="sendBtn" class="zhx-btn-primary">Send</button>
+        </div>
+
+        <div id="improveWrap" style="display:none">
+          <div id="improvePreview" class="zhx-improve"></div>
+        </div>
+
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="zhx-card">
+        <div id="messages"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="zhx-toolbar">
+        <button id="copyBtn" class="zhx-soft">Copy</button>
+        <button id="downloadBtn" class="zhx-soft">Download</button>
+        <button id="saveDocBtn" class="zhx-soft">Save</button>
+      </div>
+
+      <!-- STATUS -->
+      <div id="statusBar" class="zhx-statusbar"></div>
+
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="./assistant-page.js"></script>
+
+</body>
+</html>
