@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zhuxin Assistant Clean</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:#f3f4f6; color:#111827; }
+    .topbar { background:#111827; color:white; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:700; }
+    .badge { width:30px; height:30px; border-radius:8px; background:#2563eb; display:flex; align-items:center; justify-content:center; font-weight:700; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip { background:#374151; color:white; border-radius:10px; padding:8px 10px; font-size:12px; }
+    .shell { max-width:1200px; margin:0 auto; padding:16px; }
+    .layout { display:grid; grid-template-columns:280px 1fr; gap:16px; }
+    .card { background:white; border-radius:16px; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); margin-bottom:16px; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    h3,h4 { margin:0; }
+    textarea,input,select { width:100%; box-sizing:border-box; border:1px solid #d1d5db; border-radius:10px; padding:10px 12px; font-size:14px; background:white; }
+    textarea { min-height:120px; resize:vertical; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .controls select { width:auto; min-width:110px; }
+    button,a.button-link { border:0; border-radius:10px; padding:10px 14px; font-size:14px; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn-primary { background:#2563eb; color:white; }
+    .btn-soft { background:#e5e7eb; color:#111827; }
+    .thread-list { display:flex; flex-direction:column; gap:8px; }
+    .thread-item { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; padding:10px; cursor:pointer; word-break:break-word; }
+    .thread-item:hover { background:#e5e7eb; }
+    .tabs { display:flex; gap:8px; margin-bottom:12px; }
+    .tab { background:#e5e7eb; color:#111827; }
+    .tab.active { background:#2563eb; color:white; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+    .output { background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; white-space:pre-wrap; min-height:80px; }
+    .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+    .muted { color:#6b7280; }
+    .status { margin-top:10px; font-size:14px; color:#4b5563; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; align-items:center; justify-content:center; padding:16px; z-index:1000; }
+    .modal-backdrop.show { display:flex; }
+    .modal { background:white; width:min(500px,100%); border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+    .drawer { position:fixed; top:0; right:-360px; width:min(340px,90vw); height:100vh; background:white; box-shadow:-8px 0 24px rgba(0,0,0,0.15); transition:right 0.25s ease; padding:16px; overflow-y:auto; z-index:1001; }
+    .drawer.open { right:0; }
+    .drawer-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="badge">Z</div>
+      <div>
+        <div>Zhuxin</div>
+        <div style="font-size:12px;opacity:.75;">Assistant Clean</div>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="chip">Standalone</div>
+      <div class="chip">No external JS</div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="layout">
+      <aside>
+        <div class="card">
+          <div class="section-head">
+            <h3>Threads</h3>
+            <button id="newThreadBtn" class="btn-soft" type="button">+</button>
+          </div>
+          <div id="threadList" class="thread-list"></div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="card">
+          <textarea id="promptBox" placeholder="Ask anything..."></textarea>
+          <div class="controls">
+            <select><option>Answer</option><option>Draft</option><option>Revise</option></select>
+            <select><option>Clear</option></select>
+            <select><option>Balanced</option><option>Dense</option></select>
+            <button id="improveBtn" class="btn-soft" type="button">Improve</button>
+            <button id="sendBtn" class="btn-primary" type="button">Send</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" data-tab="answer" type="button">Answer</button>
+            <button class="tab" data-tab="draft" type="button">Draft</button>
+            <button class="tab" data-tab="deliverable" type="button">Deliverable</button>
+          </div>
+
+          <div class="panel active" data-panel="answer">
+            <div id="messages" class="output"><span class="muted">No output yet.</span></div>
+          </div>
+          <div class="panel" data-panel="draft"><textarea id="draftEditor" placeholder="Draft text..."></textarea></div>
+          <div class="panel" data-panel="deliverable"><input id="deliverableTitle" placeholder="Title" /><textarea id="deliverableEditor" placeholder="Deliverable text..."></textarea></div>
+        </div>
+
+        <div class="card">
+          <h4>Citations</h4>
+          <div id="citationList" class="muted">No citations yet.</div>
+        </div>
+
+        <div class="toolbar">
+          <button id="copyBtn" class="btn-soft" type="button">Copy</button>
+          <button id="downloadBtn" class="btn-soft" type="button">Download</button>
+          <button id="saveBtn" class="btn-soft" type="button">Save</button>
+          <button id="exportBtn" class="btn-soft" type="button">Export</button>
+          <button id="shareBtn" class="btn-soft" type="button">Share</button>
+          <button id="sourcesBtn" class="btn-soft" type="button">Sources</button>
+        </div>
+
+        <div id="statusBar" class="status">Ready.</div>
+      </main>
+    </div>
+  </div>
+
+  <div id="exportModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Export</h3>
+      <br>
+      <label><input id="exportIncludeHistory" type="checkbox"> Include history</label>
+      <br><br>
+      <label><input id="exportIncludeSources" type="checkbox"> Include sources</label>
+      <br><br>
+      <button id="buildExportBtn" class="btn-soft" type="button">Build</button>
+      <a id="downloadExportLink" class="button-link btn-soft" href="#">Download</a>
+      <pre id="exportPreview" class="output" style="margin-top:12px;"></pre>
+      <div style="margin-top:12px;"><button id="closeExportBtn" class="btn-soft" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div id="shareModal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Share</h3>
+      <br>
+      <input id="shareAssignee" placeholder="Assignee">
+      <br><br>
+      <input id="shareReviewers" placeholder="Reviewers">
+      <br><br>
+      <textarea id="shareNote" placeholder="Note"></textarea>
+      <br><br>
+      <button id="buildShareBtn" class="btn-soft" type="button">Build Packet</button>
+      <pre id="shareOutput" class="output" style="margin-top:12px;"></pre>
+      <div style="margin-top:12px;"><button id="closeShareBtn" class="btn-soft" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div id="sourcesDrawer" class="drawer">
+    <div class="drawer-head">
+      <h3>Sources</h3>
+      <button id="closeSourcesBtn" class="btn-soft" type="button">Close</button>
+    </div>
+    <div id="sourcesList" class="muted">No sources yet.</div>
+  </div>
+
+  <script>
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const promptBox = $('promptBox');
+      const sendBtn = $('sendBtn');
+      const messages = $('messages');
+      const threadList = $('threadList');
+      const statusBar = $('statusBar');
+      const draftEditor = $('draftEditor');
+      const deliverableEditor = $('deliverableEditor');
+      const citationList = $('citationList');
+      const exportBtn = $('exportBtn');
+      const shareBtn = $('shareBtn');
+      const sourcesBtn = $('sourcesBtn');
+      const exportModal = $('exportModal');
+      const shareModal = $('shareModal');
+      const closeExportBtn = $('closeExportBtn');
+      const closeShareBtn = $('closeShareBtn');
+      const buildExportBtn = $('buildExportBtn');
+      const downloadExportLink = $('downloadExportLink');
+      const exportPreview = $('exportPreview');
+      const exportIncludeHistory = $('exportIncludeHistory');
+      const exportIncludeSources = $('exportIncludeSources');
+      const shareAssignee = $('shareAssignee');
+      const shareReviewers = $('shareReviewers');
+      const shareNote = $('shareNote');
+      const buildShareBtn = $('buildShareBtn');
+      const shareOutput = $('shareOutput');
+      const sourcesDrawer = $('sourcesDrawer');
+      const closeSourcesBtn = $('closeSourcesBtn');
+      const sourcesList = $('sourcesList');
+      const copyBtn = $('copyBtn');
+      const downloadBtn = $('downloadBtn');
+      const newThreadBtn = $('newThreadBtn');
+      const improveBtn = $('improveBtn');
+      const tabs = document.querySelectorAll('.tab');
+      const panels = document.querySelectorAll('.panel');
+      let currentAnswer = '';
+
+      function loadThreads() {
+        try { return JSON.parse(localStorage.getItem('zhx_clean_threads') || '[]'); }
+        catch { return []; }
+      }
+      function saveThreads(threads) { localStorage.setItem('zhx_clean_threads', JSON.stringify(threads)); }
+      function escapeHtml(text) {
+        return String(text || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+      }
+      function renderThreads() {
+        const threads = loadThreads();
+        threadList.innerHTML = '';
+        if (!threads.length) { threadList.innerHTML = '<div class="muted">No threads yet.</div>'; return; }
+        threads.forEach((thread) => {
+          const item = document.createElement('div');
+          item.className = 'thread-item';
+          item.textContent = thread.title;
+          item.onclick = function () { currentAnswer = thread.answer; renderAnswer(); statusBar.textContent = 'Thread loaded.'; };
+          threadList.appendChild(item);
+        });
+      }
+      function renderAnswer() {
+        if (!currentAnswer) messages.innerHTML = '<span class="muted">No output yet.</span>';
+        else messages.innerHTML = '<strong>assistant</strong><div style="margin-top:8px;white-space:pre-wrap;">' + escapeHtml(currentAnswer) + '</div>';
+        draftEditor.value = currentAnswer;
+        deliverableEditor.value = currentAnswer;
+        citationList.textContent = 'No citations yet.';
+        sourcesList.textContent = 'No sources yet.';
+      }
+      function handleSend() {
+        const prompt = promptBox.value.trim();
+        if (!prompt) { statusBar.textContent = 'Type something first.'; return; }
+        sendBtn.disabled = true;
+        statusBar.textContent = 'Generating…';
+        currentAnswer = 'Structured working analysis\n\nRequest:\n' + prompt + '\n\nWorking response:\n1. Identify key facts\n2. Review documents\n3. Generate output';
+        const threads = loadThreads();
+        threads.unshift({ title: prompt.slice(0, 40), answer: currentAnswer, time: Date.now() });
+        saveThreads(threads);
+        renderThreads();
+        renderAnswer();
+        statusBar.textContent = 'Done.';
+        sendBtn.disabled = false;
+      }
+
+      sendBtn.onclick = handleSend;
+      improveBtn.onclick = function () {
+        const text = promptBox.value.trim();
+        if (!text) return;
+        promptBox.value = 'Please improve this request and respond clearly:\n\n' + text;
+        statusBar.textContent = 'Prompt improved.';
+      };
+      newThreadBtn.onclick = function () {
+        promptBox.value = '';
+        currentAnswer = '';
+        renderAnswer();
+        statusBar.textContent = 'New thread ready.';
+      };
+      copyBtn.onclick = async function () {
+        if (!currentAnswer) return;
+        try { await navigator.clipboard.writeText(currentAnswer); statusBar.textContent = 'Copied.'; }
+        catch { statusBar.textContent = 'Copy failed.'; }
+      };
+      downloadBtn.onclick = function () {
+        if (!currentAnswer) return;
+        const blob = new Blob([currentAnswer], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'zhuxin-output.txt';
+        a.click();
+      };
+      exportBtn.onclick = function () { exportModal.classList.add('show'); };
+      closeExportBtn.onclick = function () { exportModal.classList.remove('show'); };
+      exportModal.onclick = function (e) { if (e.target === exportModal) exportModal.classList.remove('show'); };
+      buildExportBtn.onclick = function () {
+        let output = currentAnswer || '';
+        if (exportIncludeSources.checked) output += '\n\nSources:\n- None yet';
+        if (exportIncludeHistory.checked) {
+          const threads = loadThreads();
+          output += '\n\nHistory:\n';
+          threads.forEach((t, i) => { output += (i + 1) + '. ' + t.title + '\n'; });
+        }
+        exportPreview.textContent = output || 'Nothing to export.';
+        const blob = new Blob([output], { type: 'text/plain' });
+        downloadExportLink.href = URL.createObjectURL(blob);
+        downloadExportLink.download = 'zhuxin-export.txt';
+      };
+      shareBtn.onclick = function () { shareModal.classList.add('show'); };
+      closeShareBtn.onclick = function () { shareModal.classList.remove('show'); };
+      shareModal.onclick = function (e) { if (e.target === shareModal) shareModal.classList.remove('show'); };
+      buildShareBtn.onclick = function () {
+        shareOutput.textContent = [
+          'Assignee: ' + (shareAssignee.value || ''),
+          'Reviewers: ' + (shareReviewers.value || ''),
+          'Note: ' + (shareNote.value || ''),
+          '',
+          'Latest output:',
+          currentAnswer || ''
+        ].join('\n');
+      };
+      sourcesBtn.onclick = function () { sourcesDrawer.classList.add('open'); };
+      closeSourcesBtn.onclick = function () { sourcesDrawer.classList.remove('open'); };
+      tabs.forEach((tab) => {
+        tab.onclick = function () {
+          const target = tab.getAttribute('data-tab');
+          tabs.forEach((t) => t.classList.remove('active'));
+          panels.forEach((p) => p.classList.remove('active'));
+          tab.classList.add('active');
+          document.querySelector('[data-panel="' + target + '"]').classList.add('active');
+        };
+      });
+      renderThreads();
+      renderAnswer();
+      statusBar.textContent = 'Ready.';
+    })();
+  </script>
+</body>
+</html>
