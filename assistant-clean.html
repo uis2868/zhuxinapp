@@ -35,7 +35,178 @@
     .error { color:#b91c1c; font-size:13px; margin-top:6px; }
     #assistantOutputModeChips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
     #assistantMetaPanel { margin-top:12px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; }
+
+    .assistant-context-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(17,24,39,0.08);
+      border-radius: 12px;
+      background: rgba(17,24,39,0.03);
+      flex-wrap: wrap;
+    }
+
+    .assistant-context-chip-list {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1 1 auto;
+      min-width: 120px;
+      flex-wrap: wrap;
+    }
+
+    .assistant-context-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1;
+      background: rgba(17,24,39,0.08);
+      white-space: nowrap;
+    }
+
+    .assistant-context-chip--auto {
+      background: rgba(17,24,39,0.08);
+    }
+
+    .assistant-context-chip--manual {
+      background: rgba(82, 163, 255, 0.18);
+    }
+
+    .assistant-context-chip--stale {
+      background: rgba(255, 184, 77, 0.18);
+    }
+
+    .assistant-context-summary {
+      font-size: 12px;
+      opacity: 0.78;
+      white-space: nowrap;
+    }
+
+    .assistant-context-panel {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid rgba(17,24,39,0.08);
+      border-radius: 14px;
+      background: rgba(17,24,39,0.03);
+    }
+
+    .assistant-context-panel.is-hidden,
+    .assistant-context-warning.is-hidden {
+      display: none;
+    }
+
+    .assistant-context-panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .assistant-context-panel-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .assistant-context-panel-subtitle {
+      font-size: 12px;
+      opacity: 0.72;
+      margin-top: 2px;
+    }
+
+    .assistant-context-mode-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .assistant-mode-btn {
+      border: 1px solid rgba(17,24,39,0.08);
+      background: transparent;
+      color: inherit;
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .assistant-mode-btn.is-active {
+      background: rgba(82, 163, 255, 0.16);
+      border-color: rgba(82, 163, 255, 0.35);
+    }
+
+    .assistant-context-current {
+      font-size: 12px;
+      opacity: 0.82;
+      margin-bottom: 10px;
+    }
+
+    .assistant-context-warning {
+      margin-bottom: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      background: rgba(255, 184, 77, 0.15);
+      border: 1px solid rgba(255, 184, 77, 0.28);
+    }
+
+    .assistant-context-source-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .assistant-context-source-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(17,24,39,0.06);
+      background: rgba(17,24,39,0.02);
+    }
+
+    .assistant-context-source-meta {
+      min-width: 0;
+    }
+
+    .assistant-context-source-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .assistant-context-source-subline {
+      font-size: 12px;
+      opacity: 0.72;
+    }
+
+    .assistant-context-source-status {
+      font-size: 11px;
+      opacity: 0.72;
+      white-space: nowrap;
+    }
+
     @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
+
+    @media (max-width: 640px) {
+      .assistant-context-source-row {
+        grid-template-columns: auto 1fr;
+      }
+
+      .assistant-context-source-status {
+        grid-column: 2 / 3;
+      }
+
+      .assistant-context-summary {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -49,7 +220,7 @@
     </div>
     <div class="chips">
       <div class="chip">Composer enabled</div>
-      <div class="chip">Prompt guidance</div>
+      <div class="chip">Context orchestration</div>
     </div>
   </div>
 
@@ -70,10 +241,10 @@
       <main>
         <div class="card">
           <div id="assistantComposerRoot">
-            <label for="assistantPromptInput">Ask Assistant</label>
+            <label for="assistant-prompt-input">Ask Assistant</label>
 
             <textarea
-              id="assistantPromptInput"
+              id="assistant-prompt-input"
               rows="6"
               placeholder="Describe the task in plain language. Example: Compare the two versions and give me a memo with key differences."
             ></textarea>
@@ -82,7 +253,6 @@
               <button type="button" id="assistantImproveBtn" class="btn-soft">Improve</button>
               <button type="button" id="assistantRestoreBtn" class="btn-soft" hidden>Restore</button>
               <button type="button" id="assistantMetaToggleBtn" class="btn-soft">Add guidance</button>
-              <button type="button" id="assistantSendBtn" class="btn-primary">Send</button>
             </div>
 
             <div id="assistantPromptStatus" class="muted"></div>
@@ -108,6 +278,71 @@
                   <input id="assistantDepthSelect" placeholder="Depth">
                 </label>
               </div>
+            </div>
+
+            <!-- Assistant Context Strip -->
+            <div id="assistant-context-strip" class="assistant-context-strip">
+              <button
+                type="button"
+                id="assistant-context-toggle"
+                class="btn-soft"
+                aria-expanded="false"
+                aria-controls="assistant-context-panel"
+              >
+                Context
+              </button>
+
+              <div id="assistant-context-chip-list" class="assistant-context-chip-list"></div>
+
+              <div id="assistant-context-summary" class="assistant-context-summary">
+                Auto · No explicit sources
+              </div>
+            </div>
+
+            <!-- Assistant Context Panel -->
+            <div
+              id="assistant-context-panel"
+              class="assistant-context-panel is-hidden"
+              aria-hidden="true"
+            >
+              <div class="assistant-context-panel-head">
+                <div class="assistant-context-panel-title-wrap">
+                  <div class="assistant-context-panel-title">Context &amp; Sources</div>
+                  <div class="assistant-context-panel-subtitle">
+                    Control what the Assistant can use for this thread
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  id="assistant-context-close"
+                  class="btn-soft"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div class="assistant-context-mode-row" id="assistant-context-mode-row">
+                <button type="button" class="assistant-mode-btn is-active" data-context-mode="auto">
+                  Auto
+                </button>
+                <button type="button" class="assistant-mode-btn" data-context-mode="manual">
+                  Manual
+                </button>
+                <button type="button" class="assistant-mode-btn" data-context-mode="strict">
+                  Strict
+                </button>
+              </div>
+
+              <div id="assistant-context-current" class="assistant-context-current"></div>
+
+              <div id="assistant-context-warning" class="assistant-context-warning is-hidden"></div>
+
+              <div id="assistant-context-source-list" class="assistant-context-source-list"></div>
+            </div>
+
+            <div class="assistant-row">
+              <button type="button" id="assistantSendBtn" class="btn-primary">Send</button>
             </div>
           </div>
         </div>
@@ -153,12 +388,48 @@
   </div>
 
   <script src="assistant-composer.js"></script>
+  <script src="assistant-context-orchestrator.js"></script>
+  <script src="generation-engine.js"></script>
   <script>
     window.AI_ENDPOINT = "https://zhuxin-ai-backend.onrender.com/api/ai";
 
     document.addEventListener("DOMContentLoaded", function () {
       if (window.ZhuxinComposer) {
-        ZhuxinComposer.init();
+        ZhuxinComposer.init({
+          inputSelector: '#assistant-prompt-input',
+          outputChipsSelector: '#assistantOutputModeChips',
+          improveBtnSelector: '#assistantImproveBtn',
+          restoreBtnSelector: '#assistantRestoreBtn',
+          metaToggleSelector: '#assistantMetaToggleBtn',
+          metaPanelSelector: '#assistantMetaPanel',
+          audienceSelector: '#assistantAudienceSelect',
+          toneSelector: '#assistantToneSelect',
+          depthSelector: '#assistantDepthSelect',
+          statusSelector: '#assistantPromptStatus',
+          hintsSelector: '#assistantPromptHints',
+          errorSelector: '#assistantComposerError'
+        });
+      }
+
+      if (window.ZhuxinAssistantContext) {
+        window.ZhuxinAssistantContext.boot({
+          promptInputId: "assistant-prompt-input",
+          contextToggleId: "assistant-context-toggle",
+          contextPanelId: "assistant-context-panel",
+          contextCloseId: "assistant-context-close",
+          chipListId: "assistant-context-chip-list",
+          summaryId: "assistant-context-summary",
+          sourceListId: "assistant-context-source-list",
+          currentLabelId: "assistant-context-current",
+          warningId: "assistant-context-warning",
+          modeRowId: "assistant-context-mode-row",
+          getCurrentThreadId: function () {
+            if (typeof window.getCurrentAssistantThreadId === "function") {
+              return window.getCurrentAssistantThreadId();
+            }
+            return "assistant-default-thread";
+          }
+        });
       }
 
       var tabs = document.querySelectorAll(".tab");
@@ -173,6 +444,41 @@
           document.querySelector('[data-panel="' + target + '"]').classList.add("active");
         });
       });
+
+      var sendBtn = document.getElementById("assistantSendBtn");
+      if (sendBtn) {
+        sendBtn.addEventListener("click", async function () {
+          var input = document.getElementById("assistant-prompt-input");
+          if (!input) return;
+
+          var rawPrompt = (input.value || "").trim();
+          if (!rawPrompt) return;
+
+          var prepared = window.prepareAssistantRequest
+            ? window.prepareAssistantRequest(rawPrompt)
+            : { ok: true, rawPrompt: rawPrompt, finalPrompt: rawPrompt, contextPacket: null };
+
+          if (!prepared.ok) {
+            alert(prepared.error || "Context validation failed.");
+            return;
+          }
+
+          try {
+            var result = await window.runAssistantGeneration({
+              rawPrompt: prepared.rawPrompt,
+              finalPrompt: prepared.finalPrompt,
+              contextPacket: prepared.contextPacket
+            });
+
+            var messages = document.getElementById("messages");
+            if (messages) {
+              messages.textContent = result || "No output";
+            }
+          } catch (err) {
+            alert(err.message || "Generation failed.");
+          }
+        });
+      }
     });
   </script>
 </body>
