@@ -8,6 +8,8 @@ const els = {
   threadList: $('threadList')
 };
 
+let currentAnswer = '';
+
 function loadThreads() {
   return JSON.parse(localStorage.getItem('zhx_threads') || '[]');
 }
@@ -16,18 +18,18 @@ function saveThreads(threads) {
   localStorage.setItem('zhx_threads', JSON.stringify(threads));
 }
 
-function render(answer = '') {
+function render() {
   // OUTPUT
   els.messages.innerHTML = '';
 
-  if (!answer) {
+  if (!currentAnswer) {
     els.messages.innerHTML = '<div class="zhx-empty">No output yet.</div>';
   } else {
     const div = document.createElement('div');
     div.className = 'zhx-msg';
     div.innerHTML =
       '<strong>assistant</strong><div>' +
-      answer.replace(/\n/g, '<br>') +
+      currentAnswer.replace(/\n/g, '<br>') +
       '</div>';
     els.messages.appendChild(div);
   }
@@ -46,7 +48,8 @@ function render(answer = '') {
       div.textContent = t.title;
 
       div.onclick = () => {
-        render(t.answer);
+        currentAnswer = t.answer;
+        render();
       };
 
       els.threadList.appendChild(div);
@@ -54,14 +57,14 @@ function render(answer = '') {
   }
 }
 
-async function handleSend() {
+function handleSend() {
   const prompt = els.promptBox.value.trim();
   if (!prompt) return;
 
   els.sendBtn.disabled = true;
   els.statusBar.textContent = 'Generating…';
 
-  // Simple fallback response
+  // SIMPLE WORKING RESPONSE
   const answer = `Structured working analysis
 
 Request:
@@ -72,6 +75,8 @@ Working response:
 2. Review documents
 3. Generate output`;
 
+  currentAnswer = answer;
+
   // SAVE THREAD
   const threads = loadThreads();
   threads.unshift({
@@ -81,7 +86,7 @@ Working response:
   });
   saveThreads(threads);
 
-  render(answer);
+  render();
 
   els.statusBar.textContent = 'Done.';
   els.sendBtn.disabled = false;
