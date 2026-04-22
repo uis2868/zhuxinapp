@@ -76,12 +76,12 @@ async function init() {
 function bindEvents() {
   els.sendBtn?.addEventListener('click', handleSend);
 
-  els.tabs.forEach(btn => {
+  els.tabs.forEach((btn) => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
-      els.tabs.forEach(b => b.classList.remove('is-active'));
+      els.tabs.forEach((b) => b.classList.remove('is-active'));
       btn.classList.add('is-active');
-      els.panels.forEach(p => {
+      els.panels.forEach((p) => {
         p.classList.toggle('is-active', p.dataset.panel === tab);
       });
     });
@@ -104,11 +104,15 @@ function bindEvents() {
   });
 
   els.exportModal?.addEventListener('click', (e) => {
-    if (e.target === els.exportModal) els.exportModal.classList.remove('show');
+    if (e.target === els.exportModal) {
+      els.exportModal.classList.remove('show');
+    }
   });
 
   els.shareModal?.addEventListener('click', (e) => {
-    if (e.target === els.shareModal) els.shareModal.classList.remove('show');
+    if (e.target === els.shareModal) {
+      els.shareModal.classList.remove('show');
+    }
   });
 
   els.openDrawerBtn?.addEventListener('click', () => {
@@ -120,19 +124,17 @@ function bindEvents() {
   });
 
   els.applyDraftBtn?.addEventListener('click', () => {
-    if (els.draftEditor && store) {
-      store.setState(d => {
-        d.workspace.answer = els.draftEditor.value.trim();
-      });
-    }
+    if (!store || !els.draftEditor) return;
+    store.setState((d) => {
+      d.workspace.answer = els.draftEditor.value.trim();
+    });
   });
 
   els.generateDeliverableBtn?.addEventListener('click', () => {
-    if (els.deliverableEditor && store) {
-      store.setState(d => {
-        d.workspace.answer = els.deliverableEditor.value.trim();
-      });
-    }
+    if (!store || !els.deliverableEditor) return;
+    store.setState((d) => {
+      d.workspace.answer = els.deliverableEditor.value.trim();
+    });
   });
 
   els.buildExportBtn?.addEventListener('click', () => {
@@ -141,19 +143,28 @@ function bindEvents() {
 
     if (els.exportIncludeSources?.checked && state.workspace.citations?.length) {
       output += '\n\nSources:\n';
-      state.workspace.citations.forEach(c => {
+      state.workspace.citations.forEach((c) => {
         output += `- ${c.title}: ${c.snippet}\n`;
       });
     }
 
     if (els.exportIncludeHistory?.checked) {
-      output += '\n\nHistory included.';
+      const threads = loadThreads();
+      if (threads.length) {
+        output += '\n\nHistory:\n';
+        threads.forEach((t, index) => {
+          output += `${index + 1}. ${t.title}\n`;
+        });
+      }
     }
 
-    if (els.exportPreview) els.exportPreview.textContent = output;
+    if (els.exportPreview) {
+      els.exportPreview.textContent = output;
+    }
 
     const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
+
     if (els.downloadExportLink) {
       els.downloadExportLink.href = url;
       els.downloadExportLink.download = 'zhuxin-export.txt';
@@ -171,7 +182,9 @@ function bindEvents() {
       state.workspace.answer || ''
     ].join('\n');
 
-    if (els.shareOutput) els.shareOutput.textContent = packet;
+    if (els.shareOutput) {
+      els.shareOutput.textContent = packet;
+    }
   });
 
   els.copyBtn?.addEventListener('click', async () => {
@@ -179,9 +192,9 @@ function bindEvents() {
     if (!text) return;
     try {
       await navigator.clipboard.writeText(text);
-      els.statusBar.textContent = 'Copied.';
+      if (els.statusBar) els.statusBar.textContent = 'Copied.';
     } catch {
-      els.statusBar.textContent = 'Copy failed.';
+      if (els.statusBar) els.statusBar.textContent = 'Copy failed.';
     }
   });
 
@@ -196,11 +209,19 @@ function bindEvents() {
   });
 
   els.saveDocBtn?.addEventListener('click', () => {
-    els.statusBar.textContent = 'Save action ready.';
+    if (els.statusBar) els.statusBar.textContent = 'Save action ready.';
   });
 
   els.newThreadBtn?.addEventListener('click', () => {
-    els.statusBar.textContent = 'New thread action ready.';
+    const threads = loadThreads();
+    threads.unshift({
+      title: 'New thread',
+      answer: '',
+      time: Date.now()
+    });
+    saveThreads(threads);
+    render(store.getState());
+    if (els.statusBar) els.statusBar.textContent = 'New thread created.';
   });
 }
 
@@ -221,17 +242,20 @@ function render(state) {
     } else {
       const div = document.createElement('div');
       div.className = 'zhx-msg';
-      div.innerHTML = '<strong>assistant</strong><div>' + state.workspace.answer.replace(/\n/g, '<br>') + '</div>';
+      div.innerHTML =
+        '<strong>assistant</strong><div>' +
+        String(state.workspace.answer).replace(/\n/g, '<br>') +
+        '</div>';
       els.messages.appendChild(div);
     }
   }
 
-  if (els.draftEditor && state.workspace.answer) {
-    els.draftEditor.value = state.workspace.answer;
+  if (els.draftEditor) {
+    els.draftEditor.value = state.workspace.answer || '';
   }
 
-  if (els.deliverableEditor && state.workspace.answer) {
-    els.deliverableEditor.value = state.workspace.answer;
+  if (els.deliverableEditor) {
+    els.deliverableEditor.value = state.workspace.answer || '';
   }
 
   if (els.citationList) {
@@ -240,10 +264,10 @@ function render(state) {
     if (!state.workspace.citations?.length) {
       els.citationList.innerHTML = '<div class="zhx-empty">No citations yet.</div>';
     } else {
-      state.workspace.citations.forEach(c => {
+      state.workspace.citations.forEach((c) => {
         const div = document.createElement('div');
         div.className = 'zhx-msg';
-        div.innerHTML = '<strong>' + c.title + '</strong><div>' + c.snippet + '</div>';
+        div.innerHTML = `<strong>${escapeHtml(c.title)}</strong><div>${escapeHtml(c.snippet)}</div>`;
         els.citationList.appendChild(div);
       });
     }
@@ -251,30 +275,54 @@ function render(state) {
 
   if (els.sourceList) {
     els.sourceList.innerHTML = '';
+
     if (!state.files?.length) {
       els.sourceList.innerHTML = '<div class="zhx-empty">No sources yet.</div>';
     } else {
-      state.files.forEach(f => {
+      state.files.forEach((f) => {
         const div = document.createElement('div');
         div.className = 'zhx-msg';
-        div.innerHTML = '<strong>' + (f.name || 'File') + '</strong><div>' + (f.note || f.recordType || 'Source') + '</div>';
+        div.innerHTML = `<strong>${escapeHtml(f.name || 'File')}</strong><div>${escapeHtml(f.note || f.recordType || 'Source')}</div>`;
         els.sourceList.appendChild(div);
       });
     }
   }
 
-  if (els.threadList) {
-    els.threadList.innerHTML = '<div class="zhx-empty">Threads coming from your app-data layer.</div>';
+  renderThreads();
+}
+
+function renderThreads() {
+  if (!els.threadList) return;
+
+  const threads = loadThreads();
+  els.threadList.innerHTML = '';
+
+  if (!threads.length) {
+    els.threadList.innerHTML = '<div class="zhx-empty">No threads yet.</div>';
+    return;
   }
+
+  threads.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'zhx-msg';
+    div.textContent = t.title || `Thread ${i + 1}`;
+    div.onclick = () => {
+      store.setState((d) => {
+        d.workspace.answer = t.answer || '';
+      });
+      if (els.statusBar) els.statusBar.textContent = 'Thread loaded.';
+    };
+    els.threadList.appendChild(div);
+  });
 }
 
 async function handleSend() {
   const state = store.getState();
-  const prompt = els.promptBox.value.trim();
+  const prompt = els.promptBox?.value.trim();
   if (!prompt) return;
 
   els.sendBtn.disabled = true;
-  els.statusBar.textContent = 'Generating…';
+  if (els.statusBar) els.statusBar.textContent = 'Generating…';
 
   try {
     const result = await runAssistantWorkflow({
@@ -284,17 +332,48 @@ async function handleSend() {
       settings: state.settings
     });
 
-    store.setState(d => {
+    store.setState((d) => {
       d.workspace.answer = result.answer;
       d.workspace.citations = result.citations;
     });
 
-    els.statusBar.textContent = 'Done.';
-  } catch (e) {
-    els.statusBar.textContent = 'Error generating response';
+    const threads = loadThreads();
+    threads.unshift({
+      title: prompt.slice(0, 40),
+      answer: result.answer,
+      time: Date.now()
+    });
+    saveThreads(threads);
+
+    render(store.getState());
+
+    if (els.statusBar) els.statusBar.textContent = 'Done.';
+  } catch {
+    if (els.statusBar) els.statusBar.textContent = 'Error generating response';
   }
 
   els.sendBtn.disabled = false;
+}
+
+function loadThreads() {
+  try {
+    return JSON.parse(localStorage.getItem('zhx_threads') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveThreads(threads) {
+  localStorage.setItem('zhx_threads', JSON.stringify(threads));
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 init();
