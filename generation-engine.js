@@ -289,3 +289,102 @@ export async function generateNoticeContent({ input, matter, files, settings }) 
   ].join('\n');
   return { title, content };
 }
+
+export function getCurrentAssistantThreadId() {
+  if (typeof window.getCurrentAssistantThreadId === 'function') {
+    try {
+      return window.getCurrentAssistantThreadId();
+    } catch {
+      return 'assistant-default-thread';
+    }
+  }
+  return 'assistant-default-thread';
+}
+
+function getSettingsFromWindow() {
+  return window.__zhuxinSettings || window.zhuxinSettings || { preferences: {} };
+}
+
+function getCurrentMatterFromWindow() {
+  if (window.__zhuxinCurrentMatter) return window.__zhuxinCurrentMatter;
+  if (window.zhuxinCurrentMatter) return window.zhuxinCurrentMatter;
+  return null;
+}
+
+function getCurrentFilesFromWindow() {
+  if (Array.isArray(window.__zhuxinCurrentFiles)) return window.__zhuxinCurrentFiles;
+  if (Array.isArray(window.zhuxinCurrentFiles)) return window.zhuxinCurrentFiles;
+  return [];
+}
+
+export function prepareAssistantRequest(rawPrompt) {
+  var currentThreadId =
+    typeof window.getCurrentAssistantThreadId === "function"
+      ? window.getCurrentAssistantThreadId()
+      : "assistant-default-thread";
+
+  var contextPacket = null;
+
+  if (window.ZhuxinAssistantContext && typeof window.ZhuxinAssistantContext.beforeSend === "function") {
+    contextPacket = window.ZhuxinAssistantContext.beforeSend(rawPrompt, {
+      getCurrentThreadId: function () {
+        return currentThreadId;
+      }
+    });
+  }
+
+  if (contextPacket && contextPacket.blocked) {
+    return {
+      ok: false,
+      error: (contextPacket.errors && contextPacket.errors[0]) || "Context validation failed."
+    };
+  }
+
+  return {
+    ok: true,
+    rawPrompt: rawPrompt,
+    finalPrompt: contextPacket ? contextPacket.serializedPrompt : rawPrompt,
+    contextPacket: contextPacket
+  };
+}
+
+export async function runAssistantGeneration({ rawPrompt, finalPrompt, contextPacket }) {
+  const matter = getCurrentMatterFromWindow();
+  const files = getCurrentFilesFromWindow();
+  const settings = getSettingsFromWindow();
+
+  return generateAssistantReply({
+    prompt: finalPrompt || rawPrompt,
+    matter,
+    files,
+    settings,
+    contextPacket
+  });
+}
+
+export async function sendAssistantPrompt() {
+  var inputEl = document.getElementById("assistant-prompt-input");
+  if (!inputEl) {
+    inputEl = document.getElementById("assistantPromptInput");
+  }
+  if (!inputEl) return;
+
+  var rawPrompt = (inputEl.value || "").trim();
+  if (!rawPrompt) return;
+
+  var prepared = prepareAssistantRequest(rawPrompt);
+  if (!prepared.ok) {
+    if (typeof window.showToast === "function") {
+      window.showToast(prepared.error);
+    } else {
+      alert(prepared.error);
+    }
+    return;
+  }
+
+  return runAssistantGeneration({
+    rawPrompt: prepared.rawPrompt,
+    finalPrompt: prepared.finalPrompt,
+    contextPacket: prepared.contextPacket
+  });
+}
