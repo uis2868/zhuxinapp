@@ -26,8 +26,9 @@
 
 <div class="zhx-shell">
 
-  <!-- THREAD LIST -->
   <div class="zhx-layout">
+
+    <!-- THREADS -->
     <div class="zhx-side">
       <div class="zhx-panel">
         <div class="zhx-panel-head">
@@ -76,42 +77,86 @@
       <!-- OUTPUT -->
       <div class="zhx-card">
 
-  <div class="zhx-tabs">
-    <button data-tab="answer" class="zhx-tab is-active">Answer</button>
-    <button data-tab="draft" class="zhx-tab">Draft</button>
-    <button data-tab="deliverable" class="zhx-tab">Deliverable</button>
-  </div>
+        <div class="zhx-tabs">
+          <button data-tab="answer" class="zhx-tab is-active">Answer</button>
+          <button data-tab="draft" class="zhx-tab">Draft</button>
+          <button data-tab="deliverable" class="zhx-tab">Deliverable</button>
+        </div>
 
-  <div data-panel="answer" class="zhx-tab-panel is-active">
-    <div id="messages"></div>
-  </div>
+        <div data-panel="answer" class="zhx-tab-panel is-active">
+          <div id="messages"></div>
+        </div>
 
-  <div data-panel="draft" class="zhx-tab-panel">
-    <textarea id="draftEditor" class="zhx-textarea"></textarea>
-    <button id="applyDraftBtn" class="zhx-soft">Refine Draft</button>
-  </div>
+        <div data-panel="draft" class="zhx-tab-panel">
+          <textarea id="draftEditor" class="zhx-textarea"></textarea>
+          <button id="applyDraftBtn" class="zhx-soft">Refine Draft</button>
+        </div>
 
-  <div data-panel="deliverable" class="zhx-tab-panel">
-    <input id="deliverableTitle" placeholder="Title" class="zhx-textarea" style="height:40px">
-    <textarea id="deliverableEditor" class="zhx-textarea"></textarea>
-    <button id="generateDeliverableBtn" class="zhx-soft">Generate</button>
-  </div>
+        <div data-panel="deliverable" class="zhx-tab-panel">
+          <input id="deliverableTitle" placeholder="Title" class="zhx-textarea" style="height:40px">
+          <textarea id="deliverableEditor" class="zhx-textarea"></textarea>
+          <button id="generateDeliverableBtn" class="zhx-soft">Generate</button>
+        </div>
 
-</div>>
+      </div>
+
+      <!-- CITATIONS -->
+      <div class="zhx-card">
+        <h4>Citations</h4>
+        <div id="citationList"></div>
+      </div>
 
       <!-- ACTIONS -->
       <div class="zhx-toolbar">
         <button id="copyBtn" class="zhx-soft">Copy</button>
         <button id="downloadBtn" class="zhx-soft">Download</button>
         <button id="saveDocBtn" class="zhx-soft">Save</button>
+        <button id="exportBtn" class="zhx-soft">Export</button>
+        <button id="shareBtn" class="zhx-soft">Share</button>
       </div>
 
       <!-- STATUS -->
       <div id="statusBar" class="zhx-statusbar"></div>
 
     </div>
+
   </div>
 
+</div>
+
+<!-- EXPORT MODAL -->
+<div id="exportModal" class="zhx-modal-backdrop">
+  <div class="zhx-modal">
+    <h3>Export</h3>
+
+    <label><input type="checkbox" id="exportIncludeHistory"> Include history</label><br>
+    <label><input type="checkbox" id="exportIncludeSources"> Include sources</label><br><br>
+
+    <button id="buildExportBtn">Build</button>
+    <a id="downloadExportLink">Download</a>
+
+    <pre id="exportPreview"></pre>
+
+    <button id="closeExportModalBtn">Close</button>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div id="shareModal" class="zhx-modal-backdrop">
+  <div class="zhx-modal">
+    <h3>Share</h3>
+
+    <input id="shareAssignee" placeholder="Assignee"><br><br>
+    <input id="shareReviewers" placeholder="Reviewers"><br><br>
+
+    <textarea id="shareNote" placeholder="Note"></textarea><br><br>
+
+    <button id="buildSharePacketBtn">Build Packet</button>
+
+    <pre id="shareOutput"></pre>
+
+    <button id="closeShareModalBtn">Close</button>
+  </div>
 </div>
 
 <script type="module" src="./assistant-page.js"></script>
