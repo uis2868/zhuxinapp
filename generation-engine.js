@@ -75,7 +75,9 @@ function buildAssistantSystemPrompt({ matter, files, settings }) {
 }
 
 function buildAssistantUserPrompt({ prompt, matter, files }) {
-  const facts = files?.length ? files.slice(0, 5).map((f, i) => `${i + 1}. ${f.name}${f.note ? ' — ' + f.note : ''}`).join('\n') : '1. No attached files yet.';
+  const facts = files?.length
+    ? files.slice(0, 5).map((f, i) => `${i + 1}. ${f.name}${f.note ? ' — ' + f.note : ''}`).join('\n')
+    : '1. No attached files yet.';
   return [
     'Current matter:',
     matterSummary(matter),
@@ -137,14 +139,30 @@ async function callConfiguredAi({ messages, settings }) {
     headers,
     body: JSON.stringify(body)
   }, 8000);
-  const content = data?.choices?.[0]?.message?.content || data?.message?.content || data?.response || data?.content || '';
+
+  const content =
+    data?.choices?.[0]?.message?.content ||
+    data?.message?.content ||
+    data?.response ||
+    data?.content ||
+    '';
+
   return String(content || '').trim() || null;
 }
 
 function buildFallbackAssistantReply({ prompt, matter, files, settings }) {
   const style = settings?.preferences?.responseStyle || 'structured';
-  const toneLine = style === 'formal' ? 'Formal advisory draft' : style === 'concise' ? 'Concise working note' : 'Structured working analysis';
-  const facts = files?.length ? files.slice(0, 3).map((f, i) => `${i + 1}. ${f.name}${f.note ? ' — ' + f.note : ''}`).join('\n') : '1. No attached files yet.';
+  const toneLine =
+    style === 'formal'
+      ? 'Formal advisory draft'
+      : style === 'concise'
+        ? 'Concise working note'
+        : 'Structured working analysis';
+
+  const facts = files?.length
+    ? files.slice(0, 3).map((f, i) => `${i + 1}. ${f.name}${f.note ? ' — ' + f.note : ''}`).join('\n')
+    : '1. No attached files yet.';
+
   return [
     toneLine,
     '',
@@ -191,6 +209,7 @@ export async function generateAssistantReply({ prompt, matter, files, settings }
       { role: 'user', content: buildAssistantUserPrompt({ prompt, matter, files }) }
     ]
   });
+
   if (aiResponse) return aiResponse;
 
   return buildFallbackAssistantReply({ prompt, matter, files, settings });
@@ -257,6 +276,7 @@ export async function generateNoticeContent({ input, matter, files, settings }) 
       { role: 'user', content: buildNoticeUserPrompt({ input, matter, files, settings }) }
     ]
   });
+
   if (aiResponse) {
     return { title: 'Notice — ' + (input.subject || 'Draft'), content: aiResponse };
   }
@@ -287,18 +307,8 @@ export async function generateNoticeContent({ input, matter, files, settings }) 
     'Sincerely,',
     input.senderName || 'Zhuxin Legal Team'
   ].join('\n');
-  return { title, content };
-}
 
-export function getCurrentAssistantThreadId() {
-  if (typeof window.getCurrentAssistantThreadId === 'function') {
-    try {
-      return window.getCurrentAssistantThreadId();
-    } catch {
-      return 'assistant-default-thread';
-    }
-  }
-  return 'assistant-default-thread';
+  return { title, content };
 }
 
 function getSettingsFromWindow() {
@@ -353,13 +363,26 @@ export async function runAssistantGeneration({ rawPrompt, finalPrompt, contextPa
   const files = getCurrentFilesFromWindow();
   const settings = getSettingsFromWindow();
 
-  return generateAssistantReply({
+  const result = await generateAssistantReply({
     prompt: finalPrompt || rawPrompt,
     matter,
     files,
     settings,
     contextPacket
   });
+
+  const outputEl = document.getElementById("messages");
+  const statusBar = document.getElementById("statusBar");
+
+  if (outputEl) {
+    outputEl.textContent = result || "No response.";
+  }
+
+  if (statusBar) {
+    statusBar.textContent = "Done.";
+  }
+
+  return result;
 }
 
 export async function sendAssistantPrompt() {
@@ -372,6 +395,11 @@ export async function sendAssistantPrompt() {
   var rawPrompt = (inputEl.value || "").trim();
   if (!rawPrompt) return;
 
+  const statusBar = document.getElementById("statusBar");
+  if (statusBar) {
+    statusBar.textContent = "Generating...";
+  }
+
   var prepared = prepareAssistantRequest(rawPrompt);
   if (!prepared.ok) {
     if (typeof window.showToast === "function") {
@@ -382,9 +410,13 @@ export async function sendAssistantPrompt() {
     return;
   }
 
-  return runAssistantGeneration({
+  return window.runAssistantGeneration({
     rawPrompt: prepared.rawPrompt,
     finalPrompt: prepared.finalPrompt,
     contextPacket: prepared.contextPacket
   });
 }
+
+window.runAssistantGeneration = runAssistantGeneration;
+window.sendAssistantPrompt = sendAssistantPrompt;
+window.prepareAssistantRequest = prepareAssistantRequest;
