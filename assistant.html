@@ -1,12 +1,18 @@
 <script>
 window.onload = function () {
 
-  alert("JS LOADED"); // DEBUG
+  alert("JS LOADED");
 
   const sendBtn = document.getElementById("sendBtn");
   const promptBox = document.getElementById("promptBox");
   const messages = document.getElementById("messages");
   const threadList = document.getElementById("threadList");
+
+  // 🚨 SAFETY CHECK (CRITICAL)
+  if (!sendBtn || !promptBox || !messages || !threadList) {
+    alert("ELEMENT MISSING → CHECK HTML IDS");
+    return;
+  }
 
   let currentAnswer = "";
 
@@ -44,7 +50,7 @@ window.onload = function () {
   }
 
   sendBtn.onclick = function () {
-    alert("CLICK WORKED"); // DEBUG
+    alert("CLICK WORKED");
 
     const prompt = promptBox.value.trim();
     if (!prompt) return;
