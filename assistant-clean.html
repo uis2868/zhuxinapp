@@ -42,6 +42,10 @@
     .drawer { position:fixed; top:0; right:-360px; width:min(340px,90vw); height:100vh; background:white; box-shadow:-8px 0 24px rgba(0,0,0,0.15); transition:right 0.25s ease; padding:16px; overflow-y:auto; z-index:1001; }
     .drawer.open { right:0; }
     .drawer-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .provider-grid { display:grid; grid-template-columns: 1fr auto auto; gap:8px; align-items:center; }
+    .provider-pill { padding:4px 8px; border-radius:999px; font-size:12px; background:#e5e7eb; }
+    .provider-pill.up { background:#dcfce7; color:#166534; }
+    .provider-pill.down { background:#fee2e2; color:#991b1b; }
     @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -55,8 +59,8 @@
       </div>
     </div>
     <div class="chips">
-      <div class="chip">Real AI ready</div>
-      <div class="chip">Secure backend only</div>
+      <div class="chip">Multi AI</div>
+      <div class="chip">Fallback ready</div>
     </div>
   </div>
 
@@ -70,6 +74,14 @@
           </div>
           <div id="threadList" class="thread-list"></div>
         </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h4>Provider status</h4>
+            <button id="refreshProvidersBtn" class="btn-soft" type="button">Refresh</button>
+          </div>
+          <div id="providerStatus" class="muted">Loading…</div>
+        </div>
       </aside>
 
       <main>
@@ -77,6 +89,15 @@
           <textarea id="promptBox" placeholder="Ask anything..."></textarea>
 
           <div class="controls">
+            <select id="providerSelect">
+              <option value="auto">Auto</option>
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Gemini</option>
+              <option value="groq">Groq</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="openrouter">OpenRouter</option>
+            </select>
+
             <select id="modeSelect">
               <option value="answer">Answer</option>
               <option value="draft">Draft</option>
@@ -183,7 +204,7 @@
 
   <script>
     (function () {
-      const AI_ENDPOINT = "https://zhuxin-ai-backend.onrender.com/api/ai";
+      const API_BASE = "https://zhuxin-ai-backend.onrender.com";
 
       const $ = (id) => document.getElementById(id);
 
@@ -195,7 +216,9 @@
       const draftEditor = $('draftEditor');
       const deliverableEditor = $('deliverableEditor');
       const citationList = $('citationList');
+      const providerStatus = $('providerStatus');
 
+      const providerSelect = $('providerSelect');
       const modeSelect = $('modeSelect');
       const styleSelect = $('styleSelect');
       const densitySelect = $('densitySelect');
@@ -203,6 +226,7 @@
       const exportBtn = $('exportBtn');
       const shareBtn = $('shareBtn');
       const sourcesBtn = $('sourcesBtn');
+      const refreshProvidersBtn = $('refreshProvidersBtn');
 
       const exportModal = $('exportModal');
       const shareModal = $('shareModal');
@@ -289,6 +313,35 @@
         sourcesList.textContent = 'No sources yet.';
       }
 
+      async function refreshProviderStatus() {
+        providerStatus.textContent = 'Loading…';
+        try {
+          const res = await fetch(API_BASE + '/health');
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.error || 'Health request failed');
+          }
+
+          const providers = data.providers || {};
+          const rows = Object.entries(providers).map(([name, info]) => {
+            const pill = info.available ? 'up' : 'down';
+            const text = info.available ? 'available' : (info.reason || 'unavailable');
+            return `
+              <div class="provider-grid" style="margin-bottom:8px;">
+                <div>${escapeHtml(name)}</div>
+                <div class="provider-pill ${pill}">${escapeHtml(text)}</div>
+                <div style="font-size:12px;color:#6b7280;">${info.retryAt ? new Date(info.retryAt).toLocaleTimeString() : ''}</div>
+              </div>
+            `;
+          }).join('');
+
+          providerStatus.innerHTML = rows || '<span class="muted">No provider data.</span>';
+        } catch (err) {
+          providerStatus.textContent = 'Provider status failed to load.';
+        }
+      }
+
       async function handleSend() {
         const prompt = promptBox.value.trim();
 
@@ -301,11 +354,12 @@
         statusBar.textContent = 'Generating…';
 
         try {
-          const res = await fetch(AI_ENDPOINT, {
+          const res = await fetch(API_BASE + '/api/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               prompt,
+              provider: providerSelect.value,
               mode: modeSelect.value,
               style: styleSelect.value,
               density: densitySelect.value
@@ -322,7 +376,7 @@
 
           const threads = loadThreads();
           threads.unshift({
-            title: prompt.slice(0, 40),
+            title: '[' + (data.provider || providerSelect.value) + '] ' + prompt.slice(0, 32),
             answer: currentAnswer,
             time: Date.now()
           });
@@ -330,9 +384,12 @@
 
           renderThreads();
           renderAnswer();
-          statusBar.textContent = 'Done.';
+          await refreshProviderStatus();
+
+          statusBar.textContent = 'Done via ' + (data.provider || providerSelect.value) + '.';
         } catch (err) {
           statusBar.textContent = 'Error: ' + (err.message || 'Request failed');
+          await refreshProviderStatus();
         } finally {
           sendBtn.disabled = false;
         }
@@ -416,6 +473,8 @@
       sourcesBtn.onclick = function () { sourcesDrawer.classList.add('open'); };
       closeSourcesBtn.onclick = function () { sourcesDrawer.classList.remove('open'); };
 
+      refreshProvidersBtn.onclick = refreshProviderStatus;
+
       tabs.forEach((tab) => {
         tab.onclick = function () {
           const target = tab.getAttribute('data-tab');
@@ -428,6 +487,7 @@
 
       renderThreads();
       renderAnswer();
+      refreshProviderStatus();
       statusBar.textContent = 'Ready.';
     })();
   </script>
