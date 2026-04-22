@@ -42,10 +42,7 @@
     .drawer { position:fixed; top:0; right:-360px; width:min(340px,90vw); height:100vh; background:white; box-shadow:-8px 0 24px rgba(0,0,0,0.15); transition:right 0.25s ease; padding:16px; overflow-y:auto; z-index:1001; }
     .drawer.open { right:0; }
     .drawer-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-    .provider-grid { display:grid; grid-template-columns: 1fr auto auto; gap:8px; align-items:center; }
-    .provider-pill { padding:4px 8px; border-radius:999px; font-size:12px; background:#e5e7eb; }
-    .provider-pill.up { background:#dcfce7; color:#166534; }
-    .provider-pill.down { background:#fee2e2; color:#991b1b; }
+    .provider-grid { display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center; }
     @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -60,7 +57,7 @@
     </div>
     <div class="chips">
       <div class="chip">Multi AI</div>
-      <div class="chip">Fallback ready</div>
+      <div class="chip">Draft confirm</div>
     </div>
   </div>
 
@@ -128,6 +125,7 @@
 
           <div class="panel active" data-panel="answer">
             <div id="messages" class="output"><span class="muted">No output yet.</span></div>
+            <div id="actionBox" style="margin-top:12px;"></div>
           </div>
 
           <div class="panel" data-panel="draft">
@@ -203,293 +201,352 @@
   </div>
 
   <script>
-    (function () {
-      const API_BASE = "https://zhuxin-ai-backend.onrender.com";
+  (function () {
+    const API_BASE = "https://zhuxin-ai-backend.onrender.com";
 
-      const $ = (id) => document.getElementById(id);
+    const $ = (id) => document.getElementById(id);
 
-      const promptBox = $('promptBox');
-      const sendBtn = $('sendBtn');
-      const messages = $('messages');
-      const threadList = $('threadList');
-      const statusBar = $('statusBar');
-      const draftEditor = $('draftEditor');
-      const deliverableEditor = $('deliverableEditor');
-      const citationList = $('citationList');
-      const providerStatus = $('providerStatus');
+    const promptBox = $('promptBox');
+    const sendBtn = $('sendBtn');
+    const messages = $('messages');
+    const actionBox = $('actionBox');
+    const threadList = $('threadList');
+    const statusBar = $('statusBar');
+    const draftEditor = $('draftEditor');
+    const deliverableEditor = $('deliverableEditor');
+    const citationList = $('citationList');
+    const providerStatus = $('providerStatus');
 
-      const providerSelect = $('providerSelect');
-      const modeSelect = $('modeSelect');
-      const styleSelect = $('styleSelect');
-      const densitySelect = $('densitySelect');
+    const providerSelect = $('providerSelect');
+    const modeSelect = $('modeSelect');
+    const styleSelect = $('styleSelect');
+    const densitySelect = $('densitySelect');
 
-      const exportBtn = $('exportBtn');
-      const shareBtn = $('shareBtn');
-      const sourcesBtn = $('sourcesBtn');
-      const refreshProvidersBtn = $('refreshProvidersBtn');
+    const exportBtn = $('exportBtn');
+    const shareBtn = $('shareBtn');
+    const sourcesBtn = $('sourcesBtn');
+    const refreshProvidersBtn = $('refreshProvidersBtn');
 
-      const exportModal = $('exportModal');
-      const shareModal = $('shareModal');
-      const closeExportBtn = $('closeExportBtn');
-      const closeShareBtn = $('closeShareBtn');
+    const exportModal = $('exportModal');
+    const shareModal = $('shareModal');
+    const closeExportBtn = $('closeExportBtn');
+    const closeShareBtn = $('closeShareBtn');
 
-      const buildExportBtn = $('buildExportBtn');
-      const downloadExportLink = $('downloadExportLink');
-      const exportPreview = $('exportPreview');
-      const exportIncludeHistory = $('exportIncludeHistory');
-      const exportIncludeSources = $('exportIncludeSources');
+    const buildExportBtn = $('buildExportBtn');
+    const downloadExportLink = $('downloadExportLink');
+    const exportPreview = $('exportPreview');
+    const exportIncludeHistory = $('exportIncludeHistory');
+    const exportIncludeSources = $('exportIncludeSources');
 
-      const shareAssignee = $('shareAssignee');
-      const shareReviewers = $('shareReviewers');
-      const shareNote = $('shareNote');
-      const buildShareBtn = $('buildShareBtn');
-      const shareOutput = $('shareOutput');
+    const shareAssignee = $('shareAssignee');
+    const shareReviewers = $('shareReviewers');
+    const shareNote = $('shareNote');
+    const buildShareBtn = $('buildShareBtn');
+    const shareOutput = $('shareOutput');
 
-      const sourcesDrawer = $('sourcesDrawer');
-      const closeSourcesBtn = $('closeSourcesBtn');
-      const sourcesList = $('sourcesList');
+    const sourcesDrawer = $('sourcesDrawer');
+    const closeSourcesBtn = $('closeSourcesBtn');
+    const sourcesList = $('sourcesList');
 
-      const copyBtn = $('copyBtn');
-      const downloadBtn = $('downloadBtn');
-      const newThreadBtn = $('newThreadBtn');
-      const improveBtn = $('improveBtn');
+    const copyBtn = $('copyBtn');
+    const downloadBtn = $('downloadBtn');
+    const newThreadBtn = $('newThreadBtn');
+    const improveBtn = $('improveBtn');
 
-      const tabs = document.querySelectorAll('.tab');
-      const panels = document.querySelectorAll('.panel');
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
 
-      let currentAnswer = '';
+    let currentAnswer = '';
+    let pendingAction = null;
 
-      function loadThreads() {
-        try { return JSON.parse(localStorage.getItem('zhx_clean_threads') || '[]'); }
-        catch { return []; }
+    function loadThreads() {
+      try { return JSON.parse(localStorage.getItem('zhx_clean_threads') || '[]'); }
+      catch { return []; }
+    }
+
+    function saveThreads(threads) {
+      localStorage.setItem('zhx_clean_threads', JSON.stringify(threads));
+    }
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#39;");
+    }
+
+    function renderThreads() {
+      const threads = loadThreads();
+      threadList.innerHTML = '';
+
+      if (!threads.length) {
+        threadList.innerHTML = '<div class="muted">No threads yet.</div>';
+        return;
       }
 
-      function saveThreads(threads) {
-        localStorage.setItem('zhx_clean_threads', JSON.stringify(threads));
+      threads.forEach((thread) => {
+        const item = document.createElement('div');
+        item.className = 'thread-item';
+        item.textContent = thread.title;
+        item.onclick = function () {
+          currentAnswer = thread.answer;
+          renderAnswer();
+          clearActionBox();
+          statusBar.textContent = 'Thread loaded.';
+        };
+        threadList.appendChild(item);
+      });
+    }
+
+    function renderAnswer() {
+      if (!currentAnswer) {
+        messages.innerHTML = '<span class="muted">No output yet.</span>';
+      } else {
+        messages.innerHTML =
+          '<strong>assistant</strong><div style="margin-top:8px;white-space:pre-wrap;">' +
+          escapeHtml(currentAnswer) +
+          '</div>';
       }
 
-      function escapeHtml(text) {
-        return String(text || '')
-          .replaceAll('&','&amp;')
-          .replaceAll('<','&lt;')
-          .replaceAll('>','&gt;');
+      draftEditor.value = currentAnswer;
+      deliverableEditor.value = currentAnswer;
+      citationList.textContent = 'No citations yet.';
+      sourcesList.textContent = 'No sources yet.';
+    }
+
+    function clearActionBox() {
+      actionBox.innerHTML = '';
+      pendingAction = null;
+    }
+
+    function renderActionResponse(data) {
+      pendingAction = data;
+
+      let html = `
+        <div class="card" style="padding:12px; margin-top:12px;">
+          <div style="white-space:pre-wrap; margin-bottom:12px;">${escapeHtml(data.message || '')}</div>
+      `;
+
+      (data.options || []).forEach((opt) => {
+        html += `<button class="btn-soft" type="button" onclick="window.__zhxHandleAction('${escapeHtml(opt.id)}')" style="margin-right:8px; margin-bottom:8px;">${escapeHtml(opt.label)}</button>`;
+      });
+
+      html += `</div>`;
+      actionBox.innerHTML = html;
+    }
+
+    async function refreshProviderStatus() {
+      providerStatus.textContent = 'Loading…';
+      try {
+        const res = await fetch(API_BASE + '/health');
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Health request failed');
+
+        const providers = data.providers || {};
+        const rows = Object.entries(providers).map(([name, info]) => {
+          const color = info.available ? '#166534' : '#991b1b';
+          const bg = info.available ? '#dcfce7' : '#fee2e2';
+          const text = info.available ? 'available' : (info.reason || 'unavailable');
+          return `
+            <div class="provider-grid" style="margin-bottom:8px;">
+              <div>${escapeHtml(name)}</div>
+              <div style="padding:4px 8px;border-radius:999px;font-size:12px;background:${bg};color:${color};">${escapeHtml(text)}</div>
+              <div style="font-size:12px;color:#6b7280;">${info.retryAt ? new Date(info.retryAt).toLocaleTimeString() : ''}</div>
+            </div>
+          `;
+        }).join('');
+
+        providerStatus.innerHTML = rows || '<span class="muted">No provider data.</span>';
+      } catch {
+        providerStatus.textContent = 'Provider status failed to load.';
+      }
+    }
+
+    async function sendRequest(extra = {}) {
+      const prompt = (extra.originalPrompt || promptBox.value || '').trim();
+
+      if (!prompt) {
+        statusBar.textContent = 'Type something first.';
+        return;
       }
 
-      function renderThreads() {
-        const threads = loadThreads();
-        threadList.innerHTML = '';
+      sendBtn.disabled = true;
+      statusBar.textContent = 'Generating…';
 
-        if (!threads.length) {
-          threadList.innerHTML = '<div class="muted">No threads yet.</div>';
+      try {
+        const res = await fetch(API_BASE + '/api/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt,
+            provider: providerSelect.value,
+            mode: modeSelect.value,
+            style: styleSelect.value,
+            density: densitySelect.value,
+            draftTypeChoice: extra.draftTypeChoice || '',
+            draftPreference: extra.draftPreference || ''
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || ('Backend request failed: ' + res.status));
+        }
+
+        if (data.actionRequired) {
+          currentAnswer = '';
+          renderAnswer();
+          renderActionResponse(data);
+          statusBar.textContent = 'Clarification needed.';
           return;
         }
 
-        threads.forEach((thread) => {
-          const item = document.createElement('div');
-          item.className = 'thread-item';
-          item.textContent = thread.title;
-          item.onclick = function () {
-            currentAnswer = thread.answer;
-            renderAnswer();
-            statusBar.textContent = 'Thread loaded.';
-          };
-          threadList.appendChild(item);
+        clearActionBox();
+
+        currentAnswer = data.output || data.answer || 'No output returned.';
+
+        const threads = loadThreads();
+        threads.unshift({
+          title: '[' + (data.provider || providerSelect.value) + '] ' + prompt.slice(0, 40),
+          answer: currentAnswer,
+          time: Date.now()
+        });
+        saveThreads(threads);
+
+        renderThreads();
+        renderAnswer();
+        await refreshProviderStatus();
+
+        statusBar.textContent = data.statusMessage || ('Done via ' + (data.provider || providerSelect.value) + '.');
+      } catch (err) {
+        statusBar.textContent = 'Error: ' + (err.message || 'Request failed');
+        await refreshProviderStatus();
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    window.__zhxHandleAction = async function (choiceId) {
+      if (!pendingAction) return;
+
+      if (pendingAction.actionType === 'choose_draft_type') {
+        await sendRequest({
+          originalPrompt: pendingAction.originalPrompt,
+          draftTypeChoice: choiceId
+        });
+        return;
+      }
+
+      if (pendingAction.actionType === 'confirm_draft_preference') {
+        await sendRequest({
+          originalPrompt: pendingAction.originalPrompt,
+          draftTypeChoice: pendingAction.draftTypeChoice || '',
+          draftPreference: choiceId
+        });
+      }
+    };
+
+    sendBtn.onclick = function () {
+      clearActionBox();
+      sendRequest();
+    };
+
+    improveBtn.onclick = function () {
+      const text = promptBox.value.trim();
+      if (!text) return;
+      promptBox.value = 'Please improve this request and respond clearly:\n\n' + text;
+      statusBar.textContent = 'Prompt improved.';
+    };
+
+    newThreadBtn.onclick = function () {
+      promptBox.value = '';
+      currentAnswer = '';
+      renderAnswer();
+      clearActionBox();
+      statusBar.textContent = 'New thread ready.';
+    };
+
+    copyBtn.onclick = async function () {
+      if (!currentAnswer) return;
+      try {
+        await navigator.clipboard.writeText(currentAnswer);
+        statusBar.textContent = 'Copied.';
+      } catch {
+        statusBar.textContent = 'Copy failed.';
+      }
+    };
+
+    downloadBtn.onclick = function () {
+      if (!currentAnswer) return;
+      const blob = new Blob([currentAnswer], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'zhuxin-output.txt';
+      a.click();
+    };
+
+    exportBtn.onclick = function () { exportModal.classList.add('show'); };
+    closeExportBtn.onclick = function () { exportModal.classList.remove('show'); };
+    exportModal.onclick = function (e) { if (e.target === exportModal) exportModal.classList.remove('show'); };
+
+    buildExportBtn.onclick = function () {
+      let output = currentAnswer || '';
+
+      if (exportIncludeSources.checked) output += '\n\nSources:\n- None yet';
+
+      if (exportIncludeHistory.checked) {
+        const threads = loadThreads();
+        output += '\n\nHistory:\n';
+        threads.forEach((t, i) => {
+          output += (i + 1) + '. ' + t.title + '\n';
         });
       }
 
-      function renderAnswer() {
-        if (!currentAnswer) {
-          messages.innerHTML = '<span class="muted">No output yet.</span>';
-        } else {
-          messages.innerHTML =
-            '<strong>assistant</strong><div style="margin-top:8px;white-space:pre-wrap;">' +
-            escapeHtml(currentAnswer) +
-            '</div>';
-        }
+      exportPreview.textContent = output || 'Nothing to export.';
+      const blob = new Blob([output], { type: 'text/plain' });
+      downloadExportLink.href = URL.createObjectURL(blob);
+      downloadExportLink.download = 'zhuxin-export.txt';
+    };
 
-        draftEditor.value = currentAnswer;
-        deliverableEditor.value = currentAnswer;
-        citationList.textContent = 'No citations yet.';
-        sourcesList.textContent = 'No sources yet.';
-      }
+    shareBtn.onclick = function () { shareModal.classList.add('show'); };
+    closeShareBtn.onclick = function () { shareModal.classList.remove('show'); };
+    shareModal.onclick = function (e) { if (e.target === shareModal) shareModal.classList.remove('show'); };
 
-      async function refreshProviderStatus() {
-        providerStatus.textContent = 'Loading…';
-        try {
-          const res = await fetch(API_BASE + '/health');
-          const data = await res.json();
+    buildShareBtn.onclick = function () {
+      shareOutput.textContent = [
+        'Assignee: ' + (shareAssignee.value || ''),
+        'Reviewers: ' + (shareReviewers.value || ''),
+        'Note: ' + (shareNote.value || ''),
+        '',
+        'Latest output:',
+        currentAnswer || ''
+      ].join('\n');
+    };
 
-          if (!res.ok) {
-            throw new Error(data.error || 'Health request failed');
-          }
+    sourcesBtn.onclick = function () { sourcesDrawer.classList.add('open'); };
+    closeSourcesBtn.onclick = function () { sourcesDrawer.classList.remove('open'); };
 
-          const providers = data.providers || {};
-          const rows = Object.entries(providers).map(([name, info]) => {
-            const pill = info.available ? 'up' : 'down';
-            const text = info.available ? 'available' : (info.reason || 'unavailable');
-            return `
-              <div class="provider-grid" style="margin-bottom:8px;">
-                <div>${escapeHtml(name)}</div>
-                <div class="provider-pill ${pill}">${escapeHtml(text)}</div>
-                <div style="font-size:12px;color:#6b7280;">${info.retryAt ? new Date(info.retryAt).toLocaleTimeString() : ''}</div>
-              </div>
-            `;
-          }).join('');
+    refreshProvidersBtn.onclick = refreshProviderStatus;
 
-          providerStatus.innerHTML = rows || '<span class="muted">No provider data.</span>';
-        } catch (err) {
-          providerStatus.textContent = 'Provider status failed to load.';
-        }
-      }
-
-      async function handleSend() {
-        const prompt = promptBox.value.trim();
-
-        if (!prompt) {
-          statusBar.textContent = 'Type something first.';
-          return;
-        }
-
-        sendBtn.disabled = true;
-        statusBar.textContent = 'Generating…';
-
-        try {
-          const res = await fetch(API_BASE + '/api/ai', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              prompt,
-              provider: providerSelect.value,
-              mode: modeSelect.value,
-              style: styleSelect.value,
-              density: densitySelect.value
-            })
-          });
-
-          const data = await res.json();
-
-          if (!res.ok) {
-            throw new Error(data.error || ('Backend request failed: ' + res.status));
-          }
-
-          currentAnswer = data.output || data.answer || 'No output returned.';
-
-          const threads = loadThreads();
-          threads.unshift({
-            title: '[' + (data.provider || providerSelect.value) + '] ' + prompt.slice(0, 32),
-            answer: currentAnswer,
-            time: Date.now()
-          });
-          saveThreads(threads);
-
-          renderThreads();
-          renderAnswer();
-          await refreshProviderStatus();
-
-          statusBar.textContent = 'Done via ' + (data.provider || providerSelect.value) + '.';
-        } catch (err) {
-          statusBar.textContent = 'Error: ' + (err.message || 'Request failed');
-          await refreshProviderStatus();
-        } finally {
-          sendBtn.disabled = false;
-        }
-      }
-
-      sendBtn.onclick = handleSend;
-
-      improveBtn.onclick = function () {
-        const text = promptBox.value.trim();
-        if (!text) return;
-        promptBox.value = 'Please improve this request and respond clearly:\n\n' + text;
-        statusBar.textContent = 'Prompt improved.';
+    tabs.forEach((tab) => {
+      tab.onclick = function () {
+        const target = tab.getAttribute('data-tab');
+        tabs.forEach((t) => t.classList.remove('active'));
+        panels.forEach((p) => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelector('[data-panel="' + target + '"]').classList.add('active');
       };
+    });
 
-      newThreadBtn.onclick = function () {
-        promptBox.value = '';
-        currentAnswer = '';
-        renderAnswer();
-        statusBar.textContent = 'New thread ready.';
-      };
-
-      copyBtn.onclick = async function () {
-        if (!currentAnswer) return;
-        try {
-          await navigator.clipboard.writeText(currentAnswer);
-          statusBar.textContent = 'Copied.';
-        } catch {
-          statusBar.textContent = 'Copy failed.';
-        }
-      };
-
-      downloadBtn.onclick = function () {
-        if (!currentAnswer) return;
-        const blob = new Blob([currentAnswer], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'zhuxin-output.txt';
-        a.click();
-      };
-
-      exportBtn.onclick = function () { exportModal.classList.add('show'); };
-      closeExportBtn.onclick = function () { exportModal.classList.remove('show'); };
-      exportModal.onclick = function (e) { if (e.target === exportModal) exportModal.classList.remove('show'); };
-
-      buildExportBtn.onclick = function () {
-        let output = currentAnswer || '';
-
-        if (exportIncludeSources.checked) {
-          output += '\n\nSources:\n- None yet';
-        }
-
-        if (exportIncludeHistory.checked) {
-          const threads = loadThreads();
-          output += '\n\nHistory:\n';
-          threads.forEach((t, i) => {
-            output += (i + 1) + '. ' + t.title + '\n';
-          });
-        }
-
-        exportPreview.textContent = output || 'Nothing to export.';
-        const blob = new Blob([output], { type: 'text/plain' });
-        downloadExportLink.href = URL.createObjectURL(blob);
-        downloadExportLink.download = 'zhuxin-export.txt';
-      };
-
-      shareBtn.onclick = function () { shareModal.classList.add('show'); };
-      closeShareBtn.onclick = function () { shareModal.classList.remove('show'); };
-      shareModal.onclick = function (e) { if (e.target === shareModal) shareModal.classList.remove('show'); };
-
-      buildShareBtn.onclick = function () {
-        shareOutput.textContent = [
-          'Assignee: ' + (shareAssignee.value || ''),
-          'Reviewers: ' + (shareReviewers.value || ''),
-          'Note: ' + (shareNote.value || ''),
-          '',
-          'Latest output:',
-          currentAnswer || ''
-        ].join('\n');
-      };
-
-      sourcesBtn.onclick = function () { sourcesDrawer.classList.add('open'); };
-      closeSourcesBtn.onclick = function () { sourcesDrawer.classList.remove('open'); };
-
-      refreshProvidersBtn.onclick = refreshProviderStatus;
-
-      tabs.forEach((tab) => {
-        tab.onclick = function () {
-          const target = tab.getAttribute('data-tab');
-          tabs.forEach((t) => t.classList.remove('active'));
-          panels.forEach((p) => p.classList.remove('active'));
-          tab.classList.add('active');
-          document.querySelector('[data-panel="' + target + '"]').classList.add('active');
-        };
-      });
-
-      renderThreads();
-      renderAnswer();
-      refreshProviderStatus();
-      statusBar.textContent = 'Ready.';
-    })();
+    renderThreads();
+    renderAnswer();
+    refreshProviderStatus();
+    statusBar.textContent = 'Ready.';
+  })();
   </script>
 </body>
 </html>
