@@ -183,9 +183,7 @@
 
   <script>
     (function () {
-      // Put your deployed backend URL here.
-      // Example: https://your-domain.com/api/ai
-      const AI_ENDPOINT = "https://YOUR-BACKEND-DOMAIN/api/ai";
+      const AI_ENDPOINT = "https://zhuxin-ai-backend.onrender.com/api/ai";
 
       const $ = (id) => document.getElementById(id);
 
@@ -299,11 +297,6 @@
           return;
         }
 
-        if (AI_ENDPOINT.includes('YOUR-BACKEND-DOMAIN')) {
-          statusBar.textContent = 'Set your backend URL in assistant-clean.html first.';
-          return;
-        }
-
         sendBtn.disabled = true;
         statusBar.textContent = 'Generating…';
 
@@ -319,11 +312,12 @@
             })
           });
 
+          const data = await res.json();
+
           if (!res.ok) {
-            throw new Error('Backend request failed: ' + res.status);
+            throw new Error(data.error || ('Backend request failed: ' + res.status));
           }
 
-          const data = await res.json();
           currentAnswer = data.output || data.answer || 'No output returned.';
 
           const threads = loadThreads();
