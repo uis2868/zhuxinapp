@@ -75,8 +75,29 @@
 
       <!-- OUTPUT -->
       <div class="zhx-card">
-        <div id="messages"></div>
-      </div>
+
+  <div class="zhx-tabs">
+    <button data-tab="answer" class="zhx-tab is-active">Answer</button>
+    <button data-tab="draft" class="zhx-tab">Draft</button>
+    <button data-tab="deliverable" class="zhx-tab">Deliverable</button>
+  </div>
+
+  <div data-panel="answer" class="zhx-tab-panel is-active">
+    <div id="messages"></div>
+  </div>
+
+  <div data-panel="draft" class="zhx-tab-panel">
+    <textarea id="draftEditor" class="zhx-textarea"></textarea>
+    <button id="applyDraftBtn" class="zhx-soft">Refine Draft</button>
+  </div>
+
+  <div data-panel="deliverable" class="zhx-tab-panel">
+    <input id="deliverableTitle" placeholder="Title" class="zhx-textarea" style="height:40px">
+    <textarea id="deliverableEditor" class="zhx-textarea"></textarea>
+    <button id="generateDeliverableBtn" class="zhx-soft">Generate</button>
+  </div>
+
+</div>>
 
       <!-- ACTIONS -->
       <div class="zhx-toolbar">
