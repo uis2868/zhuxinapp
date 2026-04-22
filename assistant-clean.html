@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zhuxin Assistant Clean</title>
+  <title>Zhuxin Assistant</title>
   <style>
     * { box-sizing: border-box; }
     body { margin:0; font-family: Arial, sans-serif; background:#f3f4f6; color:#111827; }
@@ -16,35 +16,25 @@
     .layout { display:grid; grid-template-columns:280px 1fr; gap:16px; }
     .card { background:white; border-radius:16px; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); margin-bottom:16px; }
     .section-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-    h3,h4 { margin:0; }
+    h3,h4,label { margin:0; }
     textarea,input,select { width:100%; box-sizing:border-box; border:1px solid #d1d5db; border-radius:10px; padding:10px 12px; font-size:14px; background:white; }
     textarea { min-height:120px; resize:vertical; }
-    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-    .controls select { width:auto; min-width:110px; }
+    .assistant-row, .toolbar, .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     button,a.button-link { border:0; border-radius:10px; padding:10px 14px; font-size:14px; cursor:pointer; text-decoration:none; display:inline-block; }
     .btn-primary { background:#2563eb; color:white; }
     .btn-soft { background:#e5e7eb; color:#111827; }
     .thread-list { display:flex; flex-direction:column; gap:8px; }
-    .thread-item { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; padding:10px; cursor:pointer; word-break:break-word; }
+    .thread-item { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; padding:10px; cursor:pointer; }
     .thread-item:hover { background:#e5e7eb; }
-    .thread-item.active-thread { border-color:#2563eb; background:#eff6ff; }
-    .tabs { display:flex; gap:8px; margin-bottom:12px; }
     .tab { background:#e5e7eb; color:#111827; }
     .tab.active { background:#2563eb; color:white; }
     .panel { display:none; }
     .panel.active { display:block; }
     .output { background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; white-space:pre-wrap; min-height:80px; }
-    .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
-    .muted { color:#6b7280; }
-    .status { margin-top:10px; font-size:14px; color:#4b5563; }
-    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; align-items:center; justify-content:center; padding:16px; z-index:1000; }
-    .modal-backdrop.show { display:flex; }
-    .modal { background:white; width:min(500px,100%); border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
-    .drawer { position:fixed; top:0; right:-360px; width:min(340px,90vw); height:100vh; background:white; box-shadow:-8px 0 24px rgba(0,0,0,0.15); transition:right 0.25s ease; padding:16px; overflow-y:auto; z-index:1001; }
-    .drawer.open { right:0; }
-    .drawer-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-    .provider-grid { display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center; }
-    .action-card { background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
+    .muted { color:#6b7280; font-size:13px; margin-top:6px; }
+    .error { color:#b91c1c; font-size:13px; margin-top:6px; }
+    #assistantOutputModeChips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    #assistantMetaPanel { margin-top:12px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; }
     @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -54,12 +44,12 @@
       <div class="badge">Z</div>
       <div>
         <div>Zhuxin</div>
-        <div style="font-size:12px;opacity:.75;">Assistant Clean</div>
+        <div style="font-size:12px;opacity:.75;">Assistant</div>
       </div>
     </div>
     <div class="chips">
-      <div class="chip">Multi AI</div>
-      <div class="chip">Workflow memory</div>
+      <div class="chip">Composer enabled</div>
+      <div class="chip">Prompt guidance</div>
     </div>
   </div>
 
@@ -71,50 +61,54 @@
             <h3>Threads</h3>
             <button id="newThreadBtn" class="btn-soft" type="button">+</button>
           </div>
-          <div id="threadList" class="thread-list"></div>
-        </div>
-
-        <div class="card">
-          <div class="section-head">
-            <h4>Provider status</h4>
-            <button id="refreshProvidersBtn" class="btn-soft" type="button">Refresh</button>
+          <div id="threadList" class="thread-list">
+            <div class="thread-item">Default thread</div>
           </div>
-          <div id="providerStatus" class="muted">Loading…</div>
         </div>
       </aside>
 
       <main>
         <div class="card">
-          <textarea id="promptBox" placeholder="Ask anything..."></textarea>
+          <div id="assistantComposerRoot">
+            <label for="assistantPromptInput">Ask Assistant</label>
 
-          <div class="controls">
-            <select id="providerSelect">
-              <option value="auto">Auto</option>
-              <option value="openai">OpenAI</option>
-              <option value="gemini">Gemini</option>
-              <option value="groq">Groq</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="openrouter">OpenRouter</option>
-            </select>
+            <textarea
+              id="assistantPromptInput"
+              rows="6"
+              placeholder="Describe the task in plain language. Example: Compare the two versions and give me a memo with key differences."
+            ></textarea>
 
-            <select id="modeSelect">
-              <option value="answer">Answer</option>
-              <option value="draft">Draft</option>
-              <option value="revise">Revise</option>
-            </select>
+            <div class="assistant-row">
+              <button type="button" id="assistantImproveBtn" class="btn-soft">Improve</button>
+              <button type="button" id="assistantRestoreBtn" class="btn-soft" hidden>Restore</button>
+              <button type="button" id="assistantMetaToggleBtn" class="btn-soft">Add guidance</button>
+              <button type="button" id="assistantSendBtn" class="btn-primary">Send</button>
+            </div>
 
-            <select id="styleSelect">
-              <option value="clear">Clear</option>
-              <option value="formal">Formal</option>
-            </select>
+            <div id="assistantPromptStatus" class="muted"></div>
+            <div id="assistantPromptHints" class="muted"></div>
+            <div id="assistantComposerError" class="error" hidden></div>
 
-            <select id="densitySelect">
-              <option value="balanced">Balanced</option>
-              <option value="dense">Dense</option>
-            </select>
+            <div id="assistantOutputModeChips"></div>
 
-            <button id="improveBtn" class="btn-soft" type="button">Improve</button>
-            <button id="sendBtn" class="btn-primary" type="button">Send</button>
+            <div id="assistantMetaPanel" hidden>
+              <div class="assistant-row">
+                <label style="flex:1;">
+                  Audience
+                  <input id="assistantAudienceSelect" placeholder="Audience">
+                </label>
+
+                <label style="flex:1;">
+                  Tone
+                  <input id="assistantToneSelect" placeholder="Tone">
+                </label>
+
+                <label style="flex:1;">
+                  Depth
+                  <input id="assistantDepthSelect" placeholder="Depth">
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -127,7 +121,6 @@
 
           <div class="panel active" data-panel="answer">
             <div id="messages" class="output"><span class="muted">No output yet.</span></div>
-            <div id="actionBox" style="margin-top:12px;"></div>
           </div>
 
           <div class="panel" data-panel="draft">
@@ -154,489 +147,33 @@
           <button id="sourcesBtn" class="btn-soft" type="button">Sources</button>
         </div>
 
-        <div id="statusBar" class="status">Ready.</div>
+        <div id="statusBar" class="muted">Ready.</div>
       </main>
     </div>
   </div>
 
-  <div id="exportModal" class="modal-backdrop">
-    <div class="modal">
-      <h3>Export</h3>
-      <br>
-      <label><input id="exportIncludeHistory" type="checkbox"> Include history</label>
-      <br><br>
-      <label><input id="exportIncludeSources" type="checkbox"> Include sources</label>
-      <br><br>
-      <button id="buildExportBtn" class="btn-soft" type="button">Build</button>
-      <a id="downloadExportLink" class="button-link btn-soft" href="#">Download</a>
-      <pre id="exportPreview" class="output" style="margin-top:12px;"></pre>
-      <div style="margin-top:12px;">
-        <button id="closeExportBtn" class="btn-soft" type="button">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="shareModal" class="modal-backdrop">
-    <div class="modal">
-      <h3>Share</h3>
-      <br>
-      <input id="shareAssignee" placeholder="Assignee">
-      <br><br>
-      <input id="shareReviewers" placeholder="Reviewers">
-      <br><br>
-      <textarea id="shareNote" placeholder="Note"></textarea>
-      <br><br>
-      <button id="buildShareBtn" class="btn-soft" type="button">Build Packet</button>
-      <pre id="shareOutput" class="output" style="margin-top:12px;"></pre>
-      <div style="margin-top:12px;">
-        <button id="closeShareBtn" class="btn-soft" type="button">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="sourcesDrawer" class="drawer">
-    <div class="drawer-head">
-      <h3>Sources</h3>
-      <button id="closeSourcesBtn" class="btn-soft" type="button">Close</button>
-    </div>
-    <div id="sourcesList" class="muted">No sources yet.</div>
-  </div>
-
+  <script src="assistant-composer.js"></script>
   <script>
-  (function () {
-    const API_BASE = "https://zhuxin-ai-backend.onrender.com";
+    window.AI_ENDPOINT = "https://zhuxin-ai-backend.onrender.com/api/ai";
 
-    const $ = (id) => document.getElementById(id);
-
-    const promptBox = $('promptBox');
-    const sendBtn = $('sendBtn');
-    const messages = $('messages');
-    const actionBox = $('actionBox');
-    const threadList = $('threadList');
-    const statusBar = $('statusBar');
-    const draftEditor = $('draftEditor');
-    const deliverableEditor = $('deliverableEditor');
-    const citationList = $('citationList');
-    const providerStatus = $('providerStatus');
-
-    const providerSelect = $('providerSelect');
-    const modeSelect = $('modeSelect');
-    const styleSelect = $('styleSelect');
-    const densitySelect = $('densitySelect');
-
-    const exportBtn = $('exportBtn');
-    const shareBtn = $('shareBtn');
-    const sourcesBtn = $('sourcesBtn');
-    const refreshProvidersBtn = $('refreshProvidersBtn');
-
-    const exportModal = $('exportModal');
-    const shareModal = $('shareModal');
-    const closeExportBtn = $('closeExportBtn');
-    const closeShareBtn = $('closeShareBtn');
-
-    const buildExportBtn = $('buildExportBtn');
-    const downloadExportLink = $('downloadExportLink');
-    const exportPreview = $('exportPreview');
-    const exportIncludeHistory = $('exportIncludeHistory');
-    const exportIncludeSources = $('exportIncludeSources');
-
-    const shareAssignee = $('shareAssignee');
-    const shareReviewers = $('shareReviewers');
-    const shareNote = $('shareNote');
-    const buildShareBtn = $('buildShareBtn');
-    const shareOutput = $('shareOutput');
-
-    const sourcesDrawer = $('sourcesDrawer');
-    const closeSourcesBtn = $('closeSourcesBtn');
-    const sourcesList = $('sourcesList');
-
-    const copyBtn = $('copyBtn');
-    const downloadBtn = $('downloadBtn');
-    const newThreadBtn = $('newThreadBtn');
-    const improveBtn = $('improveBtn');
-
-    const tabs = document.querySelectorAll('.tab');
-    const panels = document.querySelectorAll('.panel');
-
-    let currentAnswer = '';
-    let pendingAction = null;
-    let currentThreadId = null;
-    let currentWorkflow = null;
-
-    function uid() {
-      return 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-    }
-
-    function loadThreads() {
-      try { return JSON.parse(localStorage.getItem('zhx_clean_threads') || '[]'); }
-      catch { return []; }
-    }
-
-    function saveThreads(threads) {
-      localStorage.setItem('zhx_clean_threads', JSON.stringify(threads));
-    }
-
-    function getCurrentThread() {
-      const threads = loadThreads();
-      return threads.find(t => t.id === currentThreadId) || null;
-    }
-
-    function updateCurrentThread(updater) {
-      const threads = loadThreads();
-      const index = threads.findIndex(t => t.id === currentThreadId);
-      if (index === -1) return;
-
-      const updated = updater({ ...threads[index] });
-      threads[index] = updated;
-      saveThreads(threads);
-    }
-
-    function ensureCurrentThread() {
-      if (currentThreadId) return;
-
-      const threads = loadThreads();
-      const newThread = {
-        id: uid(),
-        title: 'New thread',
-        answer: '',
-        workflow: null,
-        messages: []
-      };
-      threads.unshift(newThread);
-      saveThreads(threads);
-      currentThreadId = newThread.id;
-    }
-
-    function escapeHtml(text) {
-      return String(text || '')
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#39;");
-    }
-
-    function renderThreads() {
-      const threads = loadThreads();
-      threadList.innerHTML = '';
-
-      if (!threads.length) {
-        threadList.innerHTML = '<div class="muted">No threads yet.</div>';
-        return;
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.ZhuxinComposer) {
+        ZhuxinComposer.init();
       }
 
-      threads.forEach((thread) => {
-        const item = document.createElement('div');
-        item.className = 'thread-item' + (thread.id === currentThreadId ? ' active-thread' : '');
-        item.textContent = thread.title || 'Untitled';
-        item.onclick = function () {
-          currentThreadId = thread.id;
-          currentAnswer = thread.answer || '';
-          currentWorkflow = thread.workflow || null;
-          renderThreads();
-          renderAnswer();
-          clearActionBox();
-          statusBar.textContent = 'Thread loaded.';
-        };
-        threadList.appendChild(item);
+      var tabs = document.querySelectorAll(".tab");
+      var panels = document.querySelectorAll(".panel");
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          var target = tab.getAttribute("data-tab");
+          tabs.forEach(function (t) { t.classList.remove("active"); });
+          panels.forEach(function (p) { p.classList.remove("active"); });
+          tab.classList.add("active");
+          document.querySelector('[data-panel="' + target + '"]').classList.add("active");
+        });
       });
-    }
-
-    function renderAnswer() {
-      if (!currentAnswer) {
-        messages.innerHTML = '<span class="muted">No output yet.</span>';
-      } else {
-        messages.innerHTML =
-          '<strong>assistant</strong><div style="margin-top:8px;white-space:pre-wrap;">' +
-          escapeHtml(currentAnswer) +
-          '</div>';
-      }
-
-      draftEditor.value = currentAnswer;
-      deliverableEditor.value = currentAnswer;
-      citationList.textContent = 'No citations yet.';
-      sourcesList.textContent = 'No sources yet.';
-    }
-
-    function clearActionBox() {
-      actionBox.innerHTML = '';
-      pendingAction = null;
-    }
-
-    function renderActionResponse(data) {
-      pendingAction = data;
-
-      let html = `
-        <div class="action-card">
-          <div style="white-space:pre-wrap; margin-bottom:12px;">${escapeHtml(data.message || '')}</div>
-      `;
-
-      (data.options || []).forEach((opt) => {
-        html += `<button class="btn-soft" type="button" onclick="window.__zhxHandleAction('${escapeHtml(opt.id)}')" style="margin-right:8px; margin-bottom:8px;">${escapeHtml(opt.label)}</button>`;
-      });
-
-      html += `</div>`;
-      actionBox.innerHTML = html;
-    }
-
-    async function refreshProviderStatus() {
-      providerStatus.textContent = 'Loading…';
-      try {
-        const res = await fetch(API_BASE + '/health');
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || 'Health request failed');
-
-        const providers = data.providers || {};
-        const rows = Object.entries(providers).map(([name, info]) => {
-          const color = info.available ? '#166534' : '#991b1b';
-          const bg = info.available ? '#dcfce7' : '#fee2e2';
-          const text = info.available ? 'available' : (info.reason || 'unavailable');
-          return `
-            <div class="provider-grid" style="margin-bottom:8px;">
-              <div>${escapeHtml(name)}</div>
-              <div style="padding:4px 8px;border-radius:999px;font-size:12px;background:${bg};color:${color};">${escapeHtml(text)}</div>
-              <div style="font-size:12px;color:#6b7280;">${info.retryAt ? new Date(info.retryAt).toLocaleTimeString() : ''}</div>
-            </div>
-          `;
-        }).join('');
-
-        providerStatus.innerHTML = rows || '<span class="muted">No provider data.</span>';
-      } catch {
-        providerStatus.textContent = 'Provider status failed to load.';
-      }
-    }
-
-    async function sendRequest(extra = {}) {
-      const prompt = (extra.originalPrompt || promptBox.value || '').trim();
-
-      if (!prompt) {
-        statusBar.textContent = 'Type something first.';
-        return;
-      }
-
-      ensureCurrentThread();
-
-      sendBtn.disabled = true;
-      statusBar.textContent = 'Generating…';
-
-      try {
-        const res = await fetch(API_BASE + '/api/ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt,
-            provider: providerSelect.value,
-            mode: modeSelect.value,
-            style: styleSelect.value,
-            density: densitySelect.value,
-            draftTypeChoice: extra.draftTypeChoice || '',
-            draftPreference: extra.draftPreference || '',
-            workflowState: currentWorkflow
-          })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || ('Backend request failed: ' + res.status));
-        }
-
-        currentWorkflow = data.workflowState || currentWorkflow;
-
-        updateCurrentThread((thread) => {
-          thread.workflow = currentWorkflow;
-          thread.messages = Array.isArray(thread.messages) ? thread.messages : [];
-          thread.messages.push({ role: 'user', content: prompt });
-
-          if (!thread.title || thread.title === 'New thread') {
-            thread.title = prompt.slice(0, 40);
-          }
-
-          return thread;
-        });
-
-        if (data.actionRequired) {
-          currentAnswer = '';
-          updateCurrentThread((thread) => {
-            thread.answer = '';
-            thread.workflow = currentWorkflow;
-            return thread;
-          });
-
-          renderAnswer();
-          renderThreads();
-          renderActionResponse(data);
-          statusBar.textContent = 'Clarification needed.';
-          return;
-        }
-
-        clearActionBox();
-
-        currentAnswer = data.output || data.answer || 'No output returned.';
-
-        updateCurrentThread((thread) => {
-          thread.answer = currentAnswer;
-          thread.workflow = currentWorkflow;
-          thread.title = '[' + (data.provider || providerSelect.value) + '] ' + (thread.title || prompt.slice(0, 40));
-          return thread;
-        });
-
-        renderThreads();
-        renderAnswer();
-        await refreshProviderStatus();
-
-        statusBar.textContent = data.statusMessage || ('Done via ' + (data.provider || providerSelect.value) + '.');
-        promptBox.value = '';
-      } catch (err) {
-        statusBar.textContent = 'Error: ' + (err.message || 'Request failed');
-        await refreshProviderStatus();
-      } finally {
-        sendBtn.disabled = false;
-      }
-    }
-
-    window.__zhxHandleAction = async function (choiceId) {
-      if (!pendingAction) return;
-
-      if (pendingAction.actionType === 'choose_draft_type') {
-        await sendRequest({
-          originalPrompt: pendingAction.originalPrompt,
-          draftTypeChoice: choiceId
-        });
-        return;
-      }
-
-      if (pendingAction.actionType === 'confirm_draft_preference') {
-        await sendRequest({
-          originalPrompt: pendingAction.originalPrompt,
-          draftTypeChoice: pendingAction.draftTypeChoice || '',
-          draftPreference: choiceId
-        });
-      }
-    };
-
-    sendBtn.onclick = function () {
-      clearActionBox();
-      sendRequest();
-    };
-
-    improveBtn.onclick = function () {
-      const text = promptBox.value.trim();
-      if (!text) return;
-      promptBox.value = 'Please improve this request and respond clearly:\n\n' + text;
-      statusBar.textContent = 'Prompt improved.';
-    };
-
-    newThreadBtn.onclick = function () {
-      const threads = loadThreads();
-      const newThread = {
-        id: uid(),
-        title: 'New thread',
-        answer: '',
-        workflow: null,
-        messages: []
-      };
-      threads.unshift(newThread);
-      saveThreads(threads);
-
-      currentThreadId = newThread.id;
-      currentWorkflow = null;
-      currentAnswer = '';
-      promptBox.value = '';
-      renderThreads();
-      renderAnswer();
-      clearActionBox();
-      statusBar.textContent = 'New thread ready.';
-    };
-
-    copyBtn.onclick = async function () {
-      if (!currentAnswer) return;
-      try {
-        await navigator.clipboard.writeText(currentAnswer);
-        statusBar.textContent = 'Copied.';
-      } catch {
-        statusBar.textContent = 'Copy failed.';
-      }
-    };
-
-    downloadBtn.onclick = function () {
-      if (!currentAnswer) return;
-      const blob = new Blob([currentAnswer], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'zhuxin-output.txt';
-      a.click();
-    };
-
-    exportBtn.onclick = function () { exportModal.classList.add('show'); };
-    closeExportBtn.onclick = function () { exportModal.classList.remove('show'); };
-    exportModal.onclick = function (e) { if (e.target === exportModal) exportModal.classList.remove('show'); };
-
-    buildExportBtn.onclick = function () {
-      const thread = getCurrentThread();
-      let output = currentAnswer || '';
-
-      if (exportIncludeSources.checked) output += '\n\nSources:\n- None yet';
-
-      if (exportIncludeHistory.checked && thread?.messages?.length) {
-        output += '\n\nHistory:\n';
-        thread.messages.forEach((m, i) => {
-          output += (i + 1) + '. ' + m.role + ': ' + m.content + '\n';
-        });
-      }
-
-      exportPreview.textContent = output || 'Nothing to export.';
-      const blob = new Blob([output], { type: 'text/plain' });
-      downloadExportLink.href = URL.createObjectURL(blob);
-      downloadExportLink.download = 'zhuxin-export.txt';
-    };
-
-    shareBtn.onclick = function () { shareModal.classList.add('show'); };
-    closeShareBtn.onclick = function () { shareModal.classList.remove('show'); };
-    shareModal.onclick = function (e) { if (e.target === shareModal) shareModal.classList.remove('show'); };
-
-    buildShareBtn.onclick = function () {
-      shareOutput.textContent = [
-        'Assignee: ' + (shareAssignee.value || ''),
-        'Reviewers: ' + (shareReviewers.value || ''),
-        'Note: ' + (shareNote.value || ''),
-        '',
-        'Latest output:',
-        currentAnswer || ''
-      ].join('\n');
-    };
-
-    sourcesBtn.onclick = function () { sourcesDrawer.classList.add('open'); };
-    closeSourcesBtn.onclick = function () { sourcesDrawer.classList.remove('open'); };
-
-    refreshProvidersBtn.onclick = refreshProviderStatus;
-
-    tabs.forEach((tab) => {
-      tab.onclick = function () {
-        const target = tab.getAttribute('data-tab');
-        tabs.forEach((t) => t.classList.remove('active'));
-        panels.forEach((p) => p.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelector('[data-panel="' + target + '"]').classList.add('active');
-
-        if (target === 'draft') modeSelect.value = 'draft';
-        if (target === 'answer') modeSelect.value = 'answer';
-      };
     });
-
-    const threads = loadThreads();
-    if (threads.length) {
-      currentThreadId = threads[0].id;
-      currentAnswer = threads[0].answer || '';
-      currentWorkflow = threads[0].workflow || null;
-    }
-
-    renderThreads();
-    renderAnswer();
-    refreshProviderStatus();
-    statusBar.textContent = 'Ready.';
-  })();
   </script>
 </body>
 </html>
