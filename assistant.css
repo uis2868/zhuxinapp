@@ -218,6 +218,7 @@ body {
   padding: 15px;
   z-index: 1001;
   overflow-y: auto;
+  display: block;
 }
 
 .zhx-drawer.open {
