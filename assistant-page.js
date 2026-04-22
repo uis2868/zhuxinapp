@@ -2,11 +2,33 @@ import { getCurrentMatterFromMirror, listMatterFiles, getAppSettings } from './a
 import { createAssistantStore, buildAssistantInitialState } from './helpers/assistant-store.js';
 import { runAssistantWorkflow } from './helpers/assistant-workflow.js';
 
+const $ = (id) => document.getElementById(id);
+
 const els = {
-  promptBox: document.getElementById('promptBox'),
-  sendBtn: document.getElementById('sendBtn'),
-  messages: document.getElementById('messages'),
-  statusBar: document.getElementById('statusBar')
+  promptBox: $('promptBox'),
+  sendBtn: $('sendBtn'),
+  messages: $('messages'),
+  statusBar: $('statusBar'),
+
+  // tabs
+  tabs: document.querySelectorAll('[data-tab]'),
+  panels: document.querySelectorAll('[data-panel]'),
+
+  // workspace
+  draftEditor: $('draftEditor'),
+  deliverableEditor: $('deliverableEditor'),
+  deliverableTitle: $('deliverableTitle'),
+
+  // citations
+  citationList: $('citationList'),
+
+  // modals
+  exportBtn: $('exportBtn'),
+  shareBtn: $('shareBtn'),
+  exportModal: $('exportModal'),
+  shareModal: $('shareModal'),
+  closeExportModalBtn: $('closeExportModalBtn'),
+  closeShareModalBtn: $('closeShareModalBtn')
 };
 
 let store;
@@ -18,22 +40,87 @@ async function init() {
 
   store = createAssistantStore(buildAssistantInitialState({ matter, settings, files }));
 
+  bindEvents();
   store.subscribe(render);
   render(store.getState());
 }
 
+function bindEvents() {
+
+  // send
+  els.sendBtn.addEventListener('click', handleSend);
+
+  // tabs
+  els.tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+
+      els.tabs.forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+
+      els.panels.forEach(p => {
+        p.classList.toggle('is-active', p.dataset.panel === tab);
+      });
+    });
+  });
+
+  // modals
+  els.exportBtn?.addEventListener('click', () => {
+    els.exportModal.classList.add('show');
+  });
+
+  els.shareBtn?.addEventListener('click', () => {
+    els.shareModal.classList.add('show');
+  });
+
+  els.closeExportModalBtn?.addEventListener('click', () => {
+    els.exportModal.classList.remove('show');
+  });
+
+  els.closeShareModalBtn?.addEventListener('click', () => {
+    els.shareModal.classList.remove('show');
+  });
+}
+
 function render(state) {
+
+  // ANSWER
   els.messages.innerHTML = '';
 
   if (!state.workspace.answer) {
     els.messages.innerHTML = '<div class="zhx-empty">No output yet.</div>';
-    return;
+  } else {
+    const div = document.createElement('div');
+    div.className = 'zhx-msg';
+    div.innerHTML = '<strong>assistant</strong><div>' + state.workspace.answer.replace(/\n/g,'<br>') + '</div>';
+    els.messages.appendChild(div);
   }
 
-  const div = document.createElement('div');
-  div.className = 'zhx-msg';
-  div.innerHTML = '<strong>assistant</strong><div>' + state.workspace.answer.replace(/\n/g,'<br>') + '</div>';
-  els.messages.appendChild(div);
+  // DRAFT
+  if (els.draftEditor && state.workspace.answer) {
+    els.draftEditor.value = state.workspace.answer;
+  }
+
+  // DELIVERABLE
+  if (els.deliverableEditor && state.workspace.answer) {
+    els.deliverableEditor.value = state.workspace.answer;
+  }
+
+  // CITATIONS
+  if (els.citationList) {
+    els.citationList.innerHTML = '';
+
+    if (!state.workspace.citations?.length) {
+      els.citationList.innerHTML = '<div class="zhx-empty">No citations yet.</div>';
+    } else {
+      state.workspace.citations.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'zhx-msg';
+        div.innerHTML = '<strong>' + c.title + '</strong><div>' + c.snippet + '</div>';
+        els.citationList.appendChild(div);
+      });
+    }
+  }
 }
 
 async function handleSend() {
@@ -59,7 +146,5 @@ async function handleSend() {
   els.statusBar.textContent = 'Done.';
   els.sendBtn.disabled = false;
 }
-
-els.sendBtn.addEventListener('click', handleSend);
 
 init();
