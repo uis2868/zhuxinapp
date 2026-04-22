@@ -1,66 +1,66 @@
 <script>
-alert("JS LOADED"); // DEBUG
+window.onload = function () {
 
-const sendBtn = document.getElementById("sendBtn");
-const promptBox = document.getElementById("promptBox");
-const messages = document.getElementById("messages");
-const threadList = document.getElementById("threadList");
+  alert("JS LOADED"); // DEBUG
 
-let currentAnswer = "";
+  const sendBtn = document.getElementById("sendBtn");
+  const promptBox = document.getElementById("promptBox");
+  const messages = document.getElementById("messages");
+  const threadList = document.getElementById("threadList");
 
-// SAFE LOAD
-function loadThreads() {
-  try {
-    return JSON.parse(localStorage.getItem("zhx_threads") || "[]");
-  } catch {
-    return [];
+  let currentAnswer = "";
+
+  function loadThreads() {
+    try {
+      return JSON.parse(localStorage.getItem("zhx_threads") || "[]");
+    } catch {
+      return [];
+    }
   }
-}
 
-// SAVE
-function saveThreads(t) {
-  localStorage.setItem("zhx_threads", JSON.stringify(t));
-}
+  function saveThreads(t) {
+    localStorage.setItem("zhx_threads", JSON.stringify(t));
+  }
 
-// RENDER
-function render() {
-  messages.innerHTML = currentAnswer
-    ? "<div>✅ " + currentAnswer + "</div>"
-    : "<div>No output yet.</div>";
+  function render() {
+    messages.innerHTML = currentAnswer
+      ? "<div>✅ " + currentAnswer + "</div>"
+      : "<div>No output yet.</div>";
 
-  const threads = loadThreads();
-  threadList.innerHTML = "";
+    const threads = loadThreads();
+    threadList.innerHTML = "";
 
-  threads.forEach(t => {
-    const div = document.createElement("div");
-    div.textContent = t.title;
-    div.onclick = () => {
-      currentAnswer = t.answer;
-      render();
-    };
-    threadList.appendChild(div);
-  });
-}
+    threads.forEach(t => {
+      const div = document.createElement("div");
+      div.textContent = t.title;
 
-// CLICK HANDLER
-sendBtn.onclick = function () {
-  alert("CLICK WORKED"); // DEBUG
+      div.onclick = () => {
+        currentAnswer = t.answer;
+        render();
+      };
 
-  const prompt = promptBox.value.trim();
-  if (!prompt) return;
+      threadList.appendChild(div);
+    });
+  }
 
-  currentAnswer = "WORKING OUTPUT → " + prompt;
+  sendBtn.onclick = function () {
+    alert("CLICK WORKED"); // DEBUG
 
-  const threads = loadThreads();
-  threads.unshift({
-    title: prompt,
-    answer: currentAnswer
-  });
+    const prompt = promptBox.value.trim();
+    if (!prompt) return;
 
-  saveThreads(threads);
+    currentAnswer = "WORKING OUTPUT → " + prompt;
+
+    const threads = loadThreads();
+    threads.unshift({
+      title: prompt,
+      answer: currentAnswer
+    });
+
+    saveThreads(threads);
+    render();
+  };
+
   render();
 };
-
-// INIT
-render();
 </script>
