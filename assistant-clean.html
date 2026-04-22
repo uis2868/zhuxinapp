@@ -33,6 +33,7 @@
     .output { background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; white-space:pre-wrap; min-height:80px; }
     .muted { color:#6b7280; font-size:13px; margin-top:6px; }
     .error { color:#b91c1c; font-size:13px; margin-top:6px; }
+
     #assistantOutputModeChips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
     #assistantMetaPanel { margin-top:12px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; }
 
@@ -192,7 +193,9 @@
       white-space: nowrap;
     }
 
-    @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
+    @media (max-width:768px) {
+      .layout { grid-template-columns:1fr; }
+    }
 
     @media (max-width: 640px) {
       .assistant-context-source-row {
@@ -280,7 +283,6 @@
               </div>
             </div>
 
-            <!-- Assistant Context Strip -->
             <div id="assistant-context-strip" class="assistant-context-strip">
               <button
                 type="button"
@@ -299,7 +301,6 @@
               </div>
             </div>
 
-            <!-- Assistant Context Panel -->
             <div
               id="assistant-context-panel"
               class="assistant-context-panel is-hidden"
@@ -390,12 +391,11 @@
   <script src="assistant-composer.js"></script>
   <script src="assistant-context-orchestrator.js"></script>
   <script src="generation-engine.js"></script>
-  <script>
-    window.AI_ENDPOINT = "https://zhuxin-ai-backend.onrender.com/api/ai";
 
+  <script>
     document.addEventListener("DOMContentLoaded", function () {
       if (window.ZhuxinComposer) {
-        ZhuxinComposer.init({
+        window.ZhuxinComposer.init({
           inputSelector: '#assistant-prompt-input',
           outputChipsSelector: '#assistantOutputModeChips',
           improveBtnSelector: '#assistantImproveBtn',
@@ -424,9 +424,6 @@
           warningId: "assistant-context-warning",
           modeRowId: "assistant-context-mode-row",
           getCurrentThreadId: function () {
-            if (typeof window.getCurrentAssistantThreadId === "function") {
-              return window.getCurrentAssistantThreadId();
-            }
             return "assistant-default-thread";
           }
         });
@@ -448,32 +445,8 @@
       var sendBtn = document.getElementById("assistantSendBtn");
       if (sendBtn) {
         sendBtn.addEventListener("click", async function () {
-          var input = document.getElementById("assistant-prompt-input");
-          if (!input) return;
-
-          var rawPrompt = (input.value || "").trim();
-          if (!rawPrompt) return;
-
-          var prepared = window.prepareAssistantRequest
-            ? window.prepareAssistantRequest(rawPrompt)
-            : { ok: true, rawPrompt: rawPrompt, finalPrompt: rawPrompt, contextPacket: null };
-
-          if (!prepared.ok) {
-            alert(prepared.error || "Context validation failed.");
-            return;
-          }
-
           try {
-            var result = await window.runAssistantGeneration({
-              rawPrompt: prepared.rawPrompt,
-              finalPrompt: prepared.finalPrompt,
-              contextPacket: prepared.contextPacket
-            });
-
-            var messages = document.getElementById("messages");
-            if (messages) {
-              messages.textContent = result || "No output";
-            }
+            await window.sendAssistantPrompt();
           } catch (err) {
             alert(err.message || "Generation failed.");
           }
