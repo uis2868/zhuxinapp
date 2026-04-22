@@ -698,6 +698,24 @@ export async function saveAppSettings(input) {
     setLocalSettingsState(next);
     return next;
   }
+
+  const client = await getSupabaseClient();
+  const profile = await ensureUserProfile();
+  if (current.id) {
+    const { data, error } = await client.from('settings').update({ theme: next.theme, locale: next.locale, preferences: next.preferences, updated_at: new Date().toISOString() }).eq('id', current.id).select().single();
+    if (error) throw error;
+    const saved = { id: data.id, theme: data.theme, locale: data.locale, preferences: data.preferences || {} };
+    setLocalSettingsState(saved);
+    return saved;
+  }
+  const payload = { owner_id: profile.id, theme: next.theme, locale: next.locale, preferences: next.preferences };
+  const { data, error } = await client.from('settings').insert(payload).select().single();
+  if (error) throw error;
+  const saved = { id: data.id, theme: data.theme, locale: data.locale, preferences: data.preferences || {} };
+  setLocalSettingsState(saved);
+  return saved;
+}
+
 window.ZHUXIN_APP_DATA = window.ZHUXIN_APP_DATA || {};
 window.ZHUXIN_APP_DATA.assistant = window.ZHUXIN_APP_DATA.assistant || {};
 
@@ -741,19 +759,3 @@ window.ZHUXIN_APP_DATA.assistant.uploadedFiles =
 
 window.ZHUXIN_APP_DATA.assistant.savedSources =
   window.ZHUXIN_APP_DATA.assistant.savedSources || [];
-  const client = await getSupabaseClient();
-  const profile = await ensureUserProfile();
-  if (current.id) {
-    const { data, error } = await client.from('settings').update({ theme: next.theme, locale: next.locale, preferences: next.preferences, updated_at: new Date().toISOString() }).eq('id', current.id).select().single();
-    if (error) throw error;
-    const saved = { id: data.id, theme: data.theme, locale: data.locale, preferences: data.preferences || {} };
-    setLocalSettingsState(saved);
-    return saved;
-  }
-  const payload = { owner_id: profile.id, theme: next.theme, locale: next.locale, preferences: next.preferences };
-  const { data, error } = await client.from('settings').insert(payload).select().single();
-  if (error) throw error;
-  const saved = { id: data.id, theme: data.theme, locale: data.locale, preferences: data.preferences || {} };
-  setLocalSettingsState(saved);
-  return saved;
-}
