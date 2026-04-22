@@ -1,17 +1,19 @@
 const $ = (id) => document.getElementById(id);
 
-const els = {
-  promptBox: $('promptBox'),
-  sendBtn: $('sendBtn'),
-  messages: $('messages'),
-  statusBar: $('statusBar'),
-  threadList: $('threadList')
-};
+const promptBox = $('promptBox');
+const sendBtn = $('sendBtn');
+const messages = $('messages');
+const statusBar = $('statusBar');
+const threadList = $('threadList');
 
 let currentAnswer = '';
 
 function loadThreads() {
-  return JSON.parse(localStorage.getItem('zhx_threads') || '[]');
+  try {
+    return JSON.parse(localStorage.getItem('zhx_threads') || '[]');
+  } catch {
+    return [];
+  }
 }
 
 function saveThreads(threads) {
@@ -20,10 +22,10 @@ function saveThreads(threads) {
 
 function render() {
   // OUTPUT
-  els.messages.innerHTML = '';
+  messages.innerHTML = '';
 
   if (!currentAnswer) {
-    els.messages.innerHTML = '<div class="zhx-empty">No output yet.</div>';
+    messages.innerHTML = '<div class="zhx-empty">No output yet.</div>';
   } else {
     const div = document.createElement('div');
     div.className = 'zhx-msg';
@@ -31,16 +33,15 @@ function render() {
       '<strong>assistant</strong><div>' +
       currentAnswer.replace(/\n/g, '<br>') +
       '</div>';
-    els.messages.appendChild(div);
+    messages.appendChild(div);
   }
 
   // THREADS
   const threads = loadThreads();
-  els.threadList.innerHTML = '';
+  threadList.innerHTML = '';
 
   if (!threads.length) {
-    els.threadList.innerHTML =
-      '<div class="zhx-empty">No threads yet.</div>';
+    threadList.innerHTML = '<div class="zhx-empty">No threads yet.</div>';
   } else {
     threads.forEach((t) => {
       const div = document.createElement('div');
@@ -52,20 +53,20 @@ function render() {
         render();
       };
 
-      els.threadList.appendChild(div);
+      threadList.appendChild(div);
     });
   }
 }
 
 function handleSend() {
-  const prompt = els.promptBox.value.trim();
+  const prompt = promptBox.value.trim();
   if (!prompt) return;
 
-  els.sendBtn.disabled = true;
-  els.statusBar.textContent = 'Generating…';
+  sendBtn.disabled = true;
+  statusBar.textContent = 'Generating…';
 
-  // SIMPLE WORKING RESPONSE
-  const answer = `Structured working analysis
+  // FORCE visible output (debug safe)
+  currentAnswer = `Structured working analysis
 
 Request:
 ${prompt}
@@ -75,24 +76,24 @@ Working response:
 2. Review documents
 3. Generate output`;
 
-  currentAnswer = answer;
-
   // SAVE THREAD
   const threads = loadThreads();
   threads.unshift({
     title: prompt.slice(0, 40),
-    answer,
+    answer: currentAnswer,
     time: Date.now()
   });
+
   saveThreads(threads);
 
   render();
 
-  els.statusBar.textContent = 'Done.';
-  els.sendBtn.disabled = false;
+  statusBar.textContent = 'Done.';
+  sendBtn.disabled = false;
 }
 
-els.sendBtn.addEventListener('click', handleSend);
-
-// INIT
-render();
+// 🔥 CRITICAL: Ensure binding works
+window.addEventListener('DOMContentLoaded', () => {
+  sendBtn.addEventListener('click', handleSend);
+  render();
+});
