@@ -12,6 +12,40 @@ body {
   color: white;
 }
 
+.zhx-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.zhx-mark {
+  background: #007bff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.zhx-name {
+  font-weight: bold;
+}
+
+.zhx-sub {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.zhx-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.zhx-chip {
+  background: #333;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
 .zhx-shell {
   padding: 15px;
 }
@@ -37,6 +71,12 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
+.zhx-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .zhx-textarea {
   width: 100%;
   min-height: 90px;
@@ -44,6 +84,17 @@ body {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.zhx-input {
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .zhx-btn-primary {
@@ -52,13 +103,23 @@ body {
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
+  cursor: pointer;
 }
 
 .zhx-soft {
   background: #eee;
   border: none;
-  padding: 8px;
+  padding: 8px 10px;
   border-radius: 6px;
+  cursor: pointer;
+  color: #111;
+  text-decoration: none;
+}
+
+.zhx-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .zhx-tabs {
@@ -72,6 +133,7 @@ body {
   background: #eee;
   border-radius: 6px;
   border: none;
+  cursor: pointer;
 }
 
 .zhx-tab.is-active {
@@ -87,19 +149,37 @@ body {
   display: block;
 }
 
+.zhx-msg {
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.zhx-empty {
+  color: #888;
+}
+
 .zhx-toolbar {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.zhx-msg {
-  background: #fafafa;
-  padding: 10px;
-  border-radius: 6px;
+.zhx-statusbar {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
 }
 
-/* MODALS */
+.zhx-improve {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}
+
 .zhx-modal-backdrop {
   position: fixed;
   top: 0;
@@ -110,6 +190,7 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .zhx-modal-backdrop.show {
@@ -122,4 +203,40 @@ body {
   border-radius: 10px;
   width: 90%;
   max-width: 400px;
+}
+
+.zhx-drawer {
+  position: fixed;
+  right: -100%;
+  top: 0;
+  width: 80%;
+  max-width: 300px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+  transition: right 0.3s;
+  padding: 15px;
+  z-index: 1001;
+  overflow-y: auto;
+}
+
+.zhx-drawer.open {
+  right: 0;
+}
+
+.zhx-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .zhx-layout {
+    flex-direction: column;
+  }
+
+  .zhx-side,
+  .zhx-main {
+    width: 100%;
+  }
 }
