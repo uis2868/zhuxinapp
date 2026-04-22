@@ -698,7 +698,49 @@ export async function saveAppSettings(input) {
     setLocalSettingsState(next);
     return next;
   }
+window.ZHUXIN_APP_DATA = window.ZHUXIN_APP_DATA || {};
+window.ZHUXIN_APP_DATA.assistant = window.ZHUXIN_APP_DATA.assistant || {};
 
+window.ZHUXIN_APP_DATA.assistant.contextOrchestration = {
+  defaultMode: "auto",
+  maxVisibleChips: 4,
+  maxInjectedChars: 6000,
+  maxPerSourceChars: 1600,
+  autoIncludeTypes: ["matter_profile", "thread_history"],
+  strictBlocksUnavailable: true,
+  typeLabels: {
+    matter_profile: "Matter",
+    thread_history: "Thread",
+    uploaded_file: "File",
+    saved_source: "Saved",
+    note: "Note"
+  }
+};
+
+window.ZHUXIN_APP_DATA.assistant.matterProfiles =
+  window.ZHUXIN_APP_DATA.assistant.matterProfiles || [
+    {
+      id: "matter-default",
+      label: "Default Matter",
+      status: "ready",
+      summary: "High-level matter summary goes here."
+    }
+  ];
+
+window.ZHUXIN_APP_DATA.assistant.threads =
+  window.ZHUXIN_APP_DATA.assistant.threads || [
+    {
+      id: "assistant-default-thread",
+      matterId: "matter-default",
+      messages: []
+    }
+  ];
+
+window.ZHUXIN_APP_DATA.assistant.uploadedFiles =
+  window.ZHUXIN_APP_DATA.assistant.uploadedFiles || [];
+
+window.ZHUXIN_APP_DATA.assistant.savedSources =
+  window.ZHUXIN_APP_DATA.assistant.savedSources || [];
   const client = await getSupabaseClient();
   const profile = await ensureUserProfile();
   if (current.id) {
