@@ -27,6 +27,7 @@
     .thread-list { display:flex; flex-direction:column; gap:8px; }
     .thread-item { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; padding:10px; cursor:pointer; word-break:break-word; }
     .thread-item:hover { background:#e5e7eb; }
+    .thread-item.active-thread { border-color:#2563eb; background:#eff6ff; }
     .tabs { display:flex; gap:8px; margin-bottom:12px; }
     .tab { background:#e5e7eb; color:#111827; }
     .tab.active { background:#2563eb; color:white; }
@@ -58,7 +59,7 @@
     </div>
     <div class="chips">
       <div class="chip">Multi AI</div>
-      <div class="chip">Draft confirm</div>
+      <div class="chip">Workflow memory</div>
     </div>
   </div>
 
@@ -259,6 +260,12 @@
 
     let currentAnswer = '';
     let pendingAction = null;
+    let currentThreadId = null;
+    let currentWorkflow = null;
+
+    function uid() {
+      return 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    }
 
     function loadThreads() {
       try { return JSON.parse(localStorage.getItem('zhx_clean_threads') || '[]'); }
@@ -267,6 +274,37 @@
 
     function saveThreads(threads) {
       localStorage.setItem('zhx_clean_threads', JSON.stringify(threads));
+    }
+
+    function getCurrentThread() {
+      const threads = loadThreads();
+      return threads.find(t => t.id === currentThreadId) || null;
+    }
+
+    function updateCurrentThread(updater) {
+      const threads = loadThreads();
+      const index = threads.findIndex(t => t.id === currentThreadId);
+      if (index === -1) return;
+
+      const updated = updater({ ...threads[index] });
+      threads[index] = updated;
+      saveThreads(threads);
+    }
+
+    function ensureCurrentThread() {
+      if (currentThreadId) return;
+
+      const threads = loadThreads();
+      const newThread = {
+        id: uid(),
+        title: 'New thread',
+        answer: '',
+        workflow: null,
+        messages: []
+      };
+      threads.unshift(newThread);
+      saveThreads(threads);
+      currentThreadId = newThread.id;
     }
 
     function escapeHtml(text) {
@@ -289,10 +327,13 @@
 
       threads.forEach((thread) => {
         const item = document.createElement('div');
-        item.className = 'thread-item';
-        item.textContent = thread.title;
+        item.className = 'thread-item' + (thread.id === currentThreadId ? ' active-thread' : '');
+        item.textContent = thread.title || 'Untitled';
         item.onclick = function () {
-          currentAnswer = thread.answer;
+          currentThreadId = thread.id;
+          currentAnswer = thread.answer || '';
+          currentWorkflow = thread.workflow || null;
+          renderThreads();
           renderAnswer();
           clearActionBox();
           statusBar.textContent = 'Thread loaded.';
@@ -374,6 +415,8 @@
         return;
       }
 
+      ensureCurrentThread();
+
       sendBtn.disabled = true;
       statusBar.textContent = 'Generating…';
 
@@ -388,7 +431,8 @@
             style: styleSelect.value,
             density: densitySelect.value,
             draftTypeChoice: extra.draftTypeChoice || '',
-            draftPreference: extra.draftPreference || ''
+            draftPreference: extra.draftPreference || '',
+            workflowState: currentWorkflow
           })
         });
 
@@ -398,9 +442,30 @@
           throw new Error(data.error || ('Backend request failed: ' + res.status));
         }
 
+        currentWorkflow = data.workflowState || currentWorkflow;
+
+        updateCurrentThread((thread) => {
+          thread.workflow = currentWorkflow;
+          thread.messages = Array.isArray(thread.messages) ? thread.messages : [];
+          thread.messages.push({ role: 'user', content: prompt });
+
+          if (!thread.title || thread.title === 'New thread') {
+            thread.title = prompt.slice(0, 40);
+          }
+
+          return thread;
+        });
+
         if (data.actionRequired) {
           currentAnswer = '';
+          updateCurrentThread((thread) => {
+            thread.answer = '';
+            thread.workflow = currentWorkflow;
+            return thread;
+          });
+
           renderAnswer();
+          renderThreads();
           renderActionResponse(data);
           statusBar.textContent = 'Clarification needed.';
           return;
@@ -410,19 +475,19 @@
 
         currentAnswer = data.output || data.answer || 'No output returned.';
 
-        const threads = loadThreads();
-        threads.unshift({
-          title: '[' + (data.provider || providerSelect.value) + '] ' + prompt.slice(0, 40),
-          answer: currentAnswer,
-          time: Date.now()
+        updateCurrentThread((thread) => {
+          thread.answer = currentAnswer;
+          thread.workflow = currentWorkflow;
+          thread.title = '[' + (data.provider || providerSelect.value) + '] ' + (thread.title || prompt.slice(0, 40));
+          return thread;
         });
-        saveThreads(threads);
 
         renderThreads();
         renderAnswer();
         await refreshProviderStatus();
 
         statusBar.textContent = data.statusMessage || ('Done via ' + (data.provider || providerSelect.value) + '.');
+        promptBox.value = '';
       } catch (err) {
         statusBar.textContent = 'Error: ' + (err.message || 'Request failed');
         await refreshProviderStatus();
@@ -464,8 +529,22 @@
     };
 
     newThreadBtn.onclick = function () {
-      promptBox.value = '';
+      const threads = loadThreads();
+      const newThread = {
+        id: uid(),
+        title: 'New thread',
+        answer: '',
+        workflow: null,
+        messages: []
+      };
+      threads.unshift(newThread);
+      saveThreads(threads);
+
+      currentThreadId = newThread.id;
+      currentWorkflow = null;
       currentAnswer = '';
+      promptBox.value = '';
+      renderThreads();
       renderAnswer();
       clearActionBox();
       statusBar.textContent = 'New thread ready.';
@@ -495,15 +574,15 @@
     exportModal.onclick = function (e) { if (e.target === exportModal) exportModal.classList.remove('show'); };
 
     buildExportBtn.onclick = function () {
+      const thread = getCurrentThread();
       let output = currentAnswer || '';
 
       if (exportIncludeSources.checked) output += '\n\nSources:\n- None yet';
 
-      if (exportIncludeHistory.checked) {
-        const threads = loadThreads();
+      if (exportIncludeHistory.checked && thread?.messages?.length) {
         output += '\n\nHistory:\n';
-        threads.forEach((t, i) => {
-          output += (i + 1) + '. ' + t.title + '\n';
+        thread.messages.forEach((m, i) => {
+          output += (i + 1) + '. ' + m.role + ': ' + m.content + '\n';
         });
       }
 
@@ -540,8 +619,18 @@
         panels.forEach((p) => p.classList.remove('active'));
         tab.classList.add('active');
         document.querySelector('[data-panel="' + target + '"]').classList.add('active');
+
+        if (target === 'draft') modeSelect.value = 'draft';
+        if (target === 'answer') modeSelect.value = 'answer';
       };
     });
+
+    const threads = loadThreads();
+    if (threads.length) {
+      currentThreadId = threads[0].id;
+      currentAnswer = threads[0].answer || '';
+      currentWorkflow = threads[0].workflow || null;
+    }
 
     renderThreads();
     renderAnswer();
