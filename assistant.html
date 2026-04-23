@@ -962,25 +962,12 @@
         });
       }
 
-      if (window.ZhuxinAssistantContext) {
-        window.ZhuxinAssistantContext.boot({
-          promptInputId: "assistant-prompt-input",
-          contextToggleId: "assistant-context-toggle",
-          contextPanelId: "assistant-context-panel",
-          contextCloseId: "assistant-context-close",
-          chipListId: "assistant-context-chip-list",
-          summaryId: "assistant-context-summary",
-          sourceListId: "assistant-context-source-list",
-          currentLabelId: "assistant-context-current",
-          warningId: "assistant-context-warning",
-          modeRowId: "assistant-context-mode-row",
-          getCurrentThreadId: function () {
-            if (window.ZhuxinAssistantThreads && window.ZhuxinAssistantThreads.getActiveThread) {
-              var thread = window.ZhuxinAssistantThreads.getActiveThread();
-              return thread && thread.id ? thread.id : "assistant-default-thread";
-            }
-            return "assistant-default-thread";
-          }
+      if (
+      window.ZhixinContextOrchestration &&
+      typeof window.ZhixinContextOrchestration.init === "function"
+    ) {
+      window.ZhixinContextOrchestration.init();
+    }
         });
       }
 
