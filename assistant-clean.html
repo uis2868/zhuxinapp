@@ -33,6 +33,8 @@
     .output { background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:12px; white-space:pre-wrap; min-height:80px; }
     .muted { color:#6b7280; font-size:13px; margin-top:6px; }
     .error { color:#b91c1c; font-size:13px; margin-top:6px; }
+    .hidden { display:none !important; }
+
     #assistantOutputModeChips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
     #assistantMetaPanel { margin-top:12px; padding:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; }
 
@@ -165,11 +167,194 @@
       font-size: 13px;
       line-height: 1.45;
     }
-    .assistant-grounded-source {
+    .assistant-grounded-source { font-weight: 600; }
+
+    .assistant-deep-analysis-panel {
+      padding: 12px;
+      border: 1px solid #d9deea;
+      border-radius: 12px;
+      background: #fafbff;
+      min-width: 280px;
+      margin-top: 8px;
+    }
+    .assistant-deep-analysis-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .assistant-mini-label {
+      font-size: 12px;
       font-weight: 600;
+      opacity: 0.8;
+    }
+    .assistant-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .assistant-chip-btn {
+      border: 1px solid #d1d8e5;
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .assistant-chip-btn.is-selected {
+      border-color: #8da2ff;
+      background: #eef2ff;
+    }
+    .assistant-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .assistant-analysis-meta {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border: 1px solid #e1e6f0;
+      border-radius: 12px;
+      background: #f7f8fc;
+    }
+    .assistant-analysis-meta-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .assistant-analysis-meta-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .assistant-analysis-meta-chip {
+      font-size: 12px;
+      border: 1px solid #d9deea;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #fff;
     }
 
-    @media (max-width:768px) { .layout { grid-template-columns:1fr; } }
+    .assistant-draft-workspace,
+    .assistant-tool-panel {
+      margin-top: 16px;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+    }
+    .assistant-draft-workspace.is-hidden,
+    .assistant-tool-panel.hidden { display: none; }
+    .assistant-draft-header,
+    .assistant-draft-footer,
+    .assistant-draft-revision-row,
+    .assistant-draft-toolbar,
+    .assistant-draft-header-actions,
+    .assistant-draft-footer-actions,
+    .assistant-tool-panel-header,
+    .assistant-tool-row,
+    .assistant-edit-card-top,
+    .assistant-edit-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .assistant-draft-meta,
+    .assistant-draft-status,
+    .assistant-draft-dirty-state,
+    .assistant-draft-version-title,
+    .assistant-file-meta,
+    .assistant-inline-message {
+      font-size: 12px;
+      opacity: 0.75;
+    }
+    .assistant-draft-status,
+    .assistant-file-meta,
+    .assistant-inline-message {
+      min-height: 18px;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.04);
+    }
+    .assistant-draft-toolbar { margin: 10px 0; justify-content: flex-start; }
+    .assistant-draft-revision-row { margin-bottom: 10px; justify-content: flex-start; }
+    .assistant-draft-revision-row .assistant-text-input {
+      min-width: 260px;
+      flex: 1 1 320px;
+    }
+    .assistant-draft-editor,
+    .assistant-large-textarea {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 10px;
+      padding: 12px;
+      font: inherit;
+      line-height: 1.5;
+      box-sizing: border-box;
+    }
+    .assistant-draft-editor { min-height: 320px; }
+    .assistant-draft-version-block { margin-top: 14px; }
+    .assistant-draft-versions {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .assistant-draft-version-item,
+    .assistant-edit-card {
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+    .assistant-draft-version-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .assistant-draft-version-item-meta { display: grid; gap: 2px; }
+    .assistant-draft-version-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .assistant-file-edit-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 12px;
+    }
+    .assistant-edit-card.is-stale { opacity: 0.6; }
+    .assistant-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .assistant-edit-grid pre,
+    .assistant-working-preview {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.04);
+      max-height: 260px;
+      overflow: auto;
+    }
+    .assistant-edit-label {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .assistant-working-preview-wrap { margin-top: 12px; }
+
+    @media (max-width:768px) {
+      .layout { grid-template-columns:1fr; }
+      .assistant-edit-grid { grid-template-columns: 1fr; }
+    }
 
     @media (max-width: 640px) {
       .assistant-context-source-row { grid-template-columns: auto 1fr; }
@@ -191,6 +376,7 @@
       <div class="chip">Composer enabled</div>
       <div class="chip">Context orchestration</div>
       <div class="chip">Grounded Q&A</div>
+      <div class="chip">4-6 foundation ready</div>
     </div>
   </div>
 
@@ -287,11 +473,7 @@
               </div>
             </div>
 
-            <div
-              id="assistant-context-panel"
-              class="assistant-context-panel is-hidden"
-              aria-hidden="true"
-            >
+            <div id="assistant-context-panel" class="assistant-context-panel is-hidden" aria-hidden="true">
               <div class="assistant-context-panel-head">
                 <div class="assistant-context-panel-title-wrap">
                   <div class="assistant-context-panel-title">Context &amp; Sources</div>
@@ -300,13 +482,7 @@
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  id="assistant-context-close"
-                  class="btn-soft"
-                >
-                  Close
-                </button>
+                <button type="button" id="assistant-context-close" class="btn-soft">Close</button>
               </div>
 
               <div class="assistant-context-mode-row" id="assistant-context-mode-row">
@@ -320,7 +496,44 @@
               <div id="assistant-context-source-list" class="assistant-context-source-list"></div>
             </div>
 
+            <div class="assistant-inline-tools" id="assistantDeepAnalysisBlock">
+              <button type="button" id="assistantDeepAnalysisToggle" class="btn-soft" aria-expanded="false">
+                Deep analysis
+              </button>
+
+              <div id="assistantDeepAnalysisPanel" class="assistant-deep-analysis-panel hidden">
+                <div class="assistant-deep-analysis-row">
+                  <div class="assistant-mini-label">Profile</div>
+                  <div class="assistant-chip-row">
+                    <button type="button" class="assistant-chip-btn is-selected" data-da-profile="balanced">Balanced</button>
+                    <button type="button" class="assistant-chip-btn" data-da-profile="precision">Precision</button>
+                    <button type="button" class="assistant-chip-btn" data-da-profile="broad">Broad scan</button>
+                  </div>
+                </div>
+
+                <div class="assistant-deep-analysis-row">
+                  <label class="assistant-mini-label" for="assistantDeepAnalysisDepth">Retrieval depth</label>
+                  <select id="assistantDeepAnalysisDepth">
+                    <option value="standard">Standard</option>
+                    <option value="expanded">Expanded</option>
+                    <option value="max">Max</option>
+                  </select>
+                </div>
+
+                <div class="assistant-deep-analysis-row">
+                  <div class="assistant-mini-label">Include</div>
+                  <label class="assistant-check"><input type="checkbox" data-da-section="issueMap" checked> Issue map</label>
+                  <label class="assistant-check"><input type="checkbox" data-da-section="evidenceMatrix" checked> Evidence matrix</label>
+                  <label class="assistant-check"><input type="checkbox" data-da-section="contradictionScan" checked> Contradiction scan</label>
+                  <label class="assistant-check"><input type="checkbox" data-da-section="missingEvidence" checked> Missing evidence</label>
+                  <label class="assistant-check"><input type="checkbox" data-da-section="followUpQuestions" checked> Follow-up questions</label>
+                </div>
+              </div>
+            </div>
+
             <div class="assistant-row">
+              <button type="button" id="assistantGenerateDraftBtn" class="btn-soft">Generate Draft</button>
+              <button id="assistantOpenFileEditBtn" type="button" class="btn-soft">Edit file</button>
               <button type="button" id="assistantSendBtn" class="btn-primary">Send</button>
             </div>
           </div>
@@ -346,6 +559,93 @@
             <textarea id="deliverableEditor" placeholder="Deliverable text..."></textarea>
           </div>
         </div>
+
+        <section id="assistantDraftWorkspace" class="assistant-draft-workspace is-hidden">
+          <div class="assistant-draft-header">
+            <div>
+              <h3 id="assistantDraftTitle">Working Draft</h3>
+              <div id="assistantDraftMeta" class="assistant-draft-meta">No draft yet</div>
+            </div>
+            <div class="assistant-draft-header-actions">
+              <button id="assistantDraftCloseBtn" type="button" class="btn-soft">Close</button>
+            </div>
+          </div>
+
+          <div id="assistantDraftStatus" class="assistant-draft-status" aria-live="polite"></div>
+          <div id="assistantDraftQuickActions" class="assistant-draft-toolbar"></div>
+
+          <div class="assistant-draft-revision-row">
+            <input
+              id="assistantDraftInstructionInput"
+              type="text"
+              class="assistant-text-input"
+              placeholder="Revise this draft... e.g. Make it more formal and cut repetition"
+            />
+            <button id="assistantDraftApplyInstructionBtn" type="button" class="btn-primary">Apply</button>
+          </div>
+
+          <textarea
+            id="assistantDraftEditor"
+            class="assistant-draft-editor"
+            placeholder="Generated draft will appear here"
+            spellcheck="true"
+          ></textarea>
+
+          <div class="assistant-draft-footer">
+            <div class="assistant-draft-footer-actions">
+              <button id="assistantDraftSaveVersionBtn" type="button" class="btn-soft">Save Version</button>
+              <button id="assistantDraftRegenerateBtn" type="button" class="btn-soft">Regenerate From Prompt</button>
+            </div>
+            <div id="assistantDraftDirtyState" class="assistant-draft-dirty-state"></div>
+          </div>
+
+          <div class="assistant-draft-version-block">
+            <div class="assistant-draft-version-title">Versions</div>
+            <div id="assistantDraftVersions" class="assistant-draft-versions"></div>
+          </div>
+        </section>
+
+        <section id="assistantFileEditPanel" class="assistant-tool-panel hidden">
+          <div class="assistant-tool-panel-header">
+            <h3>File-native document editing</h3>
+            <button id="assistantCloseFileEditBtn" type="button" class="btn-soft">Close</button>
+          </div>
+
+          <div class="assistant-tool-row">
+            <input id="assistantFileInput" type="file" accept=".txt,.md,.html,.htm" />
+            <button id="assistantClearLoadedFileBtn" type="button" class="btn-soft">Clear</button>
+          </div>
+
+          <div id="assistantLoadedFileMeta" class="assistant-file-meta hidden"></div>
+
+          <div class="assistant-tool-row">
+            <label><input id="assistantPreserveStructureToggle" type="checkbox" checked /> Preserve structure</label>
+            <label><input id="assistantTrackChangesToggle" type="checkbox" checked /> Track changes view</label>
+            <label><input id="assistantWholeDocToggle" type="checkbox" /> Whole document mode</label>
+          </div>
+
+          <div class="assistant-tool-row">
+            <textarea
+              id="assistantFileEditInstruction"
+              class="assistant-large-textarea"
+              placeholder="Describe the edits to make in the loaded file..."
+            ></textarea>
+          </div>
+
+          <div class="assistant-tool-row">
+            <button id="assistantRunFileEditBtn" type="button" class="btn-primary">Suggest edits</button>
+            <button id="assistantApplyAllFileEditsBtn" type="button" class="btn-soft" disabled>Apply all</button>
+            <button id="assistantRevertLastFileEditBtn" type="button" class="btn-soft" disabled>Undo last apply</button>
+          </div>
+
+          <div id="assistantFileEditWarnings" class="assistant-inline-message hidden"></div>
+          <div id="assistantFileEditSuggestions" class="assistant-file-edit-list hidden"></div>
+
+          <div class="assistant-working-preview-wrap">
+            <div class="assistant-edit-label">Working document preview</div>
+            <pre id="assistantFileWorkingPreview" class="assistant-working-preview"></pre>
+          </div>
+        </section>
 
         <div class="card">
           <h4>Citations</h4>
@@ -433,6 +733,65 @@
           } catch (err) {
             alert(err.message || "Generation failed.");
           }
+        });
+      }
+
+      var daToggle = document.getElementById("assistantDeepAnalysisToggle");
+      var daPanel = document.getElementById("assistantDeepAnalysisPanel");
+      if (daToggle && daPanel) {
+        daToggle.addEventListener("click", function () {
+          var next = daPanel.classList.contains("hidden");
+          daPanel.classList.toggle("hidden", !next);
+          daToggle.setAttribute("aria-expanded", next ? "true" : "false");
+          if (window.appData && window.appData.assistant) {
+            var t = window.appData.assistant.threadsById["assistant-default-thread"] || {};
+            t.deepAnalysis = t.deepAnalysis || {};
+            t.deepAnalysis.enabled = true;
+            t.deepAnalysis.panelOpen = next;
+            window.appData.assistant.threadsById["assistant-default-thread"] = t;
+          }
+        });
+
+        document.querySelectorAll("[data-da-profile]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            document.querySelectorAll("[data-da-profile]").forEach(function (b) { b.classList.remove("is-selected"); });
+            btn.classList.add("is-selected");
+          });
+        });
+      }
+
+      var openDraftBtn = document.getElementById("assistantGenerateDraftBtn");
+      var draftWorkspace = document.getElementById("assistantDraftWorkspace");
+      var draftCloseBtn = document.getElementById("assistantDraftCloseBtn");
+      if (openDraftBtn && draftWorkspace) {
+        openDraftBtn.addEventListener("click", function () {
+          draftWorkspace.classList.remove("is-hidden");
+          var status = document.getElementById("assistantDraftStatus");
+          if (status) status.textContent = "Draft workspace foundation ready. Full logic will be added in the Subfeature 5 batch.";
+        });
+      }
+      if (draftCloseBtn && draftWorkspace) {
+        draftCloseBtn.addEventListener("click", function () {
+          draftWorkspace.classList.add("is-hidden");
+        });
+      }
+
+      var openFileEditBtn = document.getElementById("assistantOpenFileEditBtn");
+      var fileEditPanel = document.getElementById("assistantFileEditPanel");
+      var closeFileEditBtn = document.getElementById("assistantCloseFileEditBtn");
+      if (openFileEditBtn && fileEditPanel) {
+        openFileEditBtn.addEventListener("click", function () {
+          fileEditPanel.classList.remove("hidden");
+          var warnings = document.getElementById("assistantFileEditWarnings");
+          if (warnings) {
+            warnings.classList.remove("hidden");
+            warnings.textContent = "File-edit foundation ready. Full operation logic will be added in the Subfeature 6 batch.";
+          }
+        });
+      }
+      if (closeFileEditBtn && fileEditPanel) {
+        closeFileEditBtn.addEventListener("click", function () {
+          fileEditPanel.classList.add("hidden");
         });
       }
     });
