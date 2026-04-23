@@ -191,24 +191,51 @@
     };
   }
 
-  function applyContext(promptText, thread) {
-    if (window.ZhuxinAssistantContext && typeof window.ZhuxinAssistantContext.beforeSend === "function") {
-      var packet = window.ZhuxinAssistantContext.beforeSend(promptText, {
-        getCurrentThreadId: function () {
-          return thread.id;
-        }
-      });
+  function buildZhixinContextString(packet) {
+    if (!packet) return "";
 
-      if (packet && packet.blocked) {
+    var lines = [];
+    var includedSources = Array.isArray(packet.includedSources) ? packet.includedSources : [];
+
+    lines.push("[CONTEXT PACKET]");
+    lines.push("Source mode: " + (packet.sourceMode || "auto"));
+
+    if (packet.manualContextNote) {
+      lines.push("Manual context note: " + packet.manualContextNote);
+    }
+
+    lines.push("Included sources:");
+
+    includedSources.forEach(function (source, index) {
+      var label = (source && (source.label || source.title)) || "Source";
+      var summary = source && source.summary ? " — " + source.summary : "";
+      lines.push((index + 1) + ". " + label + summary);
+    });
+
+    return lines.join("\n");
+  }
+
+  function applyContext(promptText, thread) {
+    if (
+      window.ZhixinContextOrchestration &&
+      typeof window.ZhixinContextOrchestration.validateBeforeSend === "function" &&
+      typeof window.ZhixinContextOrchestration.getContextPacket === "function"
+    ) {
+      var validation = window.ZhixinContextOrchestration.validateBeforeSend(promptText);
+
+      if (!validation || !validation.ok) {
         return {
           ok: false,
-          error: (packet.errors && packet.errors[0]) || "Context validation failed."
+          error: (validation && validation.errors && validation.errors[0]) || "Context validation failed."
         };
       }
 
+      var packet = window.ZhixinContextOrchestration.getContextPacket(promptText);
+      var serializedContextString = buildZhixinContextString(packet);
+
       return {
         ok: true,
-        finalPrompt: packet && packet.serializedPrompt ? packet.serializedPrompt : promptText,
+        finalPrompt: serializedContextString ? serializedContextString + "\n\n" + promptText : promptText,
         contextPacket: packet || null
       };
     }
