@@ -187,8 +187,8 @@
     options = options || {};
     const nextText = text || "";
 
-    turn.text = options.append ? (turn.text || "") + nextText : nextText;
-    turn.content = turn.text;
+    String(turn.text || '') = options.append ? (String(turn.text || '') || "") + nextText : nextText;
+    turn.content = String(turn.text || '');
 
     if (options.status) turn.status = options.status;
     if (options.meta) {
@@ -196,7 +196,7 @@
     }
 
     thread.updatedAt = now();
-    thread.lastPreview = (turn.text || "").slice(0, 140);
+    thread.lastPreview = String(turn.text || '').slice(0, 140);
 
     save();
     renderAll();
