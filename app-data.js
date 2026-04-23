@@ -959,3 +959,18 @@ window.createAssistantFileEditState = function createAssistantFileEditState() {
     }
   };
 };
+
+window.ZHUXIN_APP = window.ZHUXIN_APP || {};
+window.ZHUXIN_APP.defaults = window.ZHUXIN_APP.defaults || {};
+
+window.ZHUXIN_APP.defaults.languageUnderstanding = {
+  enabled: true,
+  responseMode: "match-input",
+  customLanguage: "",
+  preserveTerms: true,
+  clarifyDenseText: false,
+  preserveQuotedText: true,
+  preserveCitations: true,
+  persistPerThread: true,
+  quickLanguages: ["english", "bengali"]
+};
