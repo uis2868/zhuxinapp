@@ -290,6 +290,12 @@ export async function generateNoticeContent({ input, matter, files, settings }) 
   return { title, content };
 }
 
+function getAppAssistant() {
+  window.appData = window.appData || {};
+  window.appData.assistant = window.appData.assistant || {};
+  return window.appData.assistant;
+}
+
 function getSettingsFromWindow() {
   var preferences = {
     groundedQa: ((window.appData || {}).assistant || {}).settings
@@ -372,6 +378,163 @@ async function callAssistantModel(modelPayload) {
   });
 }
 
+function getCurrentThreadId() {
+  const assistant = getAppAssistant();
+  return assistant.activeThreadId || 'assistant-default-thread';
+}
+
+function getThreadRecord(threadId) {
+  const assistant = getAppAssistant();
+  assistant.threadsById = assistant.threadsById || {};
+  assistant.threadsById[threadId] = assistant.threadsById[threadId] || { id: threadId };
+  return assistant.threadsById[threadId];
+}
+
+function getDeepAnalysisState() {
+  const assistant = getAppAssistant();
+  const thread = getThreadRecord(getCurrentThreadId());
+  const fallback = assistant.deepAnalysis?.defaultState || {
+    enabled: false,
+    panelOpen: false,
+    profile: 'balanced',
+    retrievalDepth: 'standard',
+    sections: {
+      issueMap: true,
+      evidenceMatrix: true,
+      contradictionScan: true,
+      missingEvidence: true,
+      followUpQuestions: true
+    },
+    sourceLimit: 12,
+    lastRun: null
+  };
+  thread.deepAnalysis = Object.assign({}, fallback, thread.deepAnalysis || {});
+  thread.deepAnalysis.sections = Object.assign({}, fallback.sections || {}, (thread.deepAnalysis && thread.deepAnalysis.sections) || {});
+  return thread.deepAnalysis;
+}
+
+function getSelectedSourcesForAnalysis() {
+  const files = getCurrentFilesFromWindow();
+  return files.slice(0, getDeepAnalysisState().sourceLimit || 12).map(function (file, index) {
+    return {
+      rank: index + 1,
+      id: file.id || ('src-' + index),
+      title: file.name || ('Source ' + (index + 1)),
+      type: file.fileType || 'source',
+      citationLabel: file.recordType || '',
+      excerpt: file.note || file.name || '',
+      metadata: {}
+    };
+  });
+}
+
+function renderDeepAnalysisMetaHeader(meta) {
+  var config = meta.config || {};
+  var sectionNames = [];
+  var sections = config.sections || {};
+
+  Object.keys(sections).forEach(function (key) {
+    if (sections[key]) sectionNames.push(key);
+  });
+
+  return [
+    '<div class="assistant-analysis-meta">',
+    '<div class="assistant-analysis-meta-title">Deep analysis</div>',
+    '<div class="assistant-analysis-meta-chips">',
+    '<span class="assistant-analysis-meta-chip">Profile: ' + escapeHtml(config.profile || 'balanced') + '</span>',
+    '<span class="assistant-analysis-meta-chip">Depth: ' + escapeHtml(config.retrievalDepth || 'standard') + '</span>',
+    '<span class="assistant-analysis-meta-chip">Sources: ' + escapeHtml(meta.sourceCount || 0) + '</span>',
+    '<span class="assistant-analysis-meta-chip">Blocks: ' + escapeHtml(sectionNames.join(', ') || 'none') + '</span>',
+    '</div>',
+    '</div>'
+  ].join('');
+}
+
+function buildDeepAnalysisPlan(promptText, state, selectedSources) {
+  var steps = [];
+
+  if (state.sections.issueMap) steps.push('Map the core issues or questions that must be resolved.');
+  if (state.sections.evidenceMatrix) steps.push('Group the most relevant source-backed evidence by issue.');
+  if (state.sections.contradictionScan) steps.push('Find contradictions, tension points, or unresolved source conflicts.');
+  if (state.sections.missingEvidence) steps.push('Identify what is still missing or too weak to support a confident conclusion.');
+  if (state.sections.followUpQuestions) steps.push('Produce the most useful follow-up questions or next retrieval targets.');
+
+  return {
+    mode: 'deep-analysis',
+    profile: state.profile,
+    retrievalDepth: state.retrievalDepth,
+    sourceCount: selectedSources.length,
+    sources: selectedSources,
+    promptText: String(promptText || '').trim(),
+    steps: steps
+  };
+}
+
+function buildDeepAnalysisSystemInstruction(state) {
+  var profileInstruction = {
+    balanced: 'Be thorough, structured, and grounded. Avoid unsupported jumps.',
+    precision: 'Be narrow, conservative, and explicit about uncertainty. Prefer tighter claims over broader claims.',
+    broad: 'Perform wider issue spotting and alternative-angle analysis, while staying grounded in the provided materials.'
+  }[state.profile] || 'Be thorough and grounded.';
+
+  return [
+    'You are operating in Deep Analysis & Retrieval Intelligence mode.',
+    'Your job is not only to answer, but to decompose the problem, organize evidence, surface contradictions, and report missing support.',
+    'Do not invent source support.',
+    'If evidence is thin or conflicting, say so explicitly.',
+    profileInstruction
+  ].join('\n');
+}
+
+function buildDeepAnalysisUserInstruction(plan) {
+  var sections = [];
+
+  sections.push('User request:\n' + plan.promptText);
+  sections.push(
+    'Normalized sources:\n' +
+    plan.sources.map(function (src) {
+      return [
+        '- [' + src.rank + '] ' + src.title,
+        '  Type: ' + src.type,
+        src.citationLabel ? '  Reference: ' + src.citationLabel : '',
+        src.excerpt ? '  Excerpt: ' + src.excerpt : ''
+      ].filter(Boolean).join('\n');
+    }).join('\n')
+  );
+  sections.push(
+    'Required analysis steps:\n' +
+    plan.steps.map(function (step, index) {
+      return (index + 1) + '. ' + step;
+    }).join('\n')
+  );
+  sections.push(
+    [
+      'Return the answer in this order:',
+      '1. Direct conclusion',
+      '2. Issue map',
+      '3. Evidence matrix',
+      '4. Contradictions or tension points',
+      '5. Missing evidence / uncertainty',
+      '6. Follow-up questions',
+      'Use headings. Stay source-grounded.'
+    ].join('\n')
+  );
+
+  return sections.join('\n\n');
+}
+
+function parseDeepAnalysisResponse(text) {
+  var raw = String(text || '');
+  var sections = raw.split(/\n(?=#+\s)/g).map(function (block) {
+    return block.trim();
+  }).filter(Boolean);
+
+  return {
+    raw: raw,
+    sections: sections
+  };
+}
+
 async function generateStandardAssistantResponse(payload) {
   const matter = getCurrentMatterFromWindow();
   const files = getCurrentFilesFromWindow();
@@ -428,9 +591,67 @@ async function generateGroundedQaResponse(payload) {
   }
 }
 
+async function generateDeepAnalysisAssistantResponse(payload) {
+  var state = getDeepAnalysisState();
+  var sources = getSelectedSourcesForAnalysis();
+  var plan = buildDeepAnalysisPlan(payload.finalPrompt || payload.rawPrompt || '', state, sources);
+  var settings = getSettingsFromWindow();
+
+  const aiResponse = await callConfiguredAi({
+    settings,
+    messages: [
+      { role: 'system', content: buildDeepAnalysisSystemInstruction(state) },
+      { role: 'user', content: buildDeepAnalysisUserInstruction(plan) }
+    ]
+  });
+
+  var text = aiResponse || [
+    '# Direct conclusion',
+    'Deep analysis foundation is active. Live structured reasoning will become stronger after the Subfeature 4 helper batch.',
+    '',
+    '# Issue map',
+    '- Review the prompt against the selected matter and file context.',
+    '',
+    '# Evidence matrix',
+    '- Current selected sources are listed in the deep-analysis metadata header.',
+    '',
+    '# Contradictions or tension points',
+    '- No contradiction engine is active yet in this foundation batch.',
+    '',
+    '# Missing evidence / uncertainty',
+    '- More precise evidence grouping will be added in the Subfeature 4 helper batch.',
+    '',
+    '# Follow-up questions',
+    '- What exact issue should be prioritized first?',
+    '- Which attached source is most controlling?'
+  ].join('\n');
+
+  state.lastRun = {
+    at: new Date().toISOString(),
+    responseType: 'assistant-deep-analysis'
+  };
+
+  return {
+    role: 'assistant',
+    type: 'assistant-deep-analysis',
+    text: text,
+    parsed: parseDeepAnalysisResponse(text),
+    deepAnalysisMeta: {
+      config: state,
+      sourceCount: plan.sourceCount,
+      planSteps: plan.steps
+    }
+  };
+}
+
 async function generateAssistantResponse(payload) {
-  var assistant = (window.appData && window.appData.assistant) || {};
+  var assistant = getAppAssistant();
   var groundedSettings = (assistant.settings && assistant.settings.groundedQa) || {};
+  var deepAnalysisState = getDeepAnalysisState();
+
+  if (deepAnalysisState.enabled) {
+    return await generateDeepAnalysisAssistantResponse(payload);
+  }
 
   if (groundedSettings.enabled && groundedSettings.groundedOnly && window.ZhuxinGroundedQA) {
     return await generateGroundedQaResponse(payload);
@@ -438,6 +659,158 @@ async function generateAssistantResponse(payload) {
 
   return await generateStandardAssistantResponse(payload);
 }
+
+window.ZhuxinGenerationEngine = window.ZhuxinGenerationEngine || {};
+
+Object.assign(window.ZhuxinGenerationEngine, {
+  async runDraftGeneration(payload) {
+    const titleSeed = (payload && payload.prompt) ? String(payload.prompt).trim() : 'Working Draft';
+    const title = titleSeed.length <= 48 ? titleSeed : (titleSeed.slice(0, 48).trim() + '...');
+    return {
+      title: title || 'Working Draft',
+      text: [
+        payload.prompt || '',
+        '',
+        'This is the shared foundation output for Draft Generation.',
+        'Full draft generation and revision logic will be added in the Subfeature 5 batch.'
+      ].join('\n').trim()
+    };
+  },
+
+  async runDraftRevision(payload) {
+    return {
+      title: payload.title || 'Working Draft',
+      text: [
+        payload.draftText || '',
+        '',
+        '[Revision instruction applied in foundation mode]',
+        payload.instruction ? ('Instruction: ' + payload.instruction) : ''
+      ].join('\n').trim()
+    };
+  }
+});
+
+window.GenerationEngine = window.GenerationEngine || {};
+
+window.GenerationEngine.run = async function (request) {
+  return JSON.stringify({
+    summary: "Foundation mode file-edit suggestions generated.",
+    warnings: [
+      "Structured file-edit logic will be strengthened in the Subfeature 6 batch."
+    ],
+    operations: []
+  });
+};
+
+window.GenerationEngine.fileEdit = (function () {
+  function buildBlockPayload(blocks) {
+    return blocks.map(function (block) {
+      return {
+        id: block.id,
+        index: block.index,
+        text: block.text
+      };
+    });
+  }
+
+  function buildPrompt(payload) {
+    return [
+      "You are editing an existing document, not creating a new one.",
+      "Return JSON only.",
+      "Task mode: file_edit.",
+      "Preserve the document structure unless the instruction explicitly requires structural edits.",
+      "Do not invent new sections, attachments, citations, or metadata.",
+      "Do not output the full rewritten document unless the entire file truly requires rewriting.",
+      "Prefer targeted operations against provided blocks.",
+      "",
+      "Required JSON schema:",
+      "{",
+      '  "summary": "string",',
+      '  "warnings": ["string"],',
+      '  "operations": [',
+      "    {",
+      '      "id": "op_1",',
+      '      "action": "replace|insert_before|insert_after|delete",',
+      '      "blockId": "b1",',
+      '      "before": "exact source text or empty string for insert",',
+      '      "after": "replacement text or empty string for delete",',
+      '      "reason": "why this edit is needed",',
+      '      "confidence": 0.0',
+      "    }",
+      "  ]",
+      "}",
+      "",
+      "User instruction:",
+      payload.instruction,
+      "",
+      "Editing options:",
+      JSON.stringify(payload.options, null, 2),
+      "",
+      "File metadata:",
+      JSON.stringify(payload.fileMeta, null, 2),
+      "",
+      "Blocks:",
+      JSON.stringify(buildBlockPayload(payload.blocks), null, 2)
+    ].join("\n");
+  }
+
+  function normalizeOperation(op, idx) {
+    return {
+      id: String(op.id || ("op_" + (idx + 1))),
+      action: ["replace", "insert_before", "insert_after", "delete"].indexOf(op.action) >= 0 ? op.action : "replace",
+      blockId: String(op.blockId || ""),
+      before: typeof op.before === "string" ? op.before : "",
+      after: typeof op.after === "string" ? op.after : "",
+      reason: typeof op.reason === "string" ? op.reason : "",
+      confidence: typeof op.confidence === "number" ? op.confidence : 0.5
+    };
+  }
+
+  function normalizeResponse(raw, payload) {
+    var parsed = raw;
+
+    if (typeof raw === "string") {
+      parsed = JSON.parse(raw);
+    }
+
+    parsed = parsed || {};
+
+    var validBlockIds = {};
+    (payload.blocks || []).forEach(function (block) {
+      validBlockIds[block.id] = true;
+    });
+
+    var operations = Array.isArray(parsed.operations) ? parsed.operations : [];
+    operations = operations
+      .map(normalizeOperation)
+      .filter(function (op) {
+        return !!validBlockIds[op.blockId];
+      })
+      .slice(0, getAppAssistant().fileEditor.maxOperationsPerPass);
+
+    return {
+      summary: typeof parsed.summary === "string" ? parsed.summary : "",
+      warnings: Array.isArray(parsed.warnings) ? parsed.warnings : [],
+      operations: operations
+    };
+  }
+
+  async function run(payload) {
+    var prompt = buildPrompt(payload);
+    var raw = await window.GenerationEngine.run({
+      mode: "file_edit",
+      prompt: prompt,
+      response_format: "json"
+    });
+    return normalizeResponse(raw, payload);
+  }
+
+  return {
+    buildPrompt: buildPrompt,
+    normalizeResponse: normalizeResponse,
+    run: run
+  };
+})();
 
 export async function runAssistantGeneration({ rawPrompt, finalPrompt, contextPacket }) {
   const statusBar = document.getElementById("statusBar");
@@ -454,6 +827,10 @@ export async function runAssistantGeneration({ rawPrompt, finalPrompt, contextPa
   if (outputEl) {
     outputEl.innerHTML = "";
 
+    if (message.type === 'assistant-deep-analysis') {
+      outputEl.insertAdjacentHTML('beforeend', renderDeepAnalysisMetaHeader(message.deepAnalysisMeta || {}));
+    }
+
     var textWrap = document.createElement("div");
     textWrap.textContent = message.text || "No response.";
     outputEl.appendChild(textWrap);
@@ -469,10 +846,7 @@ export async function runAssistantGeneration({ rawPrompt, finalPrompt, contextPa
 }
 
 export function prepareAssistantRequest(rawPrompt) {
-  var currentThreadId =
-    typeof window.getCurrentAssistantThreadId === "function"
-      ? window.getCurrentAssistantThreadId()
-      : "assistant-default-thread";
+  var currentThreadId = getCurrentThreadId();
 
   var contextPacket = null;
 
