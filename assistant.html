@@ -351,6 +351,210 @@
     }
     .assistant-working-preview-wrap { margin-top: 12px; }
 
+    .assistant-language-bar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:8px;
+      padding:8px 10px;
+      border:1px solid rgba(120,120,120,0.18);
+      border-radius:10px;
+      background:rgba(120,120,120,0.05);
+    }
+    .assistant-language-left,
+    .assistant-language-right {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .assistant-pill {
+      display:inline-flex;
+      align-items:center;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      line-height:1;
+      border:1px solid rgba(120,120,120,0.18);
+      background:#fff;
+    }
+    .assistant-pill-subtle { opacity:0.82; }
+    .assistant-inline-field,
+    .assistant-inline-check {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+    }
+    .assistant-inline-field select,
+    .assistant-inline-field input[type="text"] {
+      height:30px;
+      border-radius:8px;
+      border:1px solid rgba(120,120,120,0.22);
+      padding:0 8px;
+      font-size:12px;
+      min-width:110px;
+    }
+    .assistant-hidden { display:none !important; }
+
+    .assistant-evidence-bar {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+    .assistant-citation {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:28px;
+      height:24px;
+      margin-left:4px;
+      padding:0 8px;
+      border:1px solid #d0d7de;
+      border-radius:999px;
+      background:#fff;
+      font-size:12px;
+      line-height:1;
+      cursor:pointer;
+      vertical-align:middle;
+    }
+    .assistant-citation--verified { border-color:#1a7f37; }
+    .assistant-citation--partial { border-color:#9a6700; }
+    .assistant-citation--unverified,
+    .assistant-citation--missing { border-color:#cf222e; }
+
+    .assistant-verification {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid transparent;
+    }
+    .assistant-verification--verified {
+      color:#1a7f37;
+      border-color:rgba(26,127,55,0.25);
+      background:rgba(26,127,55,0.08);
+    }
+    .assistant-verification--partial {
+      color:#9a6700;
+      border-color:rgba(154,103,0,0.25);
+      background:rgba(154,103,0,0.08);
+    }
+    .assistant-verification--unverified {
+      color:#cf222e;
+      border-color:rgba(207,34,46,0.25);
+      background:rgba(207,34,46,0.08);
+    }
+    .assistant-verification--uncited {
+      color:#57606a;
+      border-color:rgba(87,96,106,0.2);
+      background:rgba(87,96,106,0.06);
+    }
+    .assistant-sources-button {
+      height:32px;
+      padding:0 12px;
+      border-radius:8px;
+      border:1px solid #d0d7de;
+      background:#fff;
+      cursor:pointer;
+      font-size:12px;
+    }
+    .assistant-source-drawer {
+      position:fixed;
+      inset:0;
+      display:none;
+      z-index:5000;
+    }
+    .assistant-source-drawer--open { display:block; }
+    .assistant-source-drawer__backdrop {
+      position:absolute;
+      inset:0;
+      background:rgba(15,23,42,0.35);
+    }
+    .assistant-source-drawer__panel {
+      position:absolute;
+      top:0;
+      right:0;
+      width:min(460px,100vw);
+      height:100%;
+      background:#fff;
+      box-shadow:-8px 0 24px rgba(0,0,0,0.12);
+      display:flex;
+      flex-direction:column;
+    }
+    .assistant-source-drawer__header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px;
+      border-bottom:1px solid #eaeef2;
+    }
+    .assistant-source-drawer__body {
+      padding:16px;
+      overflow:auto;
+    }
+    .assistant-source-card {
+      border:1px solid #eaeef2;
+      border-radius:12px;
+      padding:14px;
+      margin-bottom:12px;
+      background:#fff;
+    }
+    .assistant-source-card--focused {
+      border-color:#218bff;
+      box-shadow:0 0 0 3px rgba(33,139,255,0.12);
+    }
+    .assistant-source-card__title-row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .assistant-source-card__title {
+      margin:0;
+      font-size:14px;
+      font-weight:600;
+    }
+    .assistant-source-card__type,
+    .assistant-source-card__locator,
+    .assistant-source-card__status {
+      font-size:12px;
+      color:#57606a;
+    }
+    .assistant-source-card__excerpt {
+      margin-top:10px;
+      font-size:13px;
+      line-height:1.5;
+      color:#24292f;
+    }
+    .assistant-source-card__footer {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:12px;
+    }
+    .assistant-source-card__citations {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .assistant-source-card__citation-pill {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:11px;
+      background:#f6f8fa;
+    }
+
     @media (max-width:768px) {
       .layout { grid-template-columns:1fr; }
       .assistant-edit-grid { grid-template-columns: 1fr; }
@@ -360,6 +564,7 @@
       .assistant-context-source-row { grid-template-columns: auto 1fr; }
       .assistant-context-source-status { grid-column: 2 / 3; }
       .assistant-context-summary { width: 100%; }
+      .assistant-source-drawer__panel { width:100vw; }
     }
   </style>
 </head>
@@ -404,6 +609,40 @@
               rows="6"
               placeholder="Describe the task in plain language. Example: Compare the two versions and give me a memo with key differences."
             ></textarea>
+
+            <div id="assistantLanguageBar" class="assistant-language-bar">
+              <div class="assistant-language-left">
+                <span id="assistantDetectedLanguageBadge" class="assistant-pill">Input: Auto</span>
+                <span id="assistantLanguageDetailBadge" class="assistant-pill assistant-pill-subtle">Reply: Match input</span>
+              </div>
+
+              <div class="assistant-language-right">
+                <label class="assistant-inline-field" for="assistantResponseLanguageMode">
+                  <span>Reply</span>
+                  <select id="assistantResponseLanguageMode">
+                    <option value="match-input">Match input</option>
+                    <option value="english">English</option>
+                    <option value="bengali">বাংলা</option>
+                    <option value="selected">Selected…</option>
+                  </select>
+                </label>
+
+                <label id="assistantCustomLanguageWrap" class="assistant-inline-field assistant-hidden" for="assistantCustomLanguage">
+                  <span>Language</span>
+                  <input id="assistantCustomLanguage" type="text" placeholder="e.g. Hindi, Arabic, French" maxlength="40" />
+                </label>
+
+                <label class="assistant-inline-check" for="assistantPreserveTerms">
+                  <input id="assistantPreserveTerms" type="checkbox" checked />
+                  <span>Preserve names/terms</span>
+                </label>
+
+                <label class="assistant-inline-check" for="assistantClarifyDenseText">
+                  <input id="assistantClarifyDenseText" type="checkbox" />
+                  <span>Clarify dense text</span>
+                </label>
+              </div>
+            </div>
 
             <div class="assistant-row">
               <button type="button" id="assistantImproveBtn" class="btn-soft">Improve</button>
@@ -666,6 +905,30 @@
     </div>
   </div>
 
+  <div id="assistant-source-drawer" class="assistant-source-drawer" aria-hidden="true">
+    <div class="assistant-source-drawer__backdrop" data-close-source-drawer></div>
+    <aside class="assistant-source-drawer__panel" aria-label="Answer sources">
+      <div class="assistant-source-drawer__header">
+        <strong>Sources &amp; verification</strong>
+        <button id="assistant-source-drawer-close" type="button" aria-label="Close sources">✕</button>
+      </div>
+      <div class="assistant-source-drawer__body">
+        <div id="assistant-source-drawer-summary"></div>
+        <div id="assistant-source-drawer-list"></div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="assistant-thread-history.js"></script>
+  <script src="assistant-reuse-library.js"></script>
+  <script src="assistant-governance.js"></script>
+  <script src="language-understanding.js"></script>
+  <script src="assistant-collaboration.js"></script>
+  <script src="assistant-export-handoff.js"></script>
+  <script src="assistant-citations.js"></script>
+  <script src="assistant-draft-editor.js"></script>
+  <script src="assistant-file-editor.js"></script>
+
   <script src="assistant-composer.js"></script>
   <script src="assistant-context-orchestrator.js"></script>
   <script src="assistant-grounded-qa.js"></script>
@@ -675,18 +938,27 @@
     document.addEventListener("DOMContentLoaded", function () {
       if (window.ZhuxinComposer) {
         window.ZhuxinComposer.init({
-          inputSelector: '#assistant-prompt-input',
-          outputChipsSelector: '#assistantOutputModeChips',
-          improveBtnSelector: '#assistantImproveBtn',
-          restoreBtnSelector: '#assistantRestoreBtn',
-          metaToggleSelector: '#assistantMetaToggleBtn',
-          metaPanelSelector: '#assistantMetaPanel',
-          audienceSelector: '#assistantAudienceSelect',
-          toneSelector: '#assistantToneSelect',
-          depthSelector: '#assistantDepthSelect',
-          statusSelector: '#assistantPromptStatus',
-          hintsSelector: '#assistantPromptHints',
-          errorSelector: '#assistantComposerError'
+          inputSelector: "#assistant-prompt-input",
+          outputChipsSelector: "#assistantOutputModeChips",
+          improveBtnSelector: "#assistantImproveBtn",
+          restoreBtnSelector: "#assistantRestoreBtn",
+          metaToggleSelector: "#assistantMetaToggleBtn",
+          metaPanelSelector: "#assistantMetaPanel",
+          audienceSelector: "#assistantAudienceSelect",
+          toneSelector: "#assistantToneSelect",
+          depthSelector: "#assistantDepthSelect",
+          statusSelector: "#assistantPromptStatus",
+          hintsSelector: "#assistantPromptHints",
+          errorSelector: "#assistantComposerError"
+        });
+      }
+
+      if (window.ZhuxinAssistantThreads) {
+        window.ZhuxinAssistantThreads.init({
+          threadListEl: document.getElementById("threadList"),
+          messageListEl: document.getElementById("messages"),
+          activeTitleEl: null,
+          newThreadBtnEl: document.getElementById("newThreadBtn")
         });
       }
 
@@ -703,6 +975,10 @@
           warningId: "assistant-context-warning",
           modeRowId: "assistant-context-mode-row",
           getCurrentThreadId: function () {
+            if (window.ZhuxinAssistantThreads && window.ZhuxinAssistantThreads.getActiveThread) {
+              var thread = window.ZhuxinAssistantThreads.getActiveThread();
+              return thread && thread.id ? thread.id : "assistant-default-thread";
+            }
             return "assistant-default-thread";
           }
         });
@@ -710,6 +986,30 @@
 
       if (window.ZhuxinGroundedQA) {
         window.ZhuxinGroundedQA.init();
+      }
+
+      if (window.AssistantDraftEditor) {
+        window.AssistantDraftEditor.init();
+      }
+
+      if (window.AssistantFileEditor) {
+        window.AssistantFileEditor.init();
+      }
+
+      if (window.AssistantCollaboration) {
+        window.AssistantCollaboration.init();
+      }
+
+      if (window.AssistantExportHandoff) {
+        window.AssistantExportHandoff.init();
+      }
+
+      if (window.ZhuxinCitations) {
+        window.ZhuxinCitations.init();
+      }
+
+      if (window.initAssistantLanguageUnderstanding) {
+        window.initAssistantLanguageUnderstanding();
       }
 
       var tabs = document.querySelectorAll(".tab");
@@ -743,13 +1043,6 @@
           var next = daPanel.classList.contains("hidden");
           daPanel.classList.toggle("hidden", !next);
           daToggle.setAttribute("aria-expanded", next ? "true" : "false");
-          if (window.appData && window.appData.assistant) {
-            var t = window.appData.assistant.threadsById["assistant-default-thread"] || {};
-            t.deepAnalysis = t.deepAnalysis || {};
-            t.deepAnalysis.enabled = true;
-            t.deepAnalysis.panelOpen = next;
-            window.appData.assistant.threadsById["assistant-default-thread"] = t;
-          }
         });
 
         document.querySelectorAll("[data-da-profile]").forEach(function (btn) {
@@ -757,41 +1050,6 @@
             document.querySelectorAll("[data-da-profile]").forEach(function (b) { b.classList.remove("is-selected"); });
             btn.classList.add("is-selected");
           });
-        });
-      }
-
-      var openDraftBtn = document.getElementById("assistantGenerateDraftBtn");
-      var draftWorkspace = document.getElementById("assistantDraftWorkspace");
-      var draftCloseBtn = document.getElementById("assistantDraftCloseBtn");
-      if (openDraftBtn && draftWorkspace) {
-        openDraftBtn.addEventListener("click", function () {
-          draftWorkspace.classList.remove("is-hidden");
-          var status = document.getElementById("assistantDraftStatus");
-          if (status) status.textContent = "Draft workspace foundation ready. Full logic will be added in the Subfeature 5 batch.";
-        });
-      }
-      if (draftCloseBtn && draftWorkspace) {
-        draftCloseBtn.addEventListener("click", function () {
-          draftWorkspace.classList.add("is-hidden");
-        });
-      }
-
-      var openFileEditBtn = document.getElementById("assistantOpenFileEditBtn");
-      var fileEditPanel = document.getElementById("assistantFileEditPanel");
-      var closeFileEditBtn = document.getElementById("assistantCloseFileEditBtn");
-      if (openFileEditBtn && fileEditPanel) {
-        openFileEditBtn.addEventListener("click", function () {
-          fileEditPanel.classList.remove("hidden");
-          var warnings = document.getElementById("assistantFileEditWarnings");
-          if (warnings) {
-            warnings.classList.remove("hidden");
-            warnings.textContent = "File-edit foundation ready. Full operation logic will be added in the Subfeature 6 batch.";
-          }
-        });
-      }
-      if (closeFileEditBtn && fileEditPanel) {
-        closeFileEditBtn.addEventListener("click", function () {
-          fileEditPanel.classList.add("hidden");
         });
       }
     });
