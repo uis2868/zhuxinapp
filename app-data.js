@@ -718,7 +718,7 @@ export async function saveAppSettings(input) {
 
 /* =========================
    ZHUXIN ASSISTANT GLOBAL STATE (UNIFIED)
-   Subfeature 2 + Subfeature 3
+   Subfeatures 2 + 3 + shared foundation for 4 + 5 + 6
    ========================= */
 
 window.appData = window.appData || {};
@@ -729,6 +729,8 @@ window.appData.assistant = window.appData.assistant || {};
 
   assistant.settings = assistant.settings || {};
   assistant.runtime = assistant.runtime || {};
+  assistant.threadsById = assistant.threadsById || {};
+  assistant.activeThreadId = assistant.activeThreadId || "assistant-default-thread";
 
   assistant.contextOrchestration = Object.assign({
     defaultMode: "auto",
@@ -778,4 +780,182 @@ window.appData.assistant = window.appData.assistant || {};
   assistant.runtime.selectedSourceIds = assistant.runtime.selectedSourceIds || [];
   assistant.runtime.selectedAttachmentIds = assistant.runtime.selectedAttachmentIds || [];
   assistant.runtime.sourceBundleVersion = assistant.runtime.sourceBundleVersion || 0;
+
+  assistant.deepAnalysis = Object.assign({
+    profiles: {
+      balanced: {
+        label: "Balanced",
+        description: "Default deep analysis with issue mapping and contradiction scanning."
+      },
+      precision: {
+        label: "Precision",
+        description: "Tighter source discipline, narrower claims, stronger gap reporting."
+      },
+      broad: {
+        label: "Broad scan",
+        description: "Wider issue spotting and alternative-angle review."
+      }
+    },
+    retrievalDepthOptions: ["standard", "expanded", "max"],
+    defaultState: {
+      enabled: false,
+      panelOpen: false,
+      profile: "balanced",
+      retrievalDepth: "standard",
+      sections: {
+        issueMap: true,
+        evidenceMatrix: true,
+        contradictionScan: true,
+        missingEvidence: true,
+        followUpQuestions: true
+      },
+      sourceLimit: 12,
+      lastRun: null
+    }
+  }, assistant.deepAnalysis || {});
+
+  assistant.subfeature5DraftEditor = Object.assign({
+    enabled: true,
+    defaultDraftTitle: "Working Draft",
+    maxSavedVersionsPerDraft: 10,
+    quickRevisionActions: [
+      {
+        key: "tighten",
+        label: "Tighten",
+        instruction: "Tighten the draft, remove repetition, and keep the core meaning unchanged."
+      },
+      {
+        key: "expand",
+        label: "Expand",
+        instruction: "Expand the draft with more detail, fuller reasoning, and smoother transitions."
+      },
+      {
+        key: "formal",
+        label: "More Formal",
+        instruction: "Rewrite the draft in a more formal and professional tone."
+      },
+      {
+        key: "plain",
+        label: "Simplify",
+        instruction: "Rewrite the draft in simpler, clearer language without losing substance."
+      },
+      {
+        key: "structured",
+        label: "Improve Structure",
+        instruction: "Improve paragraph flow, organization, and internal structure."
+      }
+    ],
+    statusLabels: {
+      idle: "",
+      generating: "Generating draft...",
+      revising: "Applying revision...",
+      ready: "Draft ready",
+      dirty: "Unsaved manual edits"
+    }
+  }, assistant.subfeature5DraftEditor || {});
+
+  assistant.fileEditor = Object.assign({
+    enabled: true,
+    supportedExtensions: ["txt", "md", "html", "htm"],
+    maxFileSizeBytes: 600000,
+    maxInstructionChars: 3000,
+    maxOperationsPerPass: 12,
+    maxBlockChars: 2800,
+    storageKeyPrefix: "zhuxin-assistant-fileedit:",
+    defaults: {
+      preserveStructure: true,
+      trackChanges: true,
+      wholeDocumentMode: false
+    }
+  }, assistant.fileEditor || {});
+
+  if (!assistant.threadsById["assistant-default-thread"]) {
+    assistant.threadsById["assistant-default-thread"] = {
+      id: "assistant-default-thread",
+      deepAnalysis: JSON.parse(JSON.stringify(assistant.deepAnalysis.defaultState)),
+      draftEditor: {
+        threadId: "assistant-default-thread",
+        activeDraftId: null,
+        drafts: []
+      },
+      fileEditor: {
+        isOpen: false,
+        fileName: "",
+        extension: "",
+        originalContent: "",
+        workingContent: "",
+        blocks: [],
+        lastInstruction: "",
+        suggestions: [],
+        warnings: [],
+        summary: "",
+        appliedHistory: [],
+        rejectedSuggestionIds: [],
+        lastBatchBaseContent: "",
+        options: {
+          preserveStructure: true,
+          trackChanges: true,
+          wholeDocumentMode: false
+        }
+      }
+    };
+  }
 })();
+
+window.createZhuxinDraftVersion = function createZhuxinDraftVersion(payload) {
+  return {
+    id: payload.id,
+    label: payload.label,
+    source: payload.source,
+    instruction: payload.instruction || "",
+    content: payload.content || "",
+    createdAt: payload.createdAt || Date.now()
+  };
+};
+
+window.createZhuxinDraftRecord = function createZhuxinDraftRecord(payload) {
+  return {
+    id: payload.id,
+    threadId: payload.threadId,
+    title: payload.title || window.appData.assistant.subfeature5DraftEditor.defaultDraftTitle,
+    basePrompt: payload.basePrompt || "",
+    content: payload.content || "",
+    status: "idle",
+    dirty: false,
+    lastInstruction: "",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    versions: []
+  };
+};
+
+window.createZhuxinDraftState = function createZhuxinDraftState(threadId) {
+  return {
+    threadId: threadId,
+    activeDraftId: null,
+    drafts: []
+  };
+};
+
+window.createAssistantFileEditState = function createAssistantFileEditState() {
+  return {
+    isOpen: false,
+    fileName: "",
+    extension: "",
+    originalContent: "",
+    workingContent: "",
+    blocks: [],
+    lastInstruction: "",
+    suggestions: [],
+    warnings: [],
+    summary: "",
+    appliedHistory: [],
+    rejectedSuggestionIds: [],
+    lastBatchBaseContent: "",
+    options: {
+      preserveStructure: true,
+      trackChanges: true,
+      wholeDocumentMode: false
+    }
+  };
+};
