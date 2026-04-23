@@ -19,8 +19,21 @@
     return new Date().toISOString();
   }
 
+  function safeText(value) {
+    if (value == null) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    if (value.content) return safeText(value.content);
+    if (value.text) return safeText(value.text);
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "";
+    }
+  }
+
   function esc(value) {
-    return String(value || "")
+    return safeText(value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -29,13 +42,13 @@
   }
 
   function makeTitle(text) {
-    const cleaned = String(text || "").trim().replace(/\s+/g, " ");
+    const cleaned = safeText(text).trim().replace(/\s+/g, " ");
     return (cleaned || "New thread").slice(0, 80);
   }
 
   function hydrateTurn(turn) {
     turn = turn || {};
-    const text = turn.text || turn.content || "";
+    const text = safeText(turn.text || turn.content || "");
     return {
       id: turn.id || id("turn"),
       role: turn.role || "assistant",
@@ -49,6 +62,9 @@
 
   function hydrateThread(thread) {
     thread = thread || {};
+    const turns = Array.isArray(thread.turns) ? thread.turns.map(hydrateTurn) : [];
+    const lastPreview = thread.lastPreview || (turns.length ? safeText(turns[turns.length - 1].text).slice(0, 140) : "");
+
     return {
       id: thread.id || id("thread"),
       title: thread.title || "New thread",
@@ -59,8 +75,8 @@
       isDraft: !!thread.isDraft,
       createdAt: thread.createdAt || now(),
       updatedAt: thread.updatedAt || now(),
-      lastPreview: thread.lastPreview || "",
-      turns: Array.isArray(thread.turns) ? thread.turns.map(hydrateTurn) : []
+      lastPreview,
+      turns
     };
   }
 
@@ -157,7 +173,7 @@
     const thread = getThread(threadId);
     if (!thread) return null;
 
-    const text = payload.text || payload.content || "";
+    const text = safeText(payload.text || payload.content || "");
     const turn = hydrateTurn({
       role: payload.role,
       text,
@@ -168,7 +184,7 @@
     thread.turns.push(turn);
     thread.isDraft = false;
     thread.updatedAt = now();
-    thread.lastPreview = (text || "").slice(0, 140);
+    thread.lastPreview = text.slice(0, 140);
 
     save();
     renderAll();
@@ -185,10 +201,10 @@
     if (!turn) return;
 
     options = options || {};
-    const nextText = text || "";
+    const nextText = safeText(text);
 
-    String(turn.text || '') = options.append ? (String(turn.text || '') || "") + nextText : nextText;
-    turn.content = String(turn.text || '');
+    turn.text = options.append ? safeText(turn.text) + nextText : nextText;
+    turn.content = turn.text;
 
     if (options.status) turn.status = options.status;
     if (options.meta) {
@@ -196,7 +212,7 @@
     }
 
     thread.updatedAt = now();
-    thread.lastPreview = String(turn.text || '').slice(0, 140);
+    thread.lastPreview = safeText(turn.text).slice(0, 140);
 
     save();
     renderAll();
@@ -216,7 +232,7 @@
     const thread = getThread(threadId);
     if (!thread) return;
 
-    nextTitle = String(nextTitle || "").trim();
+    nextTitle = safeText(nextTitle).trim();
     if (!nextTitle) return;
 
     thread.title = nextTitle.slice(0, 80);
@@ -277,7 +293,7 @@
       .map(function (turn) {
         return {
           role: turn.role,
-          content: turn.text
+          content: safeText(turn.text)
         };
       });
   }
