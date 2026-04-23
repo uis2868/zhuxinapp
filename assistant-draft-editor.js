@@ -1,329 +1,258 @@
 (function () {
-  const STORE_KEY_PREFIX = "zhuxin-draft-editor:";
+  const STORAGE_KEY = "zhuxin.assistant.drafts.v1";
 
-  function getAssistant() {
-    window.appData = window.appData || {};
-    window.appData.assistant = window.appData.assistant || {};
-    window.appData.assistant.activeThreadId =
-      window.appData.assistant.activeThreadId || "assistant-default-thread";
-    return window.appData.assistant;
+  function loadStore() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
+  }
+
+  function saveStore(store) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
   }
 
   function getThreadId() {
-    return getAssistant().activeThreadId || "assistant-default-thread";
+    if (window.ZhuxinAssistantThreads && window.ZhuxinAssistantThreads.getActiveThread) {
+      var thread = window.ZhuxinAssistantThreads.getActiveThread();
+      return thread && thread.id ? thread.id : "assistant-default-thread";
+    }
+    return "assistant-default-thread";
   }
 
-  function getStorageKey() {
-    return STORE_KEY_PREFIX + getThreadId();
+  function ensureThreadDraft(threadId) {
+    var store = loadStore();
+    if (!store[threadId]) {
+      store[threadId] = {
+        title: "Working Draft",
+        basePrompt: "",
+        content: "",
+        dirty: false,
+        versions: []
+      };
+      saveStore(store);
+    }
+    return store[threadId];
   }
 
-  function createState() {
+  function readEls() {
     return {
-      drafts: [],
-      activeDraftId: null
+      workspace: document.getElementById("assistantDraftWorkspace"),
+      title: document.getElementById("assistantDraftTitle"),
+      meta: document.getElementById("assistantDraftMeta"),
+      status: document.getElementById("assistantDraftStatus"),
+      instruction: document.getElementById("assistantDraftInstructionInput"),
+      editor: document.getElementById("assistantDraftEditor"),
+      dirty: document.getElementById("assistantDraftDirtyState"),
+      versions: document.getElementById("assistantDraftVersions"),
+      openBtn: document.getElementById("assistantGenerateDraftBtn"),
+      closeBtn: document.getElementById("assistantDraftCloseBtn"),
+      applyBtn: document.getElementById("assistantDraftApplyInstructionBtn"),
+      saveBtn: document.getElementById("assistantDraftSaveVersionBtn"),
+      regenBtn: document.getElementById("assistantDraftRegenerateBtn"),
+      prompt: document.getElementById("assistant-prompt-input")
     };
-  }
-
-  function createDraft(basePrompt) {
-    return {
-      id: "draft_" + Date.now(),
-      title: "Working Draft",
-      basePrompt: basePrompt || "",
-      content: "",
-      status: "idle",
-      dirty: false,
-      updatedAt: Date.now(),
-      versions: []
-    };
-  }
-
-  function createVersion(label, content, instruction) {
-    return {
-      id: "ver_" + Date.now(),
-      label: label,
-      content: content,
-      instruction: instruction || "",
-      createdAt: Date.now()
-    };
-  }
-
-  let state = createState();
-
-  const els = {};
-
-  function save() {
-    localStorage.setItem(getStorageKey(), JSON.stringify(state));
-  }
-
-  function load() {
-    try {
-      const raw = localStorage.getItem(getStorageKey());
-      if (raw) {
-        state = Object.assign(createState(), JSON.parse(raw));
-      }
-    } catch (e) {}
-  }
-
-  function getActiveDraft() {
-    return state.drafts.find(d => d.id === state.activeDraftId) || null;
-  }
-
-  function openWorkspace() {
-    els.workspace.classList.remove("hidden");
-  }
-
-  function closeWorkspace() {
-    els.workspace.classList.add("hidden");
   }
 
   function setStatus(text) {
+    var els = readEls();
     if (els.status) els.status.textContent = text || "";
   }
 
-  async function generateDraft() {
-    const prompt = els.prompt?.value?.trim();
-    if (!prompt) {
-      setStatus("Write something first.");
+  function renderVersions(threadId) {
+    var els = readEls();
+    var draft = ensureThreadDraft(threadId);
+    if (!els.versions) return;
+
+    if (!draft.versions.length) {
+      els.versions.innerHTML = '<div class="muted">No saved versions yet.</div>';
       return;
     }
 
-    openWorkspace();
-
-    let draft = getActiveDraft();
-
-    if (!draft || draft.basePrompt !== prompt) {
-      draft = createDraft(prompt);
-      state.drafts.unshift(draft);
-      state.activeDraftId = draft.id;
-    }
-
-    draft.status = "generating";
-    draft.dirty = false;
-    setStatus("Generating draft...");
-    render();
-
-    try {
-      const res = await window.ZhuxinGenerationEngine.runDraftGeneration({
-        prompt
-      });
-
-      draft.title = res.title || "Working Draft";
-      draft.content = res.text || "";
-      draft.status = "ready";
-      draft.updatedAt = Date.now();
-      draft.dirty = false;
-
-      draft.versions.unshift(
-        createVersion("Initial draft", draft.content, "")
+    els.versions.innerHTML = draft.versions.map(function (v) {
+      return (
+        '<div class="assistant-draft-version-item">' +
+          '<div class="assistant-draft-version-item-meta">' +
+            "<strong>" + v.label + "</strong>" +
+            "<span>" + v.createdAt + "</span>" +
+          "</div>" +
+          '<div class="assistant-draft-version-item-actions">' +
+            '<button type="button" class="btn-soft" data-restore-version="' + v.id + '">Restore</button>' +
+          "</div>" +
+        "</div>"
       );
-
-      render();
-      save();
-    } catch (e) {
-      draft.status = "idle";
-      setStatus("Failed.");
-    }
-  }
-
-  async function reviseDraft(instruction) {
-    const draft = getActiveDraft();
-    if (!draft) {
-      setStatus("No draft.");
-      return;
-    }
-
-    if (!instruction) {
-      setStatus("Enter instruction.");
-      return;
-    }
-
-    draft.status = "revising";
-    setStatus("Revising...");
-    render();
-
-    try {
-      const res = await window.ZhuxinGenerationEngine.runDraftRevision({
-        title: draft.title,
-        draftText: draft.content,
-        instruction
-      });
-
-      draft.content = res.text || draft.content;
-      draft.updatedAt = Date.now();
-      draft.status = "ready";
-      draft.dirty = false;
-
-      draft.versions.unshift(
-        createVersion("Revision", draft.content, instruction)
-      );
-
-      els.instruction.value = "";
-      render();
-      save();
-    } catch (e) {
-      draft.status = "idle";
-      setStatus("Revision failed.");
-    }
-  }
-
-  function manualEdit() {
-    const draft = getActiveDraft();
-    if (!draft) return;
-
-    draft.content = els.editor.value;
-    draft.updatedAt = Date.now();
-    draft.dirty = true;
-    draft.status = "dirty";
-    renderMeta();
-    save();
-  }
-
-  function saveVersion() {
-    const draft = getActiveDraft();
-    if (!draft) return;
-
-    draft.versions.unshift(
-      createVersion("Manual save", draft.content, "")
-    );
-
-    draft.dirty = false;
-    draft.status = "ready";
-    render();
-    save();
-  }
-
-  function restoreVersion(id) {
-    const draft = getActiveDraft();
-    if (!draft) return;
-
-    const v = draft.versions.find(x => x.id === id);
-    if (!v) return;
-
-    draft.content = v.content;
-    draft.updatedAt = Date.now();
-    draft.dirty = false;
-    draft.status = "ready";
-
-    render();
-    save();
-  }
-
-  function renderMeta() {
-    const draft = getActiveDraft();
-
-    if (!draft) {
-      els.meta.textContent = "No draft";
-      return;
-    }
-
-    els.meta.textContent =
-      "Updated " + new Date(draft.updatedAt).toLocaleString();
-
-    els.dirty.textContent = draft.dirty ? "Unsaved edits" : "";
-    setStatus(draft.status === "dirty" ? "Unsaved edits" : "");
-  }
-
-  function renderVersions() {
-    const draft = getActiveDraft();
-
-    if (!draft || !draft.versions.length) {
-      els.versions.innerHTML = "<div>No versions</div>";
-      return;
-    }
-
-    els.versions.innerHTML = draft.versions
-      .map(v => {
-        return `
-        <div class="draft-version">
-          <strong>${escape(v.label)}</strong>
-          <span>${new Date(v.createdAt).toLocaleString()}</span>
-          <button data-id="${v.id}">Restore</button>
-        </div>
-      `;
-      })
-      .join("");
+    }).join("");
   }
 
   function render() {
-    const draft = getActiveDraft();
+    var els = readEls();
+    var threadId = getThreadId();
+    var draft = ensureThreadDraft(threadId);
 
-    if (!draft) {
-      els.title.textContent = "Working Draft";
-      els.editor.value = "";
-      renderMeta();
-      renderVersions();
+    if (els.title) els.title.textContent = draft.title || "Working Draft";
+    if (els.meta) els.meta.textContent = draft.basePrompt ? ("Base prompt: " + draft.basePrompt.slice(0, 80)) : "No draft yet";
+    if (els.editor) els.editor.value = draft.content || "";
+    if (els.dirty) els.dirty.textContent = draft.dirty ? "Unsaved edits" : "";
+    renderVersions(threadId);
+  }
+
+  function openWorkspace() {
+    var els = readEls();
+    if (els.workspace) els.workspace.classList.remove("is-hidden");
+  }
+
+  function closeWorkspace() {
+    var els = readEls();
+    if (els.workspace) els.workspace.classList.add("is-hidden");
+  }
+
+  function generateDraft() {
+    var els = readEls();
+    var threadId = getThreadId();
+    var draft = ensureThreadDraft(threadId);
+    var prompt = (els.prompt && els.prompt.value || "").trim();
+
+    if (!prompt) {
+      setStatus("Write a prompt first.");
       return;
     }
 
     openWorkspace();
 
-    els.title.textContent = draft.title;
-    if (els.editor.value !== draft.content) {
-      els.editor.value = draft.content;
-    }
-
-    renderMeta();
-    renderVersions();
-  }
-
-  function escape(s) {
-    return String(s || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;");
-  }
-
-  function bind() {
-    els.generate?.addEventListener("click", generateDraft);
-
-    els.apply?.addEventListener("click", () => {
-      reviseDraft(els.instruction.value.trim());
+    draft.basePrompt = prompt;
+    draft.title = prompt.slice(0, 48) || "Working Draft";
+    draft.content = "Draft generated from prompt:\n\n" + prompt;
+    draft.dirty = false;
+    draft.versions.unshift({
+      id: "v_" + Date.now(),
+      label: "Initial draft",
+      createdAt: new Date().toISOString(),
+      content: draft.content
     });
+    draft.versions = draft.versions.slice(0, 10);
 
-    els.editor?.addEventListener("input", manualEdit);
+    var store = loadStore();
+    store[threadId] = draft;
+    saveStore(store);
 
-    els.save?.addEventListener("click", saveVersion);
-
-    els.close?.addEventListener("click", closeWorkspace);
-
-    els.versions?.addEventListener("click", e => {
-      const id = e.target.getAttribute("data-id");
-      if (id) restoreVersion(id);
-    });
-
-    window.addEventListener("zhuxin:thread-changed", () => {
-      load();
-      render();
-    });
-  }
-
-  function cache() {
-    els.prompt = document.getElementById("assistantPromptInput");
-    els.generate = document.getElementById("assistantGenerateDraftBtn");
-
-    els.workspace = document.getElementById("assistantDraftWorkspace");
-    els.title = document.getElementById("assistantDraftTitle");
-    els.meta = document.getElementById("assistantDraftMeta");
-    els.status = document.getElementById("assistantDraftStatus");
-    els.instruction = document.getElementById("assistantDraftInstructionInput");
-    els.apply = document.getElementById("assistantDraftApplyInstructionBtn");
-    els.editor = document.getElementById("assistantDraftEditor");
-    els.close = document.getElementById("assistantDraftCloseBtn");
-    els.save = document.getElementById("assistantDraftSaveVersionBtn");
-    els.versions = document.getElementById("assistantDraftVersions");
-    els.dirty = document.getElementById("assistantDraftDirtyState");
-  }
-
-  function init() {
-    cache();
-    load();
-    bind();
+    setStatus("Draft ready");
     render();
   }
 
-  document.addEventListener("DOMContentLoaded", init);
+  function applyInstruction() {
+    var els = readEls();
+    var threadId = getThreadId();
+    var draft = ensureThreadDraft(threadId);
+    var instruction = (els.instruction && els.instruction.value || "").trim();
 
-  window.ZhuxinDraftEditor = {
-    init
-  };
+    if (!instruction) {
+      setStatus("Write a revision instruction.");
+      return;
+    }
+
+    draft.content = (draft.content || "") + "\n\n[Revision applied]\n" + instruction;
+    draft.dirty = false;
+    draft.versions.unshift({
+      id: "v_" + Date.now(),
+      label: "Revision",
+      createdAt: new Date().toISOString(),
+      content: draft.content
+    });
+    draft.versions = draft.versions.slice(0, 10);
+
+    var store = loadStore();
+    store[threadId] = draft;
+    saveStore(store);
+
+    if (els.instruction) els.instruction.value = "";
+    setStatus("Revision applied");
+    render();
+  }
+
+  function saveVersion() {
+    var els = readEls();
+    var threadId = getThreadId();
+    var draft = ensureThreadDraft(threadId);
+
+    draft.content = els.editor ? els.editor.value : draft.content;
+    draft.dirty = false;
+    draft.versions.unshift({
+      id: "v_" + Date.now(),
+      label: "Manual save",
+      createdAt: new Date().toISOString(),
+      content: draft.content
+    });
+    draft.versions = draft.versions.slice(0, 10);
+
+    var store = loadStore();
+    store[threadId] = draft;
+    saveStore(store);
+
+    setStatus("Version saved");
+    render();
+  }
+
+  function regenerate() {
+    var threadId = getThreadId();
+    var draft = ensureThreadDraft(threadId);
+    if (!draft.basePrompt) {
+      setStatus("No base prompt found.");
+      return;
+    }
+    draft.content = "Draft regenerated from prompt:\n\n" + draft.basePrompt;
+    draft.dirty = false;
+
+    var store = loadStore();
+    store[threadId] = draft;
+    saveStore(store);
+
+    setStatus("Draft regenerated");
+    render();
+  }
+
+  function bind() {
+    var els = readEls();
+
+    if (els.openBtn) els.openBtn.addEventListener("click", generateDraft);
+    if (els.closeBtn) els.closeBtn.addEventListener("click", closeWorkspace);
+    if (els.applyBtn) els.applyBtn.addEventListener("click", applyInstruction);
+    if (els.saveBtn) els.saveBtn.addEventListener("click", saveVersion);
+    if (els.regenBtn) els.regenBtn.addEventListener("click", regenerate);
+
+    if (els.editor) {
+      els.editor.addEventListener("input", function () {
+        var threadId = getThreadId();
+        var draft = ensureThreadDraft(threadId);
+        draft.content = els.editor.value;
+        draft.dirty = true;
+        var store = loadStore();
+        store[threadId] = draft;
+        saveStore(store);
+        if (els.dirty) els.dirty.textContent = "Unsaved edits";
+      });
+    }
+
+    if (els.versions) {
+      els.versions.addEventListener("click", function (event) {
+        var restoreBtn = event.target.closest("[data-restore-version]");
+        if (!restoreBtn) return;
+
+        var id = restoreBtn.getAttribute("data-restore-version");
+        var threadId = getThreadId();
+        var draft = ensureThreadDraft(threadId);
+        var version = draft.versions.find(function (v) { return v.id === id; });
+        if (!version) return;
+
+        draft.content = version.content;
+        draft.dirty = false;
+        var store = loadStore();
+        store[threadId] = draft;
+        saveStore(store);
+
+        render();
+        setStatus("Version restored");
+      });
+    }
+
+    render();
+  }
+
+  window.AssistantDraftEditor = { init: bind };
 })();
