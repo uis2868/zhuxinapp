@@ -516,46 +516,84 @@
     return out;
   }
 
-  function renderMessageHtml(turn) {
-    var role = turn.role || "assistant";
-    var text = turn.text || turn.content || "";
+  function renderUserTurn(turn) {
+    return (
+      '<div class="assistant-msg assistant-msg--user" data-message-id="' + escapeHtml(turn.id) + '">' +
+        '<div class="assistant-msg-role">user</div>' +
+        '<div class="assistant-msg-body">' + escapeHtml(turn.text || turn.content || "") + '</div>' +
+      '</div>'
+    );
+  }
 
-    if (role === "user") {
-      return (
-        '<div class="assistant-msg assistant-msg--user" data-message-id="' + escapeHtml(turn.id) + '">' +
-          '<div class="assistant-msg-role">user</div>' +
-          '<div class="assistant-msg-body">' + escapeHtml(text) + '</div>' +
-        "</div>"
-      );
+  function renderStructuredDeliverable(turn) {
+    if (window.StructuredDeliverableUI && typeof window.StructuredDeliverableUI.renderPayload === "function" && turn.payload) {
+      return window.StructuredDeliverableUI.renderPayload(turn.payload);
     }
+    return (
+      '<div class="assistant-msg assistant-msg--assistant" data-message-id="' + escapeHtml(turn.id) + '">' +
+        '<div class="assistant-msg-role">assistant</div>' +
+        '<div class="assistant-msg-body">' + escapeHtml(turn.text || "Structured deliverable created.") + '</div>' +
+      '</div>'
+    );
+  }
 
-    if (turn.type === "assistant-deep-analysis" && turn.deepAnalysisMeta) {
-      var metaHtml = "";
-      if (window.ZhuxinDeepAnalysis && typeof window.ZhuxinDeepAnalysis.renderMetaHeader === "function") {
-        metaHtml = window.ZhuxinDeepAnalysis.renderMetaHeader(turn.deepAnalysisMeta || {});
-      }
-
-      return (
-        '<div class="assistant-msg assistant-msg--assistant" data-message-id="' + escapeHtml(turn.id) + '">' +
-          '<div class="assistant-msg-role">assistant</div>' +
-          metaHtml +
-          '<div class="assistant-msg-body">' + escapeHtml(text) + '</div>' +
-        "</div>"
-      );
-    }
-
-    if (turn.type === "grounded_qa" && turn.groundedQa) {
-      if (window.ZhuxinGroundedQA && typeof window.ZhuxinGroundedQA.renderResponseCard === "function") {
-        return window.ZhuxinGroundedQA.renderResponseCard(turn.groundedQa);
-      }
+  function renderDeepAnalysisTurn(turn) {
+    var metaHtml = "";
+    if (window.ZhuxinDeepAnalysis && typeof window.ZhuxinDeepAnalysis.renderMetaHeader === "function") {
+      metaHtml = window.ZhuxinDeepAnalysis.renderMetaHeader(turn.deepAnalysisMeta || {});
     }
 
     return (
       '<div class="assistant-msg assistant-msg--assistant" data-message-id="' + escapeHtml(turn.id) + '">' +
         '<div class="assistant-msg-role">assistant</div>' +
-        '<div class="assistant-msg-body">' + escapeHtml(text) + '</div>' +
-      "</div>"
+        metaHtml +
+        '<div class="assistant-msg-body">' + escapeHtml(turn.text || turn.content || "") + '</div>' +
+      '</div>'
     );
+  }
+
+  function renderGroundedTurn(turn) {
+    if (window.ZhuxinGroundedQA && typeof window.ZhuxinGroundedQA.renderResponseCard === "function" && turn.groundedQa) {
+      return window.ZhuxinGroundedQA.renderResponseCard(turn.groundedQa);
+    }
+    return renderAssistantTurn(turn);
+  }
+
+  function renderAssistantTurn(turn) {
+    var normalized = normalizeAssistantMessage(turn);
+
+    if (window.ZhuxinCitations && typeof window.ZhuxinCitations.renderMessage === "function") {
+      return window.ZhuxinCitations.renderMessage(normalized);
+    }
+
+    return (
+      '<div class="assistant-msg assistant-msg--assistant" data-message-id="' + escapeHtml(normalized.id) + '">' +
+        '<div class="assistant-msg-role">assistant</div>' +
+        '<div class="assistant-msg-body">' + escapeHtml(normalized.text || normalized.content || "") + '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderMessageHtml(turn) {
+    var role = turn.role || "assistant";
+
+    if (role === "user") {
+      return renderUserTurn(turn);
+    }
+
+    if (turn.kind === "structuredDeliverable" || turn.type === "structuredDeliverable") {
+      return renderStructuredDeliverable(turn);
+    }
+
+    if (turn.type === "assistant-deep-analysis" && turn.deepAnalysisMeta) {
+      return renderDeepAnalysisTurn(turn);
+    }
+
+    if (turn.type === "grounded_qa" && turn.groundedQa) {
+      return renderGroundedTurn(turn);
+    }
+
+    return renderAssistantTurn(turn);
   }
 
   function renderMessagesFromThread() {
@@ -578,6 +616,13 @@
       typeof window.ZhuxinApp.AssistantCollaboration.onAssistantResponse === "function"
     ) {
       window.ZhuxinApp.AssistantCollaboration.onAssistantResponse(threadId);
+    }
+
+    if (
+      window.AssistantCollaboration &&
+      typeof window.AssistantCollaboration.onAssistantResponse === "function"
+    ) {
+      window.AssistantCollaboration.onAssistantResponse(threadId);
     }
   }
 
@@ -737,6 +782,103 @@
       setStatus("Failed.");
     }
   }
+
+  function getDefaultLanguageState() {
+    var defaults = window.ZHUXIN_APP &&
+      window.ZHUXIN_APP.defaults &&
+      window.ZHUXIN_APP.defaults.languageUnderstanding;
+
+    return {
+      responseMode: defaults ? defaults.responseMode : "match-input",
+      customLanguage: defaults ? defaults.customLanguage : "",
+      preserveTerms: defaults ? defaults.preserveTerms : true,
+      clarifyDenseText: defaults ? defaults.clarifyDenseText : false,
+      detectedInputLanguage: "unknown",
+      detectedMixedLanguage: false
+    };
+  }
+
+  function getCurrentThreadLanguageState() {
+    if (window.ZhuxinAssistantThreads && window.ZhuxinAssistantThreads.getActiveThread) {
+      var thread = window.ZhuxinAssistantThreads.getActiveThread();
+      if (thread) {
+        if (!thread.languageUnderstanding) {
+          thread.languageUnderstanding = getDefaultLanguageState();
+        }
+        return thread.languageUnderstanding;
+      }
+    }
+
+    if (!window.currentAssistantThread) window.currentAssistantThread = {};
+    if (!window.currentAssistantThread.languageUnderstanding) {
+      window.currentAssistantThread.languageUnderstanding = getDefaultLanguageState();
+    }
+    return window.currentAssistantThread.languageUnderstanding;
+  }
+
+  window.initAssistantLanguageUnderstanding = function initAssistantLanguageUnderstanding() {
+    var promptInput = byId("assistant-prompt-input");
+    var responseMode = byId("assistantResponseLanguageMode");
+    var customLanguage = byId("assistantCustomLanguage");
+    var customLanguageWrap = byId("assistantCustomLanguageWrap");
+    var preserveTerms = byId("assistantPreserveTerms");
+    var clarifyDenseText = byId("assistantClarifyDenseText");
+    var detectedBadge = byId("assistantDetectedLanguageBadge");
+    var detailBadge = byId("assistantLanguageDetailBadge");
+
+    if (!promptInput || !responseMode || !customLanguage || !preserveTerms || !clarifyDenseText || !detectedBadge || !detailBadge) {
+      return;
+    }
+
+    function toggleCustomLanguageField() {
+      customLanguageWrap.classList.toggle("assistant-hidden", responseMode.value !== "selected");
+    }
+
+    function refreshAssistantLanguageProfile() {
+      if (!window.ZhuxinLanguageUnderstanding) return;
+
+      var text = promptInput.value || "";
+      var state = getCurrentThreadLanguageState();
+      var profile = window.ZhuxinLanguageUnderstanding.detectLanguageProfile(text);
+
+      state.detectedInputLanguage = profile.primaryLanguage;
+      state.detectedMixedLanguage = profile.mixedLanguage;
+      state.responseMode = responseMode.value;
+      state.customLanguage = customLanguage.value.trim();
+      state.preserveTerms = !!preserveTerms.checked;
+      state.clarifyDenseText = !!clarifyDenseText.checked;
+
+      var inputLabel = window.ZhuxinLanguageUnderstanding.humanLabel(profile.primaryLanguage);
+      detectedBadge.textContent = "Input: " + inputLabel + (profile.mixedLanguage ? " + mixed" : "");
+
+      var responseLabel = window.ZhuxinLanguageUnderstanding.resolveResponseLanguage(profile, {
+        responseMode: responseMode.value,
+        customLanguage: customLanguage.value.trim(),
+        preserveTerms: preserveTerms.checked,
+        clarifyDenseText: clarifyDenseText.checked
+      });
+
+      detailBadge.textContent = "Reply: " + responseLabel + (profile.isDense ? " · dense text" : "");
+    }
+
+    var state = getCurrentThreadLanguageState();
+    responseMode.value = state.responseMode || "match-input";
+    customLanguage.value = state.customLanguage || "";
+    preserveTerms.checked = state.preserveTerms !== false;
+    clarifyDenseText.checked = !!state.clarifyDenseText;
+
+    toggleCustomLanguageField();
+    refreshAssistantLanguageProfile();
+
+    promptInput.addEventListener("input", refreshAssistantLanguageProfile);
+    responseMode.addEventListener("change", function () {
+      toggleCustomLanguageField();
+      refreshAssistantLanguageProfile();
+    });
+    customLanguage.addEventListener("input", refreshAssistantLanguageProfile);
+    preserveTerms.addEventListener("change", refreshAssistantLanguageProfile);
+    clarifyDenseText.addEventListener("change", refreshAssistantLanguageProfile);
+  };
 
   window.sendAssistantPrompt = sendAssistantPrompt;
   window.renderMessagesFromThread = renderMessagesFromThread;
